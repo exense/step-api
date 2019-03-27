@@ -35,14 +35,11 @@ import step.functions.io.OutputBuilder;
 public class KeywordExecutor {
 	
 	public static final String KEYWORD_CLASSES = "$keywordClasses";
+	public static final String KEYWORD_CLASSES_DELIMITER = ";";
 	
 	private static final Logger logger = LoggerFactory.getLogger(KeywordExecutor.class);
 	
 	private boolean throwExceptionOnError = false;
-
-	public KeywordExecutor() {
-		super();
-	}
 
 	public KeywordExecutor(boolean throwExceptionOnError) {
 		super();
@@ -62,7 +59,7 @@ public class KeywordExecutor {
 		
 		String kwClassnames = input.getProperties().get(KEYWORD_CLASSES);
 		if(kwClassnames != null && kwClassnames.trim().length()>0) {
-			for(String kwClassname:kwClassnames.split(";")) {
+			for(String kwClassname:kwClassnames.split(KEYWORD_CLASSES_DELIMITER)) {
 				Class<?> kwClass = cl.loadClass(kwClassname);
 				
 				for (Method m : kwClass.getDeclaredMethods()) {
@@ -124,7 +121,7 @@ public class KeywordExecutor {
 				// TODO error handling
 			}
 		} else {
-			outputBuilder.add("Info:", "The class '" + clazz.getName() + "' doesn't extend '" + AbstractKeyword.class.getName()
+			outputBuilder.add("Info", "The class '" + clazz.getName() + "' doesn't extend '" + AbstractKeyword.class.getName()
 					+ "'. Extend this class to get input parameters from STEP and return output.");
 		}
 		

@@ -10,6 +10,11 @@ public class MyKeywordLibrary extends AbstractKeyword {
 		output.add("test", "test");
 	}
 	
+	@Keyword(name="My Keyword")
+	public void MyKeywordWithCustomName() {
+		output.add("test", "test");
+	}
+	
 	@Keyword
 	public void MyErrorKeyword() throws Exception {
 		output.setError("My error");

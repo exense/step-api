@@ -90,7 +90,7 @@ public class KeywordRunner {
 			input.setFunction(function);
 			input.setPayload(argument);			
 			StringBuilder classes = new StringBuilder();
-			functionClasses.forEach(cl->{classes.append(cl.getName()+";");});
+			functionClasses.forEach(cl->{classes.append(cl.getName()+KeywordExecutor.KEYWORD_CLASSES_DELIMITER);});
 			properties.put(KeywordExecutor.KEYWORD_CLASSES, classes.toString());
 			input.setProperties(properties);
 			

@@ -21,6 +21,13 @@ public class KeywordRunnerTest {
 	}
 	
 	@Test
+	public void testCustomKeywordName() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("My Keyword");
+		Assert.assertEquals("test",output.getPayload().getString("test"));
+	}
+	
+	@Test
 	public void testProperties() throws Exception {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("prop1", "My Property");
@@ -149,5 +156,12 @@ public class KeywordRunnerTest {
 			exception = e;
 		}
 		Assert.assertEquals("Unable to find method annoted by 'step.handlers.javahandler.Keyword' with name=='MyKeyword'",exception.getMessage());
+	}
+	
+	@Test
+	public void testKeywordLibraryThatDoesntExtendAbstractKeyword() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibraryThatDoesntExtendAbstractKeyword.class);
+		Output<JsonObject> output = runner.run("MyKeyword");
+		Assert.assertEquals("The class '"+MyKeywordLibraryThatDoesntExtendAbstractKeyword.class.getName()+"' doesn't extend '"+AbstractKeyword.class.getName()+"'. Extend this class to get input parameters from STEP and return output.", output.getPayload().getString("Info"));
 	}
 }
