@@ -28,4 +28,6 @@ import java.lang.annotation.Target;
 public @interface Keyword {
 
 	String name() default "";
+	
+	String schema();
 }
