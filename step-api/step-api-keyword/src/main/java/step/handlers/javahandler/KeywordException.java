@@ -18,7 +18,7 @@ public class KeywordException extends Exception {
 	}
 	
 	private static String getMessage(Output<?> output) {
-		return output.getError()!=null?output.getError().getMsg():"Undefined keywor error message";
+		return output.getError()!=null?output.getError().getMsg():"Undefined keyword error message";
 	}
 
 	public Output<?> getOutput() {
