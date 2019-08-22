@@ -56,7 +56,7 @@ namespace Step.Handlers.NetHandler
                       .ToList();
         }
 
-        private string GetFunctionName(MethodInfo m)
+        public string GetFunctionName(MethodInfo m)
         {
             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
             string keywordName = keyword.Name;
