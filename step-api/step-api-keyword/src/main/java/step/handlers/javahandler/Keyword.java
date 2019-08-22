@@ -29,5 +29,5 @@ public @interface Keyword {
 
 	String name() default "";
 	
-	String schema();
+	String schema() default "{}";
 }
