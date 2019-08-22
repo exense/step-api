@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("StepApiKeyword")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("This is the Keywords library for the .Net Agent for Step (http://step.exense.ch/)")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("StepApiKeyword")]
+[assembly: AssemblyCompany("Exense GmbH")]
+[assembly: AssemblyProduct("Step .Net Agent")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
