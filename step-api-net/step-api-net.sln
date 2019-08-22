@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeyword", "StepApiKe
 		{A23F2713-B67E-470E-9EE6-63DA332DF147} = {A23F2713-B67E-470E-9EE6-63DA332DF147}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeywordTests", "StepApiKeywordTests\StepApiKeywordTests.csproj", "{5EA31ABD-7413-4AD6-AB87-9D355F368803}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{2D632B20-4B2B-47EF-A134-E5AC9DA5B810}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D632B20-4B2B-47EF-A134-E5AC9DA5B810}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D632B20-4B2B-47EF-A134-E5AC9DA5B810}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EA31ABD-7413-4AD6-AB87-9D355F368803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EA31ABD-7413-4AD6-AB87-9D355F368803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EA31ABD-7413-4AD6-AB87-9D355F368803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EA31ABD-7413-4AD6-AB87-9D355F368803}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
