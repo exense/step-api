@@ -29,15 +29,4 @@ namespace Step.Handlers.NetHandler
             return true;
         }
     }
-
-    /*
-    public class Function
-    {
-        public string Type = "step.plugins.dotnet.DotNetFunction";
-
-        public Dictionary<string, string> Attributes { get; set; }
-
-        public JObject Schema { get; set; }
-    }
-    */
 }

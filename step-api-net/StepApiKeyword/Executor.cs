@@ -48,7 +48,7 @@ namespace Step.Handlers.NetHandler
         public KeywordExecutor()
         { }
 
-        private List<MethodInfo> GetFunctionMethods(Assembly assembly)
+        public List<MethodInfo> GetFunctionMethods(Assembly assembly)
         {
             return assembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
@@ -251,59 +251,7 @@ namespace Step.Handlers.NetHandler
 
             return outputMessage;
         }
-        /*
-        public static List<Function> GetFunctions(string dll)
-        {
-            AppDomain tmpDomain = AppDomain.CreateDomain("tmp", null);
-            KeywordExecutor invoker = (KeywordExecutor)
-                tmpDomain.CreateInstanceAndUnwrap(typeof(KeywordExecutor).Assembly.FullName, typeof(KeywordExecutor).FullName);
-
-            List<Function> functions = invoker.GetFunctionsInternal(dll);
-            AppDomain.Unload(tmpDomain);
-
-            return functions;
-        }
-
-        private List<Function> GetFunctionsInternal(string dll)
-        {
-            List<Function> functions = new List<Function>();
-
-            Assembly assembly = AppDomain.CurrentDomain.Load(dll);
-
-            GetFunctionMethods(assembly)
-                .ForEach(m =>
-                {
-                    Function f = new Function
-                    {
-                        Attributes = new Dictionary<string, string>
-                        {
-                            { "name", GetFunctionName(m) }
-                        }
-                    };
-
-                    Keyword annotation = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-                    if (annotation.Schema != null)
-                    {
-                        try
-                        {
-                            JObject schema = JObject.Parse(annotation.Schema);
-                            f.Schema = schema;
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception("Error while parsing schema from function " + GetFunctionName(m), e);
-                        }
-                    }
-                    else
-                    {
-                        f.Schema = new JObject();
-                    }
-                    functions.Add(f);
-                });
-
-            return functions;
-        }
-        */
+        
         public void LoadAssembly(Assembly assembly)
         {
             this.KeywordAssembly = assembly;
