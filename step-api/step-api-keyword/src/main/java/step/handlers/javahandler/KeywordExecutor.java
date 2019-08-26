@@ -20,6 +20,9 @@ package step.handlers.javahandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.json.JsonObject;
@@ -34,6 +37,7 @@ import step.functions.io.OutputBuilder;
 
 public class KeywordExecutor {
 	
+	public static final String VALIDATE_PROPERTIES = "$validateProperties";
 	public static final String KEYWORD_CLASSES = "$keywordClasses";
 	public static final String KEYWORD_CLASSES_DELIMITER = ";";
 	
@@ -69,10 +73,34 @@ public class KeywordExecutor {
 						if (((annotatedFunctionName == null || annotatedFunctionName.length() == 0)
 								&& m.getName().equals(input.getFunction()))
 								|| annotatedFunctionName.equals(input.getFunction())) {
-							return invokeMethod(m, input, tokenSession, tokenReservationSession, properties);
-						}		
+							
+							Map<String, String> keywordProperties;
+							if(properties.containsKey(VALIDATE_PROPERTIES)) {
+								String[] requiredPropertyKeys = annotation.properties();
+								List<String> missingProperties = new ArrayList<>();
+								Map<String, String> requiredProperties = new HashMap<>();
+								for (String string : requiredPropertyKeys) {
+									if(!properties.containsKey(string)) {
+										missingProperties.add(string);
+									} else {
+										requiredProperties.put(string, properties.get(string));
+									}
+								}
+								if(missingProperties.size()>0) {
+									OutputBuilder outputBuilder = new OutputBuilder();
+									outputBuilder.setBusinessError("The Keyword is missing the following properties "+missingProperties.toString());
+									return outputBuilder.build();
+								} else {
+									keywordProperties = requiredProperties;
+								}
+							} else {
+								keywordProperties = properties;
+							}
+							
+							return invokeMethod(m, input, tokenSession, tokenReservationSession, keywordProperties);
+						}
 					}
-				}			
+				}
 			}
 		}
 

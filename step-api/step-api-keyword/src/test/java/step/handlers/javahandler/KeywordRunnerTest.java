@@ -37,6 +37,27 @@ public class KeywordRunnerTest {
 	}
 	
 	@Test
+	public void testPropertyValidation() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		properties.put("prop1", "My Property");
+		properties.put("prop2", "My Property 2");
+		properties.put(KeywordExecutor.VALIDATE_PROPERTIES, "My Property 2");
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("MyKeywordWithPropertyAnnotation");
+		Assert.assertEquals("My Property",output.getPayload().getString("prop"));
+	}
+	
+	@Test
+	public void testPropertyValidationPropertyMissing() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		properties.put("prop2", "My Property 2");
+		properties.put(KeywordExecutor.VALIDATE_PROPERTIES, "My Property 2");
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("MyKeywordWithPropertyAnnotation");
+		Assert.assertEquals("The Keyword is missing the following properties [prop1]",output.getError().getMsg());
+	}
+	
+	@Test
 	public void testSession() throws Exception {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeywordUsingSession1");

@@ -27,5 +27,21 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Keyword {
 
+	/**
+	 * @return the name of this keyword. If not specified the method name is 
+	 * used as keyword name
+	 */
 	String name() default "";
+	
+	/**
+	 * @return the list of properties required by this keyword
+	 */
+	String[] properties() default {};
+	
+	/**
+	 * @return the JSON schema of the input object. 
+	 * @see <a href="https://json-schema.org/"> json-schema.org </a>
+	 */
+	String schema() default "";
+	
 }

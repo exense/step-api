@@ -35,6 +35,14 @@ public class MyKeywordLibrary extends AbstractKeyword {
 		output.add("prop", properties.get("prop1"));
 	}
 	
+	@Keyword(properties = {"prop1"})
+	public void MyKeywordWithPropertyAnnotation() {
+		output.add("prop", properties.get("prop1"));
+		if(properties.size()!=1) {
+			output.setError("The property map contains more than one property. Required was only one property.");
+		}
+	}
+	
 	@Keyword
 	public void MyKeywordUsingSession1() {
 		session.put("object1","Test String");
