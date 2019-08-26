@@ -8,8 +8,9 @@ namespace Step.Handlers.NetHandler
     [AttributeUsage(AttributeTargets.Method)]
     public class Keyword : Attribute
     {
-        public string Name { get; set; }
-        public string Schema { get; set; }
+        public string Name;
+        public string Schema;
+        public string[] Properties;
     }
 
     public class AbstractKeyword

@@ -20,7 +20,6 @@ namespace Step.Handlers.NetHandler
             this.Type = Type;
             this.Assembly = Type.Assembly;
             this.ContextProperties = ContextProperties;
-
         }
 
         public Output Run(string function)

@@ -150,6 +150,33 @@ namespace Step.Handlers.NetHandler
 
             var c = Activator.CreateInstance(type);
 
+            Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
+
+            List<string> missingProperties = new List<string>();
+            if (keyword.Properties != null)
+            {
+                foreach (string val in keyword.Properties)
+                {
+                    if (!properties.ContainsKey(val))
+                    {
+                        missingProperties.Add(val);
+                    }
+                }
+            }
+            if (missingProperties.Count>0)
+            {
+                outputBuilder.SetBusinessError("The Keyword is missing the following properties '"+string.Join(", ",missingProperties)+"'");
+                SerializableOutput outputMsg = new SerializableOutput
+                {
+                    Output = JsonConvert.SerializeObject(outputBuilder.Output),
+                    Error = outputBuilder.Error,
+                    Attachments = outputBuilder.Attachments,
+                    Measures = outputBuilder.MeasureHelper.GetMeasures()
+                };
+
+                return outputMsg;
+            }
+
             if (type.IsSubclassOf(typeof(AbstractKeyword)))
             {
                 AbstractKeyword script = (AbstractKeyword)c;

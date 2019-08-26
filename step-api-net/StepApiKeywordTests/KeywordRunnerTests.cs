@@ -37,6 +37,11 @@ namespace Step.Handlers.NetHandler.Tests
                 throw new Exception("Test");
             }
 
+            [Keyword(Name = "My Prop Keyword", Properties = new string[]{"prop1", "prop2"})]
+            public void MyKeywordWithProperties()
+            {
+                Output.Add("executed", "My Prop Keyword");
+            }
         }
         [TestMethod]
         public void TestScriptRunnerOnError()
@@ -45,6 +50,21 @@ namespace Step.Handlers.NetHandler.Tests
             var output = runner.Run("My Error Keyword", @"{}");
 
             Assert.AreEqual("true", output.Payload["onError"]);
+        }
+
+        [TestMethod]
+        public void TestScriptRunnerProperties()
+        {
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+            var output = runner.Run("My Prop Keyword", @"{}");
+            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.Error.Msg);
+
+            output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
+            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.Error.Msg);
+
+            output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" },
+                { "prop2", "val2" } });
+            Assert.IsNull(output.Error);
         }
 
         [TestMethod]
