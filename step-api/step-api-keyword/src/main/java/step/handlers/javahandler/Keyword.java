@@ -43,5 +43,5 @@ public @interface Keyword {
 	 * @see <a href="https://json-schema.org/"> json-schema.org </a>
 	 */
 	String schema() default "";
-	
+
 }
