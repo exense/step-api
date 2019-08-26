@@ -1,10 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
 namespace Step.Handlers.NetHandler.Tests
 {
-    [TestClass]
     public class ScriptRunnerTest
     {
         private class TestKeywords : AbstractKeyword
@@ -43,16 +42,17 @@ namespace Step.Handlers.NetHandler.Tests
                 Output.Add("executed", "My Prop Keyword");
             }
         }
-        [TestMethod]
+
+        [TestCase]
         public void TestScriptRunnerOnError()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Error Keyword", @"{}");
 
-            Assert.AreEqual("true", output.Payload["onError"]);
+            Assert.AreEqual("true", output.Payload["onError"].ToString());
         }
 
-        [TestMethod]
+        [TestCase]
         public void TestScriptRunnerProperties()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
@@ -67,17 +67,17 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.IsNull(output.Error);
         }
 
-        [TestMethod]
+        [TestCase]
         public void TestScriptRunnerRun()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Keyword", @"{}");
 
             Assert.AreEqual(null, output.Error);
-            Assert.AreEqual("value", output.Payload["key"]);
+            Assert.AreEqual("value", output.Payload["key"].ToString());
         }
 
-        [TestMethod]
+        [TestCase]
         public void TestScriptRunnerWithInputsAndPropertiesRun()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -89,9 +89,9 @@ namespace Step.Handlers.NetHandler.Tests
             var output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
 
             Assert.AreEqual(null, output.Error);
-            Assert.AreEqual("value", output.Payload["key"]);
-            Assert.AreEqual("myValue1", output.Payload["myProp1"]);
-            Assert.AreEqual("myInputValue1", output.Payload["myInput1"]);
+            Assert.AreEqual("value", output.Payload["key"].ToString());
+            Assert.AreEqual("myValue1", output.Payload["myProp1"].ToString());
+            Assert.AreEqual("myInputValue1", output.Payload["myInput1"].ToString());
         }
     }
 }
