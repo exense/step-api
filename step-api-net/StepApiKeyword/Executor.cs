@@ -48,9 +48,12 @@ namespace Step.Handlers.NetHandler
         public KeywordExecutor()
         { }
 
-        public List<MethodInfo> GetFunctionMethods(Assembly assembly)
+        public List<MethodInfo> GetFunctionMethods()
         {
-            return assembly.GetTypes()
+            if (KeywordAssembly == null)
+                throw new Exception("A DLL should be loaded with a call to 'Loadkeyword'");
+
+            return KeywordAssembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
                       .ToList();
@@ -63,9 +66,9 @@ namespace Step.Handlers.NetHandler
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
 
-        public MethodInfo GetFunctionMethodByName(Assembly assembly, string name)
+        public MethodInfo GetFunctionMethodByName(string name)
         {
-            return GetFunctionMethods(assembly)
+            return GetFunctionMethods()
                       .First(m =>
                       {
                           Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
@@ -144,7 +147,7 @@ namespace Step.Handlers.NetHandler
             OutputBuilder outputBuilder = new OutputBuilder();
             InputObject inputObject = JsonConvert.DeserializeObject<InputObject>(keywordInput);
 
-            MethodInfo method = GetFunctionMethodByName(KeywordAssembly, methodName);
+            MethodInfo method = GetFunctionMethodByName(methodName);
 
             Type type = method.DeclaringType;
 
