@@ -43,10 +43,10 @@ namespace Step.Handlers.NetHandler
 
             return new Output
             {
-                Payload = (JObject)JsonConvert.DeserializeObject(serializedOutput.Output),
-                Attachments = serializedOutput.Attachments,
-                Measures = serializedOutput.Measures,
-                Error = serializedOutput.Error
+                payload = (JObject)JsonConvert.DeserializeObject(serializedOutput.Output),
+                attachments = serializedOutput.Attachments,
+                measures = serializedOutput.Measures,
+                error = serializedOutput.Error
             };
         }
 

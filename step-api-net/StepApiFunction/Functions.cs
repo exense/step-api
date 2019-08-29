@@ -22,13 +22,13 @@ namespace Step.Functions.IO
 
     public class Output
     {
-        public JObject Payload;
+        public JObject payload;
 
-        public Error Error;
+        public Error error;
 
-        public List<Attachment> Attachments;
+        public List<Attachment> attachments;
 
-        public List<Measure> Measures;
+        public List<Measure> measures;
     }
 
     public class OutputBuilder
@@ -115,10 +115,10 @@ namespace Step.Functions.IO
         {
             Output output = new Output
             {
-                Payload = this.Output,
-                Error = this.Error,
-                Measures = this.MeasureHelper.GetMeasures(),
-                Attachments = this.Attachments
+                payload = this.Output,
+                error = this.Error,
+                measures = this.MeasureHelper.GetMeasures(),
+                attachments = this.Attachments
             };
             return output;
         }

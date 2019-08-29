@@ -49,7 +49,7 @@ namespace Step.Handlers.NetHandler.Tests
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Error Keyword", @"{}");
 
-            Assert.AreEqual("true", output.Payload["onError"].ToString());
+            Assert.AreEqual("true", output.payload["onError"].ToString());
         }
 
         [TestCase]
@@ -57,14 +57,14 @@ namespace Step.Handlers.NetHandler.Tests
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Prop Keyword", @"{}");
-            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.Error.Msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.Msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
-            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.Error.Msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.error.Msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" },
                 { "prop2", "val2" } });
-            Assert.IsNull(output.Error);
+            Assert.IsNull(output.error);
         }
 
         [TestCase]
@@ -73,8 +73,8 @@ namespace Step.Handlers.NetHandler.Tests
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Keyword", @"{}");
 
-            Assert.AreEqual(null, output.Error);
-            Assert.AreEqual("value", output.Payload["key"].ToString());
+            Assert.AreEqual(null, output.error);
+            Assert.AreEqual("value", output.payload["key"].ToString());
         }
 
         [TestCase]
@@ -88,10 +88,10 @@ namespace Step.Handlers.NetHandler.Tests
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
 
-            Assert.AreEqual(null, output.Error);
-            Assert.AreEqual("value", output.Payload["key"].ToString());
-            Assert.AreEqual("myValue1", output.Payload["myProp1"].ToString());
-            Assert.AreEqual("myInputValue1", output.Payload["myInput1"].ToString());
+            Assert.AreEqual(null, output.error);
+            Assert.AreEqual("value", output.payload["key"].ToString());
+            Assert.AreEqual("myValue1", output.payload["myProp1"].ToString());
+            Assert.AreEqual("myInputValue1", output.payload["myInput1"].ToString());
         }
     }
 }

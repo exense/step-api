@@ -17,6 +17,8 @@ namespace Step.Handlers.NetHandler
 {   
     public class KeywordExecutor : MarshalByRefObject
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(KeywordExecutor));
+        
         [Serializable]
         public class SerializableOutput
         {
@@ -36,8 +38,6 @@ namespace Step.Handlers.NetHandler
             public Dictionary<string, string> Properties = new Dictionary<string, string>();
             public int CallTimeout { get; set; }
         }
-
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
         Assembly KeywordAssembly;
         public string DllPath;
