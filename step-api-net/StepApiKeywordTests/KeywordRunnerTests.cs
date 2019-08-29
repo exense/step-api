@@ -57,10 +57,10 @@ namespace Step.Handlers.NetHandler.Tests
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             var output = runner.Run("My Prop Keyword", @"{}");
-            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.Msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
-            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.error.Msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.error.msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" },
                 { "prop2", "val2" } });

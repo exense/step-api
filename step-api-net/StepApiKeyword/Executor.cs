@@ -183,7 +183,7 @@ namespace Step.Handlers.NetHandler
             if (type.IsSubclassOf(typeof(AbstractKeyword)))
             {
                 AbstractKeyword script = (AbstractKeyword)c;
-                script.Input = inputObject.Payload.Payload;
+                script.Input = inputObject.Payload.payload;
                 script.Session = tokenReservationSession;
                 script.TokenSession = tokenSession;
                 script.Output = outputBuilder;

@@ -14,15 +14,15 @@ namespace Step.Core.Reports
     [Serializable]
     public class Error
     {
-        public ErrorType Type = ErrorType.TECHNICAL;
+        public ErrorType type = ErrorType.TECHNICAL;
 
-        public string Layer;
+        public string layer;
 
-        public string Msg;
+        public string msg;
 
-        public int Code;
+        public int code;
 
-        public bool Root;
+        public bool root;
 
         public Error(ErrorType type, string message) : this(type, null, message, 0, true)
         { }
@@ -31,31 +31,31 @@ namespace Step.Core.Reports
 
         public Error(ErrorType Type, string Layer, string Msg, int Code, bool Root)
         {
-            this.Type = Type;
-            this.Layer = Layer;
-            this.Msg = Msg;
-            this.Code = Code;
-            this.Root = Root;
+            this.type = Type;
+            this.layer = Layer;
+            this.msg = Msg;
+            this.code = Code;
+            this.root = Root;
         }
     }
 
     [Serializable]
     public class Measure
     {
-        public string Name;
+        public string name;
 
-        public long Duration;
+        public long duration;
 
-        public long Begin;
+        public long begin;
 
-        public Dictionary<string, Object> Data;
+        public Dictionary<string, Object> data;
 
         public Measure(string Name, long Duration, long Begin, Dictionary<string, Object> Data)
         {
-            this.Name = Name;
-            this.Duration = Duration;
-            this.Begin = Begin;
-            this.Data = Data;
+            this.name = Name;
+            this.duration = Duration;
+            this.begin = Begin;
+            this.data = Data;
         }
     }
 
@@ -101,8 +101,8 @@ namespace Step.Core.Reports
 
             if (tr != null)
             {
-                tr.Duration = (end - tr.Begin);
-                tr.Data = data;
+                tr.duration = (end - tr.begin);
+                tr.data = data;
                 lock (ClosedMeasures)
                 {
                     ClosedMeasures.Add(tr);

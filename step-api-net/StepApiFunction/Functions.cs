@@ -9,15 +9,15 @@ namespace Step.Functions.IO
 {
     public class Input
     {
-        public string Function;
+        public string function;
 
-        public long FunctionCallTimeout;
+        public long functionCallTimeout;
 
-        public JObject Payload;
+        public JObject payload;
 
-        public Dictionary<string, string> Properties;
+        public Dictionary<string, string> properties;
 
-        public List<Attachment> Attachments;
+        public List<Attachment> attachments;
     }
 
     public class Output
