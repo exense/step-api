@@ -5,13 +5,13 @@ namespace Step.Grid.IO
     [Serializable]
     public class Attachment
     {
-        public string Name;
+        public string name;
 
-        public string Description;
+        public string description;
 
-        public string HexContent;
+        public string hexContent;
 
-        public Boolean IsDirectory;
+        public Boolean isDirectory;
     }
 
     public class AttachmentHelper
@@ -35,8 +35,8 @@ namespace Step.Grid.IO
         {
             Attachment attachment = new Attachment
             {
-                Name = attachmentName,
-                HexContent = Base64Encode(bytes)
+                name = attachmentName,
+                hexContent = Base64Encode(bytes)
             };
             return attachment;
         }
