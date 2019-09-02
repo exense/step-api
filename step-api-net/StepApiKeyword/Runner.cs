@@ -10,16 +10,16 @@ namespace Step.Handlers.NetHandler
 {
     public class ExecutionContext
     {
-        private TokenSession Session = new TokenSession();
-        private readonly Dictionary<string, string> ContextProperties = new Dictionary<string, string>();
-        private readonly Assembly Assembly;
-        private readonly Type Type;
+        private TokenSession session = new TokenSession();
+        private readonly Dictionary<string, string> contextProperties = new Dictionary<string, string>();
+        private readonly Assembly assembly;
+        private readonly Type type;
 
-        public ExecutionContext(Type Type, Dictionary<string, string> ContextProperties, bool ThrowExceptionOnError)
+        public ExecutionContext(Type type, Dictionary<string, string> contextProperties, bool throwExceptionOnError)
         {
-            this.Type = Type;
-            this.Assembly = Type.Assembly;
-            this.ContextProperties = ContextProperties;
+            this.type = type;
+            this.assembly = type.Assembly;
+            this.contextProperties = contextProperties;
         }
 
         public Output Run(string function)
@@ -34,25 +34,26 @@ namespace Step.Handlers.NetHandler
 
         public Output Run(string function, string inputJson, Dictionary<string, string> properties)
         {
-            properties.ToList().ForEach(x => ContextProperties[x.Key] = x.Value);
+            properties.ToList().ForEach(x => contextProperties[x.Key] = x.Value);
 
             KeywordExecutor invoker = new KeywordExecutor();
-            invoker.LoadAssembly(this.Assembly);
-            KeywordExecutor.SerializableOutput serializedOutput = invoker.Handle(function, "{Payload: {Payload:" + inputJson + "}, CallTimeout:60000}", 
-                properties, Session, Session, false);
+            invoker.LoadAssembly(this.assembly);
+            KeywordExecutor.SerializableOutput serializedOutput = 
+                invoker.Handle(function, "{Payload: {Payload:" + inputJson + "}, CallTimeout:60000}", 
+                    properties, session, session, false);
 
             return new Output
             {
-                payload = (JObject)JsonConvert.DeserializeObject(serializedOutput.Output),
-                attachments = serializedOutput.Attachments,
-                measures = serializedOutput.Measures,
-                error = serializedOutput.Error
+                payload = (JObject)JsonConvert.DeserializeObject(serializedOutput.output),
+                attachments = serializedOutput.attachments,
+                measures = serializedOutput.measures,
+                error = serializedOutput.error
             };
         }
 
         public void Close()
         {
-            Session.Close();
+            session.Close();
         }
     }
 

@@ -22,38 +22,38 @@ namespace Step.Handlers.NetHandler
         [Serializable]
         public class SerializableOutput
         {
-            public string Output = "{}";
+            public string output = "{}";
 
-            public List<Measure> Measures = new List<Measure>();
+            public List<Measure> measures = new List<Measure>();
 
-            public List<Attachment> Attachments = new List<Attachment>();
+            public List<Attachment> attachments = new List<Attachment>();
 
-            public Error Error;
+            public Error error;
         }
 
         public class InputObject
         {
-            public string Handler = "";
-            public Input Payload = new Input();
-            public Dictionary<string, string> Properties = new Dictionary<string, string>();
-            public int CallTimeout { get; set; }
+            public string handler = "";
+            public Input payload = new Input();
+            public Dictionary<string, string> properties = new Dictionary<string, string>();
+            public int callTimeout;
         }
 
-        Assembly KeywordAssembly;
-        public string DllPath;
+        Assembly keywordAssembly;
+        public string dllPath;
 
-        private Dictionary<string, Assembly> KeywordsDLLs = new Dictionary<string, Assembly>();
-        private Dictionary<string, bool> DependenciesDLLs = new Dictionary<string, bool>();
+        private Dictionary<string, Assembly> keywordsDLLs = new Dictionary<string, Assembly>();
+        private Dictionary<string, bool> dependenciesDLLs = new Dictionary<string, bool>();
 
         public KeywordExecutor()
         { }
 
         public List<MethodInfo> GetFunctionMethods()
         {
-            if (KeywordAssembly == null)
+            if (keywordAssembly == null)
                 throw new Exception("A DLL should be loaded with a call to 'Loadkeyword'");
 
-            return KeywordAssembly.GetTypes()
+            return keywordAssembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
                       .ToList();
@@ -62,7 +62,7 @@ namespace Step.Handlers.NetHandler
         public string GetFunctionName(MethodInfo m)
         {
             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-            string keywordName = keyword.Name;
+            string keywordName = keyword.name;
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
 
@@ -78,55 +78,55 @@ namespace Step.Handlers.NetHandler
 
         public void Loadkeyword(string path)
         {
-            if (!KeywordsDLLs.ContainsKey(path))
+            if (!keywordsDLLs.ContainsKey(path))
             {
                 Logger.Debug("Loading new keyword assembly " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
 
-                string pdbName = DllPath + "\\" + Path.GetFileNameWithoutExtension(path) + ".pdb";
+                string pdbName = dllPath + "\\" + Path.GetFileNameWithoutExtension(path) + ".pdb";
 
                 if (File.Exists(pdbName))
                 {
-                    KeywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path), File.ReadAllBytes(pdbName));
+                    keywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path), File.ReadAllBytes(pdbName));
                 }
                 else
                 {
-                    KeywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path));
+                    keywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path));
                 }
             }
-            KeywordAssembly = KeywordsDLLs[path];
+            keywordAssembly = keywordsDLLs[path];
         }
 
         public void LoadDependencies(string path)
         {
-            if (!DependenciesDLLs.ContainsKey(path))
+            if (!dependenciesDLLs.ContainsKey(path))
             {
                 Logger.Debug("Loading new dependencies " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
 
                 ZipArchive z = ZipFile.OpenRead(path);
                 foreach (ZipArchiveEntry file in z.Entries)
                 {
-                    string newFile = DllPath + "\\" + Path.GetFileName(file.FullName);
+                    string newFile = dllPath + "\\" + Path.GetFileName(file.FullName);
                     if (file.Name == "") continue;
                     if (!File.Exists(newFile))
                     {
                         file.ExtractToFile(newFile);
                     }
                 }
-                DependenciesDLLs[path] = true;
+                dependenciesDLLs[path] = true;
             }
         }
 
         public void LoadDependency(string path)
         {
-            if (!DependenciesDLLs.ContainsKey(path))
+            if (!dependenciesDLLs.ContainsKey(path))
             {
                 Logger.Debug("Loading new dependency " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
 
-                if (!File.Exists(DllPath + "\\" + Path.GetFileName(path)))
+                if (!File.Exists(dllPath + "\\" + Path.GetFileName(path)))
                 {
-                    File.Copy(path, DllPath + "\\" + Path.GetFileName(path), true);
+                    File.Copy(path, dllPath + "\\" + Path.GetFileName(path), true);
                 }
-                DependenciesDLLs[path] = true;
+                dependenciesDLLs[path] = true;
             }
         }
 
@@ -142,7 +142,8 @@ namespace Step.Handlers.NetHandler
                 "stacktrace_before_interruption.log");
         }
 
-        public SerializableOutput Handle(string methodName, string keywordInput, Dictionary<string, string> properties, TokenSession tokenReservationSession, TokenSession tokenSession, bool alwaysThrowException = false)
+        public SerializableOutput Handle(string methodName, string keywordInput, Dictionary<string, string> properties, 
+            TokenSession tokenReservationSession, TokenSession tokenSession, bool alwaysThrowException = false)
         {
             OutputBuilder outputBuilder = new OutputBuilder();
             InputObject inputObject = JsonConvert.DeserializeObject<InputObject>(keywordInput);
@@ -156,9 +157,9 @@ namespace Step.Handlers.NetHandler
             Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
 
             List<string> missingProperties = new List<string>();
-            if (keyword.Properties != null)
+            if (keyword.properties != null)
             {
-                foreach (string val in keyword.Properties)
+                foreach (string val in keyword.properties)
                 {
                     if (!properties.ContainsKey(val))
                     {
@@ -168,13 +169,14 @@ namespace Step.Handlers.NetHandler
             }
             if (missingProperties.Count>0)
             {
-                outputBuilder.SetBusinessError("The Keyword is missing the following properties '"+string.Join(", ",missingProperties)+"'");
+                outputBuilder.SetBusinessError("The Keyword is missing the following properties '"+
+                    string.Join(", ",missingProperties)+"'");
                 SerializableOutput outputMsg = new SerializableOutput
                 {
-                    Output = JsonConvert.SerializeObject(outputBuilder.Output),
-                    Error = outputBuilder.Error,
-                    Attachments = outputBuilder.Attachments,
-                    Measures = outputBuilder.MeasureHelper.GetMeasures()
+                    output = JsonConvert.SerializeObject(outputBuilder.Output),
+                    error = outputBuilder.Error,
+                    attachments = outputBuilder.Attachments,
+                    measures = outputBuilder.MeasureHelper.GetMeasures()
                 };
 
                 return outputMsg;
@@ -183,11 +185,11 @@ namespace Step.Handlers.NetHandler
             if (type.IsSubclassOf(typeof(AbstractKeyword)))
             {
                 AbstractKeyword script = (AbstractKeyword)c;
-                script.Input = inputObject.Payload.payload;
-                script.Session = tokenReservationSession;
-                script.TokenSession = tokenSession;
-                script.Output = outputBuilder;
-                script.Properties = properties;
+                script.input = inputObject.payload.payload;
+                script.session = tokenReservationSession;
+                script.tokenSession = tokenSession;
+                script.output = outputBuilder;
+                script.properties = properties;
             }
 
             object monitor = new object();
@@ -220,7 +222,7 @@ namespace Step.Handlers.NetHandler
             lock (monitor)
             {
                 invokerThread.Start();
-                timeouted = !Monitor.Wait(monitor, TimeSpan.FromMilliseconds(inputObject.CallTimeout));
+                timeouted = !Monitor.Wait(monitor, TimeSpan.FromMilliseconds(inputObject.callTimeout));
             }
 
             if (timeouted)
@@ -232,12 +234,12 @@ namespace Step.Handlers.NetHandler
 
                 if (aborted)
                 {
-                    outputBuilder.SetError("Timeout after " + inputObject.CallTimeout + " milliseconds. " +
+                    outputBuilder.SetError("Timeout after " + inputObject.callTimeout + " milliseconds. " +
                         "The keyword execution could be interrupted on the agent side. You can increase the call timeout in the configuraiton screen of the keyword");
                 }
                 else
                 {
-                    outputBuilder.SetError("Timeout after " + inputObject.CallTimeout + " milliseconds. " +
+                    outputBuilder.SetError("Timeout after " + inputObject.callTimeout + " milliseconds. " +
                         "WARNING: The keyword execution couldn't be interrupted on the agent side. You can increase the call timeout in the configuraiton screen of the keyword");
                 }
             }
@@ -254,8 +256,8 @@ namespace Step.Handlers.NetHandler
                         bool throwException = script.OnError(kw_exception);
                         if ((!throwException) && (!alwaysThrowException))
                         {
-                            script.Output.Attachments.Add(AttachmentHelper.GenerateAttachmentForException(kw_exception));
-                            script.Output.SetError("Error while executing " + methodName + " in .NET agent: " +
+                            script.output.Attachments.Add(AttachmentHelper.GenerateAttachmentForException(kw_exception));
+                            script.output.SetError("Error while executing " + methodName + " in .NET agent: " +
                                 (kw_exception.GetBaseException() != null ?
                                     kw_exception.GetBaseException().Message :
                                     kw_exception.Message));
@@ -273,10 +275,10 @@ namespace Step.Handlers.NetHandler
             }
             SerializableOutput outputMessage = new SerializableOutput
             {
-                Output = JsonConvert.SerializeObject(outputBuilder.Output),
-                Error = outputBuilder.Error,
-                Attachments = outputBuilder.Attachments,
-                Measures = outputBuilder.MeasureHelper.GetMeasures()
+                output = JsonConvert.SerializeObject(outputBuilder.Output),
+                error = outputBuilder.Error,
+                attachments = outputBuilder.Attachments,
+                measures = outputBuilder.MeasureHelper.GetMeasures()
             };
 
             return outputMessage;
@@ -284,7 +286,7 @@ namespace Step.Handlers.NetHandler
         
         public void LoadAssembly(Assembly assembly)
         {
-            this.KeywordAssembly = assembly;
+            this.keywordAssembly = assembly;
         }
     }
 }

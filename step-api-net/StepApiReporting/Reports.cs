@@ -29,13 +29,13 @@ namespace Step.Core.Reports
         public Error(ErrorType type, string message, int code) : this(type, null, message, code, true)
         { }
 
-        public Error(ErrorType Type, string Layer, string Msg, int Code, bool Root)
+        public Error(ErrorType type, string layer, string msg, int code, bool root)
         {
-            this.type = Type;
-            this.layer = Layer;
-            this.msg = Msg;
-            this.code = Code;
-            this.root = Root;
+            this.type = type;
+            this.layer = layer;
+            this.msg = msg;
+            this.code = code;
+            this.root = root;
         }
     }
 
@@ -50,21 +50,20 @@ namespace Step.Core.Reports
 
         public Dictionary<string, Object> data;
 
-        public Measure(string Name, long Duration, long Begin, Dictionary<string, Object> Data)
+        public Measure(string name, long duration, long begin, Dictionary<string, Object> data)
         {
-            this.name = Name;
-            this.duration = Duration;
-            this.begin = Begin;
-            this.data = Data;
+            this.name = name;
+            this.duration = duration;
+            this.begin = begin;
+            this.data = data;
         }
     }
 
     [Serializable]
     public class MeasurementsBuilder
     {
-        private Stack<Measure> Stack = new Stack<Measure>();
-
-        private List<Measure> ClosedMeasures = new List<Measure>();
+        private Stack<Measure> stack = new Stack<Measure>();
+        private List<Measure> closedMeasures = new List<Measure>();
 
         private long GetCurrentMillis()
         {
@@ -85,27 +84,27 @@ namespace Step.Core.Reports
 
         protected void PushMeasure(Measure tr)
         {
-            lock (Stack)
+            lock (stack)
             {
-                Stack.Push(tr);
+                stack.Push(tr);
             }
         }
 
         public void StopMeasure(long end, Dictionary<string, Object> data)
         {
             Measure tr;
-            lock (Stack)
+            lock (stack)
             {
-                tr = Stack.Pop();
+                tr = stack.Pop();
             }
 
             if (tr != null)
             {
                 tr.duration = (end - tr.begin);
                 tr.data = data;
-                lock (ClosedMeasures)
+                lock (closedMeasures)
                 {
-                    ClosedMeasures.Add(tr);
+                    closedMeasures.Add(tr);
                 }
             }
             else
@@ -131,33 +130,33 @@ namespace Step.Core.Reports
 
         public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
         {
-            lock (ClosedMeasures)
+            lock (closedMeasures)
             {
-                ClosedMeasures.Add(new Measure(measureName, aDurationMillis, GetCurrentMillis(), data));
+                closedMeasures.Add(new Measure(measureName, aDurationMillis, GetCurrentMillis(), data));
             }
         }
 
         public void AddMeasure(Measure measure)
         {
-            lock (ClosedMeasures)
+            lock (closedMeasures)
             {
-                ClosedMeasures.Add(measure);
+                closedMeasures.Add(measure);
             }
         }
 
         public void AddMeasure(List<Measure> measures)
         {
-            lock (ClosedMeasures)
+            lock (closedMeasures)
             {
-                ClosedMeasures.AddRange(measures);
+                closedMeasures.AddRange(measures);
             }
         }
 
         public List<Measure> GetMeasures()
         {
-            lock (ClosedMeasures)
+            lock (closedMeasures)
             {
-                return new List<Measure>(ClosedMeasures);
+                return new List<Measure>(closedMeasures);
             }
         }
     }

@@ -41,28 +41,28 @@ namespace Step.Functions.IO
 
         public Error Error { get; private set; }
 
-        public OutputBuilder Add(string Key, string Val)
+        public OutputBuilder Add(string key, string val)
         {
-            Output.Add(Key, Val);
+            Output.Add(key, val);
             return this;
         }
 
-        public OutputBuilder SetError(string TechnicalError)
+        public OutputBuilder SetError(string technicalError)
         {
-            Error = new Error(ErrorType.TECHNICAL, "keyword", TechnicalError, 0, true);
+            Error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
             return this;
         }
 
-        public OutputBuilder SetError(string TechnicalError, Exception e)
+        public OutputBuilder SetError(string technicalError, Exception e)
         {
-            SetError(TechnicalError);
+            SetError(technicalError);
             AddAttachment(AttachmentHelper.GenerateAttachmentForException(e));
             return this;
         }
 
-        public OutputBuilder SetBusinessError(string BusinessError)
+        public OutputBuilder SetBusinessError(string businessError)
         {
-            Error = new Error(ErrorType.BUSINESS, "keyword", BusinessError, 0, true);
+            Error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
             return this;
         }
 

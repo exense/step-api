@@ -10,36 +10,36 @@ namespace Step.Handlers.NetHandler.Tests
         {
             public override bool OnError(Exception e)
             {
-                Output.Add("onError", "true");
+                output.Add("onError", "true");
                 return false;
             }
 
-            [Keyword(Name = "My Keyword")]
+            [Keyword(name = "My Keyword")]
             public void MyKeyword()
             {
-                Output.Add("key", "value");
-                foreach (string key in Properties.Keys)
+                output.Add("key", "value");
+                foreach (string key in properties.Keys)
                 {
-                    Output.Add(key, Properties[key]);
+                    output.Add(key, properties[key]);
                 }
-                Output.Add("input", (Input == null).ToString());
-                var inputMap = Input.ToObject<Dictionary<string, string>>();
+                output.Add("input", (input == null).ToString());
+                var inputMap = input.ToObject<Dictionary<string, string>>();
                 foreach (string key in inputMap.Keys)
                 {
-                    Output.Add(key, inputMap[key]);
+                    output.Add(key, inputMap[key]);
                 }
             }
 
-            [Keyword(Name = "My Error Keyword")]
+            [Keyword(name = "My Error Keyword")]
             public void MyErrorKeyword()
             {
                 throw new Exception("Test");
             }
 
-            [Keyword(Name = "My Prop Keyword", Properties = new string[]{"prop1", "prop2"})]
+            [Keyword(name = "My Prop Keyword", properties = new string[]{"prop1", "prop2"})]
             public void MyKeywordWithProperties()
             {
-                Output.Add("executed", "My Prop Keyword");
+                output.Add("executed", "My Prop Keyword");
             }
         }
 

@@ -8,23 +8,23 @@ namespace Step.Handlers.NetHandler
     [AttributeUsage(AttributeTargets.Method)]
     public class Keyword : Attribute
     {
-        public string Name;
-        public string Schema;
-        public string[] Properties;
+        public string name;
+        public string schema;
+        public string[] properties;
     }
 
     public class AbstractKeyword
     {
-        public JObject Input { get; set; }
+        public JObject input;
 
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string> properties;
 
-        public OutputBuilder Output { get; set; }
+        public OutputBuilder output;
 
-        public TokenSession Session { get; set; }
+        public TokenSession session;
 
-        public TokenSession TokenSession { get; set; }
-
+        public TokenSession tokenSession;
+        
         public virtual bool OnError(Exception e)
         {
             return true;

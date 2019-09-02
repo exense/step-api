@@ -11,11 +11,11 @@ namespace Step.Functions.IO
 
     public class TokenSession : MarshalByRefObject
     {
-        private Dictionary<string, object> Attributes = new Dictionary<string, object>();
+        private Dictionary<string, object> attributes = new Dictionary<string, object>();
 
         public virtual Object Get(string arg0)
         {
-            Attributes.TryGetValue(arg0, out Object o);
+            attributes.TryGetValue(arg0, out Object o);
             return o;
         }
 
@@ -23,7 +23,7 @@ namespace Step.Functions.IO
         {
             Object previous = Get(arg0);
             CloseIfCloseable(previous);
-            return Attributes[arg0] = arg1;
+            return attributes[arg0] = arg1;
         }
 
         protected void CloseIfCloseable(Object o)
@@ -42,11 +42,11 @@ namespace Step.Functions.IO
 
         public void Close()
         {
-            Attributes.ToList().ForEach(p =>
+            attributes.ToList().ForEach(p =>
             {
                 CloseIfCloseable(p.Value);
             });
-            Attributes.Clear();
+            attributes.Clear();
         }
     }
 
