@@ -4,7 +4,6 @@ using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Step.Handlers.NetHandler
 {
@@ -12,13 +11,11 @@ namespace Step.Handlers.NetHandler
     {
         private TokenSession session = new TokenSession();
         private readonly Dictionary<string, string> contextProperties = new Dictionary<string, string>();
-        private readonly Assembly assembly;
         private readonly Type type;
 
         public ExecutionContext(Type type, Dictionary<string, string> contextProperties, bool throwExceptionOnError)
         {
             this.type = type;
-            this.assembly = type.Assembly;
             this.contextProperties = contextProperties;
         }
 
@@ -36,18 +33,18 @@ namespace Step.Handlers.NetHandler
         {
             properties.ToList().ForEach(x => contextProperties[x.Key] = x.Value);
 
-            KeywordExecutor invoker = new KeywordExecutor();
-            invoker.LoadAssembly(this.assembly);
-            KeywordExecutor.SerializableOutput serializedOutput = 
-                invoker.Handle(function, "{Payload: {Payload:" + inputJson + "}, CallTimeout:60000}", 
-                    properties, session, session, false);
+            KeywordExecutor executor = new KeywordExecutor();
+            executor.LoadAssembly(type.Assembly);
+
+            KeywordExecutor.SerializableOutput output = executor.CallFunction(function, "{payload: {payload:" + inputJson + "}, callTimeout:60000}",
+                    contextProperties, session, session, false);
 
             return new Output
             {
-                payload = (JObject)JsonConvert.DeserializeObject(serializedOutput.output),
-                attachments = serializedOutput.attachments,
-                measures = serializedOutput.measures,
-                error = serializedOutput.error
+                payload = (JObject)JsonConvert.DeserializeObject(output.output),
+                attachments = output.attachments,
+                measures = output.measures,
+                error = output.error
             };
         }
 

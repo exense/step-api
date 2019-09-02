@@ -55,7 +55,10 @@ namespace Step.Handlers.NetHandler.Tests
         [TestCase]
         public void TestScriptRunnerProperties()
         {
-            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } }, 
+                typeof(TestKeywords));
+
             var output = runner.Run("My Prop Keyword", @"{}");
             Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
 

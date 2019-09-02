@@ -33,23 +33,23 @@ namespace Step.Functions.IO
 
     public class OutputBuilder
     {
-        public JObject Output { get; } = new JObject();
+        public JObject output { get; } = new JObject();
 
-        public MeasurementsBuilder MeasureHelper { get; } = new MeasurementsBuilder();
+        public MeasurementsBuilder measureHelper { get; } = new MeasurementsBuilder();
 
-        public List<Attachment> Attachments { get; } = new List<Attachment>();
+        public List<Attachment> attachments { get; } = new List<Attachment>();
 
-        public Error Error { get; private set; }
+        public Error error { get; private set; }
 
         public OutputBuilder Add(string key, string val)
         {
-            Output.Add(key, val);
+            output.Add(key, val);
             return this;
         }
 
         public OutputBuilder SetError(string technicalError)
         {
-            Error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
+            error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
             return this;
         }
 
@@ -62,63 +62,63 @@ namespace Step.Functions.IO
 
         public OutputBuilder SetBusinessError(string businessError)
         {
-            Error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
+            error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
             return this;
         }
 
         public void StartMeasure(string id)
         {
-            MeasureHelper.StartMeasure(id);
+            measureHelper.StartMeasure(id);
         }
 
         public void StartMeasure(string id, long begin)
         {
-            MeasureHelper.StartMeasure(id, begin);
+            measureHelper.StartMeasure(id, begin);
         }
 
         public void StopMeasure(long end, Dictionary<string, Object> data)
         {
-            MeasureHelper.StopMeasure(end, data);
+            measureHelper.StopMeasure(end, data);
         }
 
         public void AddMeasure(string measureName, long durationMillis)
         {
-            MeasureHelper.AddMeasure(measureName, durationMillis);
+            measureHelper.AddMeasure(measureName, durationMillis);
         }
 
         public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
         {
-            MeasureHelper.AddMeasure(measureName, aDurationMillis, data);
+            measureHelper.AddMeasure(measureName, aDurationMillis, data);
         }
 
         public void StopMeasure()
         {
-            MeasureHelper.StopMeasure();
+            measureHelper.StopMeasure();
         }
 
         public void StopMeasure(Dictionary<string, Object> data)
         {
-            MeasureHelper.StopMeasure(data);
+            measureHelper.StopMeasure(data);
         }
 
         public void AddAttachments(List<Attachment> attachments)
         {
-            Attachments.AddRange(attachments);
+            this.attachments.AddRange(attachments);
         }
 
         public void AddAttachment(Attachment attachment)
         {
-            Attachments.Add(attachment);
+            attachments.Add(attachment);
         }
 
         public Output Build()
         {
             Output output = new Output
             {
-                payload = this.Output,
-                error = this.Error,
-                measures = this.MeasureHelper.GetMeasures(),
-                attachments = this.Attachments
+                payload = this.output,
+                error = this.error,
+                measures = this.measureHelper.GetMeasures(),
+                attachments = this.attachments
             };
             return output;
         }
