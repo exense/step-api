@@ -71,10 +71,7 @@ namespace Step.Handlers.NetHandler
             {
                 SerializableFunction f = new SerializableFunction
                 {
-                    attributes = new Dictionary<string, string>
-                        {
-                            { "name", m.Name }
-                        }
+                    attributes = new Dictionary<string, string>()
                 };
 
                 Keyword annotation = (Keyword)m.GetCustomAttribute(typeof(Keyword));
@@ -94,6 +91,16 @@ namespace Step.Handlers.NetHandler
                 {
                     f.schema = "{}";
                 }
+
+                if (annotation.name != null)
+                {
+                    f.attributes["name"] = annotation.name;
+                }
+                else
+                {
+                    f.attributes["name"] = m.Name;
+                }
+
                 functions.Add(f);
             }
 
