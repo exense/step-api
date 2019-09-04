@@ -138,29 +138,45 @@ namespace Step.Handlers.NetHandler
             {
                 logger.Debug("Loading new dependencies " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
 
-                ZipArchive z = ZipFile.OpenRead(path);
-                foreach (ZipArchiveEntry file in z.Entries)
+                if (Directory.Exists(path))
                 {
-                    string newFile = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(file.FullName);
-                    if (file.Name == "") continue;
-                    if (!File.Exists(newFile))
+                    foreach (string fileName in Directory.EnumerateFiles(path))
                     {
-                        file.ExtractToFile(newFile);
+                        string newFile = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(fileName);
+                        if (fileName == "") continue;
+                        if (!File.Exists(newFile))
+                        {
+                            File.Copy(fileName, AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(fileName), true);
+                        }
                     }
                 }
-                dependenciesDLLs[path] = true;
-            }
-        }
-
-        public void LoadDependency(string path)
-        {
-            if (!dependenciesDLLs.ContainsKey(path))
-            {
-                logger.Debug("Loading new dependency " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-
-                if (!File.Exists(AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path)))
+                else
                 {
-                    File.Copy(path, AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path), true);
+                    switch (Path.GetExtension(path).ToLower())
+                    {
+                        case ".zip":
+                            ZipArchive z = ZipFile.OpenRead(path);
+                            foreach (ZipArchiveEntry file in z.Entries)
+                            {
+                                string newFile = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(file.FullName);
+                                if (file.Name == "") continue;
+                                if (!File.Exists(newFile))
+                                {
+                                    file.ExtractToFile(newFile);
+                                }
+                            }
+                            break;
+                        case ".pdb":
+                        case ".dll":
+                            if (!File.Exists(AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path)))
+                            {
+                                File.Copy(path, AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path), true);
+                            }
+                            break;
+                        default:
+                            throw new Exception("Unknow extention. Should be a folder, a zip file, a dll or a pbd, was " +
+                                Path.GetExtension(path).ToLower());
+                    }
                 }
                 dependenciesDLLs[path] = true;
             }
