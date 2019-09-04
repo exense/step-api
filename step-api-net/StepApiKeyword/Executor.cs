@@ -118,6 +118,11 @@ namespace Step.Handlers.NetHandler
             {
                 logger.Debug("Loading new keyword assembly " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
 
+                if (Path.GetExtension(path).ToLower() != ".dll")
+                {
+                    throw new Exception("Unknow extention. Should be a folder, a zip file, a dll or a pbd, was " +
+                           Path.GetExtension(path).ToLower());
+                }
                 string pdbName = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileNameWithoutExtension(path) + ".pdb";
 
                 if (File.Exists(pdbName))
@@ -202,14 +207,14 @@ namespace Step.Handlers.NetHandler
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
                       .ToList();
         }
-        
+
         protected string GetFunctionName(MethodInfo m)
         {
             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
             string keywordName = keyword.name;
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
-        
+
         public SerializableOutput CallFunction(string methodName, string keywordInput, Dictionary<string, string> properties,
             TokenSession tokenReservationSession, TokenSession tokenSession, bool alwaysThrowException = false)
         {
@@ -233,7 +238,8 @@ namespace Step.Handlers.NetHandler
                         if (!properties.ContainsKey(val))
                         {
                             missingProperties.Add(val);
-                        } else
+                        }
+                        else
                         {
                             keywordProperties[val] = properties[val];
                         }
@@ -251,7 +257,8 @@ namespace Step.Handlers.NetHandler
                         measures = outputBuilder.measureHelper.GetMeasures()
                     };
                 }
-            } else
+            }
+            else
             {
                 keywordProperties = properties;
             }
@@ -270,11 +277,12 @@ namespace Step.Handlers.NetHandler
             try
             {
                 method.Invoke(c, new object[] { });
-            } catch (Exception e)
-            {
-                CallOnError(c,e, methodName, alwaysThrowException);
             }
-            
+            catch (Exception e)
+            {
+                CallOnError(c, e, methodName, alwaysThrowException);
+            }
+
             SerializableOutput outputMessage = new SerializableOutput
             {
                 output = JsonConvert.SerializeObject(outputBuilder.output),
