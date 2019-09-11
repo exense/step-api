@@ -11,7 +11,7 @@ namespace Step.Handlers.NetHandler.Tests
         public override bool OnError(Exception e)
         {
             output.Add("onError", "true");
-            return false;
+            return (bool) input.GetValue("onError_return");
         }
 
         [Keyword(name = "My Keyword")]
@@ -33,7 +33,7 @@ namespace Step.Handlers.NetHandler.Tests
         [Keyword(name = "My Error Keyword")]
         public void MyErrorKeyword()
         {
-            throw new Exception("Test");
+            throw new Exception("This is a test");
         }
 
         [Keyword(name = "My Prop Keyword", properties = new string[] { "prop1", "prop2" })]
@@ -69,8 +69,13 @@ namespace Step.Handlers.NetHandler.Tests
         public void TestScriptRunnerOnError()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            output = runner.Run("My Error Keyword", @"{}");
 
+            output = runner.Run("My Error Keyword", @"{onError_return:'false'}");
+            Assert.AreEqual(null, output.error);
+            Assert.AreEqual("true", output.payload["onError"].ToString());
+            
+            output = runner.Run("My Error Keyword", @"{onError_return:'true'}");
+            Assert.AreEqual("This is a test. Check the attachments for more details.", output.error.msg);
             Assert.AreEqual("true", output.payload["onError"].ToString());
         }
 

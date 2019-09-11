@@ -299,17 +299,12 @@ namespace Step.Handlers.NetHandler
             {
                 AbstractKeyword script = (AbstractKeyword)c;
                 bool throwException = script.OnError(exception);
-                if ((!throwException) && (!alwaysThrowException))
+                if (throwException || alwaysThrowException)
                 {
-                    script.output.attachments.Add(AttachmentHelper.GenerateAttachmentForException(exception));
-                    script.output.SetError("Error while executing " + methodName + " in .NET agent: " +
-                        (exception.GetBaseException() != null ?
-                            exception.GetBaseException().Message :
-                            exception.Message));
-                }
-                else
-                {
-                    throw new Exception("Unexpected error when executing " + methodName + " in .NET agent: ", exception);
+                    Exception cause = (exception.InnerException != null) ? exception.InnerException : exception;
+
+                    script.output.attachments.Add(AttachmentHelper.GenerateAttachmentForException(cause));
+                    script.output.SetError(cause.Message+ ". Check the attachments for more details.", cause);
                 }
             }
         }
