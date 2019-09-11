@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Step.Core.Reports;
 using Step.Functions.IO;
+using Step.Grid;
 using Step.Grid.IO;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,8 @@ namespace Step.Handlers.NetHandler
             public List<Attachment> attachments = new List<Attachment>();
 
             public Error error;
+
+            public AgentError agentError;
         }
 
         public List<SerializableFunction> GetFunctions()
@@ -219,78 +222,89 @@ namespace Step.Handlers.NetHandler
             TokenSession tokenReservationSession, TokenSession tokenSession, bool alwaysThrowException = false)
         {
             OutputBuilder outputBuilder = new OutputBuilder();
-            InputObject inputObject = JsonConvert.DeserializeObject<InputObject>(keywordInput);
-
-            MethodInfo method = GetFunctionMethodByName(methodName);
-
-            Type type = method.DeclaringType;
-
-            Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
-
-            List<string> missingProperties = new List<string>();
-            Dictionary<string, string> keywordProperties = new Dictionary<string, string>();
-            if (properties.ContainsKey(VALIDATE_PROPERTIES))
-            {
-                if (keyword.properties != null)
-                {
-                    foreach (string val in keyword.properties)
-                    {
-                        if (!properties.ContainsKey(val))
-                        {
-                            missingProperties.Add(val);
-                        }
-                        else
-                        {
-                            keywordProperties[val] = properties[val];
-                        }
-                    }
-                }
-                if (missingProperties.Count > 0)
-                {
-                    outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
-                                string.Join(", ", missingProperties) + "'");
-                    return new SerializableOutput
-                    {
-                        output = JsonConvert.SerializeObject(outputBuilder.output),
-                        error = outputBuilder.error,
-                        attachments = outputBuilder.attachments,
-                        measures = outputBuilder.measureHelper.GetMeasures()
-                    };
-                }
-            }
-            else
-            {
-                keywordProperties = properties;
-            }
-
-            var c = Activator.CreateInstance(type);
-            if (type.IsSubclassOf(typeof(AbstractKeyword)))
-            {
-                AbstractKeyword script = (AbstractKeyword)c;
-                script.input = inputObject.payload.payload;
-                script.session = tokenReservationSession;
-                script.tokenSession = tokenSession;
-                script.output = outputBuilder;
-                script.properties = keywordProperties;
-            }
-
             try
             {
-                method.Invoke(c, new object[] { });
+                InputObject inputObject = JsonConvert.DeserializeObject<InputObject>(keywordInput);
+
+                MethodInfo method = GetFunctionMethodByName(methodName);
+
+                Type type = method.DeclaringType;
+
+                Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
+
+                List<string> missingProperties = new List<string>();
+                Dictionary<string, string> keywordProperties = new Dictionary<string, string>();
+                if (properties.ContainsKey(VALIDATE_PROPERTIES))
+                {
+                    if (keyword.properties != null)
+                    {
+                        foreach (string val in keyword.properties)
+                        {
+                            if (!properties.ContainsKey(val))
+                            {
+                                missingProperties.Add(val);
+                            }
+                            else
+                            {
+                                keywordProperties[val] = properties[val];
+                            }
+                        }
+                    }
+                    if (missingProperties.Count > 0)
+                    {
+                        outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
+                                    string.Join(", ", missingProperties) + "'");
+                        return new SerializableOutput
+                        {
+                            output = JsonConvert.SerializeObject(outputBuilder.output),
+                            error = outputBuilder.error,
+                            attachments = outputBuilder.attachments,
+                            measures = outputBuilder.measureHelper.GetMeasures()
+                        };
+                    }
+                }
+                else
+                {
+                    keywordProperties = properties;
+                }
+
+                var c = Activator.CreateInstance(type);
+                if (type.IsSubclassOf(typeof(AbstractKeyword)))
+                {
+                    AbstractKeyword script = (AbstractKeyword)c;
+                    script.input = inputObject.payload.payload;
+                    script.session = tokenReservationSession;
+                    script.tokenSession = tokenSession;
+                    script.output = outputBuilder;
+                    script.properties = keywordProperties;
+                }
+
+                try
+                {
+                    method.Invoke(c, new object[] { });
+                }
+                catch (Exception e)
+                {
+                    CallOnError(c, e, methodName, alwaysThrowException);
+                }
+
+                SerializableOutput outputMessage = new SerializableOutput
+                {
+                    output = JsonConvert.SerializeObject(outputBuilder.output),
+                    error = outputBuilder.error,
+                    attachments = outputBuilder.attachments,
+                    measures = outputBuilder.measureHelper.GetMeasures()
+                };
+                return outputMessage;
             }
             catch (Exception e)
             {
-                CallOnError(c, e, methodName, alwaysThrowException);
-            }
+                SerializableOutput outputMessage = new SerializableOutput();
 
-            SerializableOutput outputMessage = new SerializableOutput
-            {
-                output = JsonConvert.SerializeObject(outputBuilder.output),
-                error = outputBuilder.error,
-                attachments = outputBuilder.attachments,
-                measures = outputBuilder.measureHelper.GetMeasures()
-            };
-            return outputMessage;
+                outputMessage.agentError = new AgentError(AgentErrorCode.UNEXPECTED);
+                outputMessage.attachments.Add(AttachmentHelper.GenerateAttachmentForException(e));
+                return outputMessage;
+            }
         }
 
         private void CallOnError(object c, Exception exception, string methodName, bool alwaysThrowException)
@@ -304,7 +318,7 @@ namespace Step.Handlers.NetHandler
                     Exception cause = (exception.InnerException != null) ? exception.InnerException : exception;
 
                     script.output.attachments.Add(AttachmentHelper.GenerateAttachmentForException(cause));
-                    script.output.SetError(cause.Message+ ". Check the attachments for more details.", cause);
+                    script.output.SetError(cause.Message + ". Check the attachments for more details.", cause);
                 }
             }
         }

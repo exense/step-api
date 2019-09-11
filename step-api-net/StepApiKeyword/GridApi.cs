@@ -7,6 +7,7 @@ namespace Step.Grid
      * Grid layer
      */
 
+    [Serializable]
     public class AgentError
     {
         public AgentErrorCode errorCode;
@@ -19,6 +20,7 @@ namespace Step.Grid
         }
     }
 
+    [Serializable]
     public enum AgentErrorCode
     {
         TIMEOUT_REQUEST_NOT_INTERRUPTED, // Timeout while processing request. WARNING: Request execution couldn't be interrupted 
@@ -30,6 +32,7 @@ namespace Step.Grid
         UNEXPECTED //Unexpected error";
     }
 
+    [Serializable]
     public enum AgentErrorCodeDetails
     {
         FILE_HANDLE,
