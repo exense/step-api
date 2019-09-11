@@ -75,7 +75,7 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.AreEqual("true", output.payload["onError"].ToString());
             
             output = runner.Run("My Error Keyword", @"{onError_return:'true'}");
-            Assert.AreEqual("This is a test. Check the attachments for more details.", output.error.msg);
+            Assert.AreEqual("This is a test", output.error.msg);
             Assert.AreEqual("true", output.payload["onError"].ToString());
         }
 
