@@ -317,7 +317,6 @@ namespace Step.Handlers.NetHandler
                 {
                     Exception cause = (exception.InnerException != null) ? exception.InnerException : exception;
 
-                    script.output.attachments.Add(AttachmentHelper.GenerateAttachmentForException(cause));
                     script.output.SetError(cause.Message, cause);
                 }
             }
