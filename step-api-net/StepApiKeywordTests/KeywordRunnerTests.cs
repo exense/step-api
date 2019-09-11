@@ -1,53 +1,75 @@
-﻿using NUnit.Framework;
+﻿using KeywordsForTesting;
+using NUnit.Framework;
+using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
 
 namespace Step.Handlers.NetHandler.Tests
 {
+    public class TestKeywords : AbstractKeyword
+    {
+        public override bool OnError(Exception e)
+        {
+            output.Add("onError", "true");
+            return false;
+        }
+
+        [Keyword(name = "My Keyword")]
+        public void MyKeyword()
+        {
+            output.Add("key", "value");
+            foreach (string key in properties.Keys)
+            {
+                output.Add(key, properties[key]);
+            }
+            output.Add("input", (input == null).ToString());
+            var inputMap = input.ToObject<Dictionary<string, string>>();
+            foreach (string key in inputMap.Keys)
+            {
+                output.Add(key, inputMap[key]);
+            }
+        }
+
+        [Keyword(name = "My Error Keyword")]
+        public void MyErrorKeyword()
+        {
+            throw new Exception("Test");
+        }
+
+        [Keyword(name = "My Prop Keyword", properties = new string[] { "prop1", "prop2" })]
+        public void MyKeywordWithProperties()
+        {
+            output.Add("executed", "My Prop Keyword");
+        }
+    }
+
     public class ScriptRunnerTest
     {
-        private class TestKeywords : AbstractKeyword
+        Output output;
+
+        [TestCase]
+        public void TestScriptRunnerMultipleKeywords()
         {
-            public override bool OnError(Exception e)
-            {
-                output.Add("onError", "true");
-                return false;
-            }
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords), 
+                typeof(TestMultipleKeywords));
 
-            [Keyword(name = "My Keyword")]
-            public void MyKeyword()
-            {
-                output.Add("key", "value");
-                foreach (string key in properties.Keys)
-                {
-                    output.Add(key, properties[key]);
-                }
-                output.Add("input", (input == null).ToString());
-                var inputMap = input.ToObject<Dictionary<string, string>>();
-                foreach (string key in inputMap.Keys)
-                {
-                    output.Add(key, inputMap[key]);
-                }
-            }
+            output = runner.Run("My Other Keyword", @"{}");
+            Assert.AreEqual(null, output.error);
+            output = runner.Run("My Keyword", @"{}");
+            Assert.AreEqual(null, output.error);
+            output = runner.Run("My Other Keyword", @"{}");
+            Assert.AreEqual(null, output.error);
 
-            [Keyword(name = "My Error Keyword")]
-            public void MyErrorKeyword()
-            {
-                throw new Exception("Test");
-            }
-
-            [Keyword(name = "My Prop Keyword", properties = new string[]{"prop1", "prop2"})]
-            public void MyKeywordWithProperties()
-            {
-                output.Add("executed", "My Prop Keyword");
-            }
+            output = runner.Run("My Other non existing Keyword", @"{}");
+            Assert.AreEqual("Could not find keyword named 'My Other non existing Keyword'", 
+                output.error.msg);
         }
 
         [TestCase]
         public void TestScriptRunnerOnError()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            var output = runner.Run("My Error Keyword", @"{}");
+            output = runner.Run("My Error Keyword", @"{}");
 
             Assert.AreEqual("true", output.payload["onError"].ToString());
         }
@@ -59,7 +81,7 @@ namespace Step.Handlers.NetHandler.Tests
                 new Dictionary<string, string>() { { "$validateProperties", "true" } }, 
                 typeof(TestKeywords));
 
-            var output = runner.Run("My Prop Keyword", @"{}");
+            output = runner.Run("My Prop Keyword", @"{}");
             Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
@@ -74,7 +96,7 @@ namespace Step.Handlers.NetHandler.Tests
         public void TestScriptRunnerRun()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            var output = runner.Run("My Keyword", @"{}");
+            output = runner.Run("My Keyword", @"{}");
 
             Assert.AreEqual(null, output.error);
             Assert.AreEqual("value", output.payload["key"].ToString());
@@ -89,7 +111,7 @@ namespace Step.Handlers.NetHandler.Tests
             };
 
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            var output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
+            output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
 
             Assert.AreEqual(null, output.error);
             Assert.AreEqual("value", output.payload["key"].ToString());

@@ -187,7 +187,7 @@ namespace Step.Handlers.NetHandler
             }
         }
 
-        protected MethodInfo GetFunctionMethodByName(string name)
+        public MethodInfo GetFunctionMethodByName(string name)
         {
             return GetFunctionMethods()
                       .First(m =>

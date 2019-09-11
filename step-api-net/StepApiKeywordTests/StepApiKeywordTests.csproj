@@ -63,6 +63,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\KeywordsForTesting\KeywordsForTesting.csproj">
+      <Project>{5F59CC78-A800-469B-946A-E04BCEFD83DF}</Project>
+      <Name>KeywordsForTesting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StepApiFunction\StepApiFunction.csproj">
       <Project>{3B4A9710-4D2A-47A5-B1D1-429CF7B45F9A}</Project>
       <Name>StepApiFunction</Name>
