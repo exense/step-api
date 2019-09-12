@@ -35,6 +35,12 @@ namespace Step.Handlers.NetHandler
 
     public class KeywordExecutor : MarshalByRefObject
     {
+        // infinite lifetime
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+
         protected static readonly ILog logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
         protected Assembly keywordAssembly;
@@ -299,9 +305,10 @@ namespace Step.Handlers.NetHandler
             }
             catch (Exception e)
             {
-                SerializableOutput outputMessage = new SerializableOutput();
-
-                outputMessage.agentError = new AgentError(AgentErrorCode.UNEXPECTED);
+                SerializableOutput outputMessage = new SerializableOutput
+                {
+                    agentError = new AgentError(AgentErrorCode.UNEXPECTED)
+                };
                 outputMessage.attachments.Add(AttachmentHelper.GenerateAttachmentForException(e));
                 return outputMessage;
             }
@@ -315,7 +322,7 @@ namespace Step.Handlers.NetHandler
                 bool throwException = script.OnError(exception);
                 if (throwException || alwaysThrowException)
                 {
-                    Exception cause = (exception.InnerException != null) ? exception.InnerException : exception;
+                    Exception cause = exception.InnerException ?? exception;
 
                     script.output.SetError(cause.Message, cause);
                 }

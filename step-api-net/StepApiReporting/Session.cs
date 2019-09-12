@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +12,14 @@ namespace Step.Functions.IO
 
     public class TokenSession : MarshalByRefObject
     {
+        // infinite lifetime
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+        
+        protected static readonly ILog logger = LogManager.GetLogger(typeof(TokenSession));
+
         private Dictionary<string, object> attributes = new Dictionary<string, object>();
 
         public virtual Object Get(string arg0)
@@ -34,19 +43,26 @@ namespace Step.Functions.IO
                 {
                     ((ICloseable)o).Close();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    logger.Error("Unexpected error when closing a session object.",e);
                 }
             }
         }
 
         public void Close()
         {
-            attributes.ToList().ForEach(p =>
+            try
             {
-                CloseIfCloseable(p.Value);
-            });
-            attributes.Clear();
+                attributes.ToList().ForEach(p =>
+                {
+                    CloseIfCloseable(p.Value);
+                });
+            }
+            finally
+            {
+                attributes.Clear();
+            }
         }
     }
 
