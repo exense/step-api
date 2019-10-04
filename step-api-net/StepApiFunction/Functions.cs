@@ -7,6 +7,15 @@ using System.Collections.Generic;
 
 namespace Step.Functions.IO
 {
+    public class Function
+    {
+        public string type = "step.plugins.dotnet.DotNetFunction";
+
+        public Dictionary<string, string> attributes;
+
+        public JObject schema;
+    }
+
     public class Input
     {
         public string function;

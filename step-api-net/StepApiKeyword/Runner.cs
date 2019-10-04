@@ -33,32 +33,20 @@ namespace Step.Handlers.NetHandler
 
         public Output Run(string function, string inputJson, Dictionary<string, string> properties)
         {
-            properties.ToList().ForEach(x => contextProperties[x.Key] = x.Value);
+            contextProperties.ToList().ForEach(x => properties[x.Key] = x.Value);
 
             KeywordExecutor executor = new KeywordExecutor();
 
             foreach (Type type in keywordClasses)
             {
                 executor.LoadAssembly(type.Assembly);
-                try {
-                    executor.GetFunctionMethodByName(function);
-
-                    KeywordExecutor.SerializableOutput output = executor.CallFunction(function, "{payload: {payload:" + inputJson + "}, callTimeout:60000}",
-                            contextProperties, session, session, false);
-
-                    return new Output
-                    {
-                        payload = (JObject)JsonConvert.DeserializeObject(output.output),
-                        attachments = output.attachments,
-                        measures = output.measures,
-                        error = output.error
-                    };
-                } catch (InvalidOperationException) { }
             }
-            return new Output
+            var input = new Input
             {
-                error = new Error(ErrorType.TECHNICAL, "Could not find keyword named '"+function+"'")
+                function = function,
+                payload = JObject.Parse(inputJson)
             };
+            return executor.CallFunction(input, session, session, properties, false);
         }
 
         public void Close()

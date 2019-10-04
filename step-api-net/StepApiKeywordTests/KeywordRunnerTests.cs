@@ -61,7 +61,7 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.AreEqual(null, output.error);
 
             output = runner.Run("My Other non existing Keyword", @"{}");
-            Assert.AreEqual("Could not find keyword named 'My Other non existing Keyword'", 
+            Assert.AreEqual("Unable to find method annoted by 'Keyword' with name == 'My Other non existing Keyword'", 
                 output.error.msg);
         }
 

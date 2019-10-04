@@ -14,71 +14,21 @@ using System.Reflection;
 
 namespace Step.Handlers.NetHandler
 {
-    [Serializable]
-    public class SerializableFunction
+    public class KeywordExecutor
     {
-        public string type = "step.plugins.dotnet.DotNetFunction";
-
-        public Dictionary<string, string> attributes;
-
-        public string schema;
-    }
-
-    public class Function
-    {
-        public string type = "step.plugins.dotnet.DotNetFunction";
-
-        public Dictionary<string, string> attributes;
-
-        public JObject schema;
-    }
-
-    public class KeywordExecutor : MarshalByRefObject
-    {
-        // infinite lifetime
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
-
         protected static readonly ILog logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
-        protected Assembly keywordAssembly;
+        protected List<Assembly> keywordAssemblies = new List<Assembly>();
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
 
-        private Dictionary<string, Assembly> keywordsDLLs = new Dictionary<string, Assembly>();
-        private Dictionary<string, bool> dependenciesDLLs = new Dictionary<string, bool>();
-
-        public class InputObject
+        public List<Function> GetFunctions()
         {
-            public string handler = "";
-            public Input payload = new Input();
-            public Dictionary<string, string> properties = new Dictionary<string, string>();
-            public int callTimeout;
-        }
-
-        [Serializable]
-        public class SerializableOutput
-        {
-            public string output = "{}";
-
-            public List<Measure> measures = new List<Measure>();
-
-            public List<Attachment> attachments = new List<Attachment>();
-
-            public Error error;
-
-            public AgentError agentError;
-        }
-
-        public List<SerializableFunction> GetFunctions()
-        {
-            List<SerializableFunction> functions = new List<SerializableFunction>();
+            List<Function> functions = new List<Function>();
             List<MethodInfo> methods = GetFunctionMethods();
 
             foreach (MethodInfo m in methods)
             {
-                SerializableFunction f = new SerializableFunction
+                Function f = new Function
                 {
                     attributes = new Dictionary<string, string>()
                 };
@@ -88,8 +38,7 @@ namespace Step.Handlers.NetHandler
                 {
                     try
                     {
-                        JObject.Parse(annotation.schema);
-                        f.schema = annotation.schema;
+                        f.schema = JObject.Parse(annotation.schema);
                     }
                     catch (Exception e)
                     {
@@ -98,7 +47,7 @@ namespace Step.Handlers.NetHandler
                 }
                 else
                 {
-                    f.schema = "{}";
+                    f.schema = new JObject();
                 }
 
                 if (annotation.name != null)
@@ -118,103 +67,30 @@ namespace Step.Handlers.NetHandler
 
         public void LoadAssembly(Assembly assembly)
         {
-            keywordAssembly = assembly;
-        }
-
-        public void LoadKeyword(string path)
-        {
-            if (!keywordsDLLs.ContainsKey(path))
-            {
-                logger.Debug("Loading new keyword assembly " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-
-                if (Path.GetExtension(path).ToLower() != ".dll")
-                {
-                    throw new Exception("Unknow extention. Should be a folder, a zip file, a dll or a pbd, was " +
-                           Path.GetExtension(path).ToLower());
-                }
-                string pdbName = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileNameWithoutExtension(path) + ".pdb";
-
-                if (File.Exists(pdbName))
-                {
-                    keywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path), File.ReadAllBytes(pdbName));
-                }
-                else
-                {
-                    keywordsDLLs[path] = Assembly.Load(File.ReadAllBytes(path));
-                }
-            }
-            keywordAssembly = keywordsDLLs[path];
-        }
-
-        public void LoadDependencies(string path)
-        {
-            if (!dependenciesDLLs.ContainsKey(path))
-            {
-                logger.Debug("Loading new dependencies " + path + " to the AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-
-                if (Directory.Exists(path))
-                {
-                    foreach (string fileName in Directory.EnumerateFiles(path))
-                    {
-                        string newFile = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(fileName);
-                        if (fileName == "") continue;
-                        if (!File.Exists(newFile))
-                        {
-                            File.Copy(fileName, AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(fileName), true);
-                        }
-                    }
-                }
-                else
-                {
-                    switch (Path.GetExtension(path).ToLower())
-                    {
-                        case ".zip":
-                            ZipArchive z = ZipFile.OpenRead(path);
-                            foreach (ZipArchiveEntry file in z.Entries)
-                            {
-                                string newFile = AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(file.FullName);
-                                if (file.Name == "") continue;
-                                if (!File.Exists(newFile))
-                                {
-                                    file.ExtractToFile(newFile);
-                                }
-                            }
-                            break;
-                        case ".pdb":
-                        case ".dll":
-                            if (!File.Exists(AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path)))
-                            {
-                                File.Copy(path, AppDomain.CurrentDomain.DynamicDirectory + "\\" + Path.GetFileName(path), true);
-                            }
-                            break;
-                        default:
-                            throw new Exception("Unknow extention. Should be a folder, a zip file, a dll or a pbd, was " +
-                                Path.GetExtension(path).ToLower());
-                    }
-                }
-                dependenciesDLLs[path] = true;
-            }
+            keywordAssemblies.Add(assembly);
         }
 
         public MethodInfo GetFunctionMethodByName(string name)
         {
             return GetFunctionMethods()
-                      .First(m =>
-                      {
-                          Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-                          return GetFunctionName(m) == name;
-                      });
+                        .FirstOrDefault(m =>
+                        {
+                            Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
+                            return GetFunctionName(m) == name;
+                        });
         }
 
         protected List<MethodInfo> GetFunctionMethods()
         {
-            if (keywordAssembly == null)
+            if (keywordAssemblies.Count == 0)
                 throw new Exception("A DLL should be loaded with a call to 'Loadkeyword'");
 
-            return keywordAssembly.GetTypes()
+            List<MethodInfo> result = new List<MethodInfo>();
+            keywordAssemblies.ForEach(assembly=> result.AddRange(assembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
-                      .ToList();
+                      .ToList()));
+            return result;
         }
 
         protected string GetFunctionName(MethodInfo m)
@@ -224,15 +100,18 @@ namespace Step.Handlers.NetHandler
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
 
-        public SerializableOutput CallFunction(string methodName, string keywordInput, Dictionary<string, string> properties,
-            TokenSession tokenReservationSession, TokenSession tokenSession, bool alwaysThrowException = false)
+        public Output CallFunction(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
             OutputBuilder outputBuilder = new OutputBuilder();
+            var methodName = input.function;
             try
             {
-                InputObject inputObject = JsonConvert.DeserializeObject<InputObject>(keywordInput);
-
                 MethodInfo method = GetFunctionMethodByName(methodName);
+                if(method == null)
+                {
+                    outputBuilder.SetError("Unable to find method annoted by 'Keyword' with name == '" + methodName + "'");
+                    return outputBuilder.Build();
+                }
 
                 Type type = method.DeclaringType;
 
@@ -240,6 +119,7 @@ namespace Step.Handlers.NetHandler
 
                 List<string> missingProperties = new List<string>();
                 Dictionary<string, string> keywordProperties = new Dictionary<string, string>();
+                
                 if (properties.ContainsKey(VALIDATE_PROPERTIES))
                 {
                     if (keyword.properties != null)
@@ -260,13 +140,7 @@ namespace Step.Handlers.NetHandler
                     {
                         outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
                                     string.Join(", ", missingProperties) + "'");
-                        return new SerializableOutput
-                        {
-                            output = JsonConvert.SerializeObject(outputBuilder.output),
-                            error = outputBuilder.error,
-                            attachments = outputBuilder.attachments,
-                            measures = outputBuilder.measureHelper.GetMeasures()
-                        };
+                        return outputBuilder.Build();
                     }
                 }
                 else
@@ -278,7 +152,7 @@ namespace Step.Handlers.NetHandler
                 if (type.IsSubclassOf(typeof(AbstractKeyword)))
                 {
                     AbstractKeyword script = (AbstractKeyword)c;
-                    script.input = inputObject.payload.payload;
+                    script.input = input.payload;
                     script.session = tokenReservationSession;
                     script.tokenSession = tokenSession;
                     script.output = outputBuilder;
@@ -293,25 +167,12 @@ namespace Step.Handlers.NetHandler
                 {
                     CallOnError(c, e, methodName, alwaysThrowException);
                 }
-
-                SerializableOutput outputMessage = new SerializableOutput
-                {
-                    output = JsonConvert.SerializeObject(outputBuilder.output),
-                    error = outputBuilder.error,
-                    attachments = outputBuilder.attachments,
-                    measures = outputBuilder.measureHelper.GetMeasures()
-                };
-                return outputMessage;
             }
             catch (Exception e)
             {
-                SerializableOutput outputMessage = new SerializableOutput
-                {
-                    agentError = new AgentError(AgentErrorCode.UNEXPECTED)
-                };
-                outputMessage.attachments.Add(AttachmentHelper.GenerateAttachmentForException(e));
-                return outputMessage;
+                outputBuilder.SetError(e.Message, e);
             }
+            return outputBuilder.Build();
         }
 
         private void CallOnError(object c, Exception exception, string methodName, bool alwaysThrowException)

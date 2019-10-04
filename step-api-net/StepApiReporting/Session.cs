@@ -10,14 +10,8 @@ namespace Step.Functions.IO
         void Close();
     }
 
-    public class TokenSession : MarshalByRefObject
+    public class TokenSession
     {
-        // infinite lifetime
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
-        
         protected static readonly ILog logger = LogManager.GetLogger(typeof(TokenSession));
 
         private Dictionary<string, object> attributes = new Dictionary<string, object>();
@@ -63,26 +57,6 @@ namespace Step.Functions.IO
             {
                 attributes.Clear();
             }
-        }
-    }
-
-    public class UnusableTokenSession : TokenSession
-    {
-        public override Object Get(string arg0)
-        {
-            throw UnusableSessionException();
-        }
-
-        public override Object Put(string arg0, Object arg1)
-        {
-            throw UnusableSessionException();
-        }
-
-        private Exception UnusableSessionException()
-        {
-            // TODO use error codes instead of error messages
-            return new Exception("Session object unreachable. " +
-                "Wrap your keywords with a Session node in your test plan in order to make the session object available.");
         }
     }
 }
