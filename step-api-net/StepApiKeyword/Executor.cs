@@ -108,12 +108,12 @@ namespace Step.Handlers.NetHandler
             {
                 foreach (var prop in input.properties)
                 {
-                    mergedProperties.Add(prop.Key, prop.Value);
+                    mergedProperties[prop.Key] = prop.Value;
                 }
             }
             foreach (var prop in properties)
             {
-                mergedProperties.Add(prop.Key, prop.Value);
+                mergedProperties[prop.Key] = prop.Value;
             }
 
             OutputBuilder outputBuilder = new OutputBuilder();
