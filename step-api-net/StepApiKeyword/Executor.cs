@@ -102,6 +102,20 @@ namespace Step.Handlers.NetHandler
 
         public Output CallFunction(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
+            // Create the merged property map containing the input properties and the additional properties
+            Dictionary<string, string> mergedProperties = new Dictionary<string, string>();
+            if(input.properties != null)
+            {
+                foreach (var prop in input.properties)
+                {
+                    mergedProperties.Add(prop.Key, prop.Value);
+                }
+            }
+            foreach (var prop in properties)
+            {
+                mergedProperties.Add(prop.Key, prop.Value);
+            }
+
             OutputBuilder outputBuilder = new OutputBuilder();
             var methodName = input.function;
             try
@@ -120,19 +134,19 @@ namespace Step.Handlers.NetHandler
                 List<string> missingProperties = new List<string>();
                 Dictionary<string, string> keywordProperties = new Dictionary<string, string>();
                 
-                if (properties.ContainsKey(VALIDATE_PROPERTIES))
+                if (mergedProperties.ContainsKey(VALIDATE_PROPERTIES))
                 {
                     if (keyword.properties != null)
                     {
                         foreach (string val in keyword.properties)
                         {
-                            if (!properties.ContainsKey(val))
+                            if (!mergedProperties.ContainsKey(val))
                             {
                                 missingProperties.Add(val);
                             }
                             else
                             {
-                                keywordProperties[val] = properties[val];
+                                keywordProperties[val] = mergedProperties[val];
                             }
                         }
                     }
@@ -145,7 +159,7 @@ namespace Step.Handlers.NetHandler
                 }
                 else
                 {
-                    keywordProperties = properties;
+                    keywordProperties = mergedProperties;
                 }
 
                 var c = Activator.CreateInstance(type);
