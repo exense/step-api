@@ -39,14 +39,14 @@ namespace Step.Handlers.NetHandler
 
             foreach (Type type in keywordClasses)
             {
-                executor.LoadAssembly(type.Assembly);
+                executor.AddKeywordAssembly(type.Assembly);
             }
             var input = new Input
             {
                 function = function,
                 payload = JObject.Parse(inputJson)
             };
-            return executor.CallFunction(input, session, session, properties, false);
+            return executor.CallKeyword(input, session, session, properties, false);
         }
 
         public void Close()

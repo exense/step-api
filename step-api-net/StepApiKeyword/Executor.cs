@@ -20,70 +20,26 @@ namespace Step.Handlers.NetHandler
 
         protected List<Assembly> keywordAssemblies = new List<Assembly>();
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
-
-        public List<Function> GetFunctions()
-        {
-            List<Function> functions = new List<Function>();
-            List<MethodInfo> methods = GetFunctionMethods();
-
-            foreach (MethodInfo m in methods)
-            {
-                Function f = new Function
-                {
-                    attributes = new Dictionary<string, string>()
-                };
-
-                Keyword annotation = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-                if (annotation.schema != null)
-                {
-                    try
-                    {
-                        f.schema = JObject.Parse(annotation.schema);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception("Error while parsing schema from function " + m.Name, e);
-                    }
-                }
-                else
-                {
-                    f.schema = new JObject();
-                }
-
-                if (annotation.name != null)
-                {
-                    f.attributes["name"] = annotation.name;
-                }
-                else
-                {
-                    f.attributes["name"] = m.Name;
-                }
-
-                functions.Add(f);
-            }
-
-            return functions;
-        }
-
-        public void LoadAssembly(Assembly assembly)
+        
+        public void AddKeywordAssembly(Assembly assembly)
         {
             keywordAssemblies.Add(assembly);
         }
 
-        public MethodInfo GetFunctionMethodByName(string name)
+        public MethodInfo GetKeywordMethodByName(string name)
         {
-            return GetFunctionMethods()
+            return GetKeywordMethods()
                         .FirstOrDefault(m =>
                         {
                             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-                            return GetFunctionName(m) == name;
+                            return GetKeywordName(m) == name;
                         });
         }
 
-        protected List<MethodInfo> GetFunctionMethods()
+        public List<MethodInfo> GetKeywordMethods()
         {
             if (keywordAssemblies.Count == 0)
-                throw new Exception("A DLL should be loaded with a call to 'Loadkeyword'");
+                throw new Exception("No Keyword Assembly has been set. Please define the Keyword Assembly using the method AddKeywordAssembly()");
 
             List<MethodInfo> result = new List<MethodInfo>();
             keywordAssemblies.ForEach(assembly=> result.AddRange(assembly.GetTypes()
@@ -93,14 +49,14 @@ namespace Step.Handlers.NetHandler
             return result;
         }
 
-        protected string GetFunctionName(MethodInfo m)
+        protected string GetKeywordName(MethodInfo m)
         {
             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
             string keywordName = keyword.name;
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
 
-        public Output CallFunction(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
+        public Output CallKeyword(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
             // Create the merged property map containing the input properties and the additional properties
             Dictionary<string, string> mergedProperties = new Dictionary<string, string>();
@@ -120,7 +76,7 @@ namespace Step.Handlers.NetHandler
             var methodName = input.function;
             try
             {
-                MethodInfo method = GetFunctionMethodByName(methodName);
+                MethodInfo method = GetKeywordMethodByName(methodName);
                 if(method == null)
                 {
                     outputBuilder.SetError("Unable to find method annoted by 'Keyword' with name == '" + methodName + "'");
