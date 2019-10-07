@@ -56,6 +56,12 @@ namespace Step.Functions.IO
             return this;
         }
 
+        public OutputBuilder SetError(Error error)
+        {
+            this.error = error;
+            return this;
+        }
+
         public OutputBuilder SetError(string technicalError)
         {
             error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
