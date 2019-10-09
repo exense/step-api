@@ -36,6 +36,18 @@ namespace Step.Handlers.NetHandler.Tests
             throw new Exception("This is a test");
         }
 
+        [Keyword(name = "My Set Error Keyword")]
+        public void MySetErrorKeyword()
+        {
+            output.SetError("Testing normal errors");
+        }
+
+        [Keyword(name = "My Business Error Keyword")]
+        public void MyBusinessErrorKeyword()
+        {
+            output.SetBusinessError("Testing business errors");
+        }
+
         [Keyword(name = "My Prop Keyword", properties = new string[] { "prop1", "prop2" })]
         public void MyKeywordWithProperties()
         {
