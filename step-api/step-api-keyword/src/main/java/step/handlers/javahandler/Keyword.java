@@ -39,6 +39,11 @@ public @interface Keyword {
 	String[] properties() default {};
 	
 	/**
+	 * @return the list of optional properties which might be used by this keyword
+	 */
+	String[] optionalProperties() default {};
+	
+	/**
 	 * @return the JSON schema of the input object. 
 	 * @see <a href="https://json-schema.org/"> json-schema.org </a>
 	 */
