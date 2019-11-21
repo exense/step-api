@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Step.Handlers.NetHandler
 {
@@ -20,7 +21,8 @@ namespace Step.Handlers.NetHandler
 
         protected List<Assembly> keywordAssemblies = new List<Assembly>();
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
-        
+        private readonly string pattern = @"(.*)\{(.*)\}(.*)";
+
         public void AddKeywordAssembly(Assembly assembly)
         {
             keywordAssemblies.Add(assembly);
@@ -94,17 +96,11 @@ namespace Step.Handlers.NetHandler
                 {
                     if (keyword.properties != null)
                     {
-                        foreach (string val in keyword.properties)
-                        {
-                            if (!mergedProperties.ContainsKey(val))
-                            {
-                                missingProperties.Add(val);
-                            }
-                            else
-                            {
-                                keywordProperties[val] = mergedProperties[val];
-                            }
-                        }
+                        processPropertyKeys(keyword.properties, mergedProperties, keywordProperties, missingProperties, true);
+                    }
+                    if (keyword.optionalProperties != null)
+                    {
+                        processPropertyKeys(keyword.optionalProperties, mergedProperties, keywordProperties, missingProperties, false);
                     }
                     if (missingProperties.Count > 0)
                     {
@@ -143,6 +139,38 @@ namespace Step.Handlers.NetHandler
                 outputBuilder.SetError(e.Message, e);
             }
             return outputBuilder.Build();
+        }
+
+        private void processPropertyKeys(string[] annotationProperties, Dictionary<string, string> mergedProperties, Dictionary<string, string> keywordProperties, List<string> missingProperties, bool required)
+        {
+            foreach (string val in annotationProperties)
+            {
+                if (!mergedProperties.ContainsKey(val))
+                {
+
+                    Match m = Regex.Match(val, pattern);
+                    if (m.Success && mergedProperties.ContainsKey(m.Groups[2].ToString()))
+                    {
+                        string resolvedName = m.Groups[1] + mergedProperties[m.Groups[2].ToString()] + m.Groups[3];
+                        if (mergedProperties.ContainsKey(resolvedName))
+                        {
+                            keywordProperties[resolvedName] = mergedProperties[resolvedName];
+                        }
+                        else if (required)
+                        {
+                            missingProperties.Add(val + " or " + resolvedName);
+                        }
+                    }
+                    else if (required)
+                    {
+                        missingProperties.Add(val);
+                    }
+                }
+                else
+                {
+                    keywordProperties[val] = mergedProperties[val];
+                }
+            }
         }
 
         private void CallOnError(object c, Exception exception, string methodName, bool alwaysThrowException)

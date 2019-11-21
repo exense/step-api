@@ -11,6 +11,7 @@ namespace Step.Handlers.NetHandler
         public string name;
         public string schema;
         public string[] properties;
+        public string[] optionalProperties;
     }
 
     public class AbstractKeyword
