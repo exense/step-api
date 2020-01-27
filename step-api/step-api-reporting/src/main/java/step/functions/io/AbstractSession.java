@@ -7,7 +7,7 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * STEP is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -21,6 +21,7 @@ package step.functions.io;
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class AbstractSession implements Closeable {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractSession.class);
-	
+
 	protected Map<String, Object> sessionObjects = new HashMap<>();
 
 	public AbstractSession() {
@@ -38,7 +39,41 @@ public class AbstractSession implements Closeable {
 	public Object get(String arg0) {
 		return sessionObjects.get(arg0);
 	}
-	
+
+	/**
+	 * Get a value from the sessionObject. If the value does not exist set the given default value.
+	 *
+	 * @param key The key to search in the sessionObjects Map.
+	 * @param def The default value to use if the value does not exist.
+	 * @param <T> The type of the return value.
+	 * @return The value from sessionObjects or the default value.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getOrDefault(String key, T def) {
+		if (!sessionObjects.containsKey(key)) {
+			this.put(key, def);
+		}
+		return (T) this.get(key);
+	}
+
+	/**
+	 * Get a value from the sessionObject. If the value does not exist set the given default value.
+	 *
+	 * @param key The key to search in the sessionObjects Map.
+	 * @param def The function to apply for the default value.
+	 * @param param The parameter for the default function.
+	 * @param <T> The type of the return value.
+	 * @param <U> The type of the parameter for the default function.
+	 * @return The value from sessionObjects or the default value.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T, U> T getOrDefault(String key, Function<U, T> def, U param) {
+		if (!sessionObjects.containsKey(key)) {
+			this.put(key, def.apply(param));
+		}
+		return (T) this.get(key);
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> objectClass) {
 		Object object = get(objectClass.getName());
@@ -56,7 +91,7 @@ public class AbstractSession implements Closeable {
 	public void put(Object object) {
 		put(object.getClass().getName(), object);
 	}
-	
+
 	public Object put(String arg0, Object arg1) {
 		Object previous = get(arg0);
 		closeIfCloseable(arg0, previous);
