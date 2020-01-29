@@ -128,5 +128,8 @@
   </Target>
   <Target Name="Test">
     <Exec Command="nunit3-console $(OutputPath)\$(PackageId).dll " />
+  </Target>  
+  <Target Name="pack">
+    <Message Text="Nothing to be done"></Message>
   </Target>
 </Project>
