@@ -87,5 +87,8 @@
   <Target Name="Test">
     <Message Text="Nothing to be done">
     </Message>
-  </Target>
+  </Target> 
+  <ItemGroup>
+    <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.2.0" />
+  </ItemGroup>
 </Project>
