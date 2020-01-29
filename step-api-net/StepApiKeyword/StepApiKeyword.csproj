@@ -75,4 +75,7 @@
       <Compile Include="Properties\Version.cs" />
     </ItemGroup>
   </Target>
+  <Target Name="Test">
+	<Message Text="Nothing to be done"></Message>
+  </Target>
 </Project>
