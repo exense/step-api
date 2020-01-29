@@ -91,4 +91,7 @@
   <ItemGroup>
     <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.2.0" />
   </ItemGroup>
+  <Target Name="Publish">
+	<Exec WorkingDirectory="$(PackageOutputPath)" Command="nuget.exe push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -Source $(NEXUS_URL)" />
+  </Target>
 </Project>
