@@ -59,4 +59,20 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="UpdateVersion">
+    <Message Text="Updating AssemblyInfo to Version $(VersionNumber)">
+    </Message>
+    <Message Text="Writing to AssemblyInfo files">
+    </Message>
+    <ItemGroup>
+      <AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
+        <_Parameter1>$(VERSION)</_Parameter1>
+      </AssemblyAttributes>
+    </ItemGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
+    <ItemGroup>
+      <Compile Include="Properties\Version.cs" />
+    </ItemGroup>
+  </Target>
 </Project>
