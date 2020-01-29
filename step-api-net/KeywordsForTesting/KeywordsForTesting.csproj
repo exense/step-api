@@ -12,6 +12,19 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>KeywordsForTesting</PackageId>
+    <Authors>Exense team</Authors>
+    <Company>Exense</Company>
+    <IsPackable>true</IsPackable>
+    <FilesToIncludeForPublish>OnlyFilesToRunTheApp</FilesToIncludeForPublish>
+    <DeployOnBuild>true</DeployOnBuild>
+    <DeployTarget>Package</DeployTarget>
+    <PackageAsSingleFile>true</PackageAsSingleFile>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Keywords.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Version.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StepApiKeyword\StepApiKeyword.csproj">
@@ -68,6 +82,7 @@
     </ItemGroup>
   </Target>
   <Target Name="Test">
-	<Message Text="Nothing to be done"></Message>
+    <Message Text="Nothing to be done">
+    </Message>
   </Target>
 </Project>

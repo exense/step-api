@@ -13,6 +13,17 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>StepApiReporting</PackageId>
+    <Authors>Exense team</Authors>
+    <Company>Exense</Company>
+    <IsPackable>true</IsPackable>
+    <FilesToIncludeForPublish>OnlyFilesToRunTheApp</FilesToIncludeForPublish>
+    <DeployOnBuild>true</DeployOnBuild>
+    <DeployTarget>Package</DeployTarget>
+    <PackageAsSingleFile>true</PackageAsSingleFile>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -44,9 +55,16 @@
     <Compile Include="Reports.cs" />
     <Compile Include="Attachment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Version.cs" />
     <Compile Include="Session.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />  <Target Name="UpdateVersion">
+  <ItemGroup>
+    <PackageReference Include="log4net">
+      <Version>2.0.8</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)">
     </Message>
     <Message Text="Writing to AssemblyInfo files">
@@ -63,6 +81,7 @@
     </ItemGroup>
   </Target>
   <Target Name="Test">
-	<Message Text="Nothing to be done"></Message>
+    <Message Text="Nothing to be done">
+    </Message>
   </Target>
 </Project>

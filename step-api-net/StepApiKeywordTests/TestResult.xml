@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="21" engine-version="3.10.0.0" clr-version="4.0.30319.42000" start-time="2020-01-29 15:01:23Z" end-time="2020-01-29 15:01:24Z" duration="0.778503">
+  <command-line><![CDATA[nunit3-console  bin\Debug\\StepApiKeywordTests.dll ]]></command-line>
+  <test-suite type="Assembly" id="0-1013" name="StepApiKeywordTests.dll" fullname="C:\Users\jerome-dev\projects\git\step-api\step-api-net\StepApiKeywordTests\bin\Debug\StepApiKeywordTests.dll" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.370817" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+    <environment framework-version="3.12.0.0" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 10.0.18363.0" platform="Win32NT" cwd="C:\Users\jerome-dev\projects\git\step-api\step-api-net\StepApiKeywordTests" machine-name="DESKTOP-ARMR2BI" user="jerome-dev" user-domain="DESKTOP-ARMR2BI" culture="en-GB" uiculture="en-GB" os-architecture="x64" />
+    <settings>
+      <setting name="DisposeRunners" value="True" />
+      <setting name="WorkDirectory" value="C:\Users\jerome-dev\projects\git\step-api\step-api-net\StepApiKeywordTests" />
+      <setting name="ImageRuntimeVersion" value="4.0.30319" />
+      <setting name="ImageTargetFrameworkName" value=".NETFramework,Version=v4.6" />
+      <setting name="ImageRequiresX86" value="False" />
+      <setting name="ImageRequiresDefaultAppDomainAssemblyResolver" value="False" />
+      <setting name="NumberOfTestWorkers" value="8" />
+    </settings>
+    <properties>
+      <property name="_PID" value="14852" />
+      <property name="_APPDOMAIN" value="domain-" />
+    </properties>
+    <test-suite type="TestSuite" id="0-1014" name="Step" fullname="Step" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.355716" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+      <test-suite type="TestSuite" id="0-1015" name="Handlers" fullname="Step.Handlers" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.355270" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+        <test-suite type="TestSuite" id="0-1016" name="NetHandler" fullname="Step.Handlers.NetHandler" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.355261" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+          <test-suite type="TestSuite" id="0-1017" name="Tests" fullname="Step.Handlers.NetHandler.Tests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.355249" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+            <test-suite type="TestFixture" id="0-1000" name="ScriptRunnerTest" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="6" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.352627" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="21">
+              <test-suite type="ParameterizedMethod" id="0-1008" name="TestScriptRunnerComplexProperties" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerComplexProperties" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.239356" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="4">
+                <test-case id="0-1007" name="TestScriptRunnerComplexProperties()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerComplexProperties()" methodname="TestScriptRunnerComplexProperties" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="1628497197" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.234147" asserts="4" />
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="0-1002" name="TestScriptRunnerMultipleKeywords" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerMultipleKeywords" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.080501" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="4">
+                <test-case id="0-1001" name="TestScriptRunnerMultipleKeywords()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerMultipleKeywords()" methodname="TestScriptRunnerMultipleKeywords" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="1864912943" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.080449" asserts="4" />
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="0-1004" name="TestScriptRunnerOnError" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerOnError" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.021387" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="4">
+                <test-case id="0-1003" name="TestScriptRunnerOnError()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerOnError()" methodname="TestScriptRunnerOnError" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="1836355774" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.021326" asserts="4" />
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="0-1006" name="TestScriptRunnerProperties" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerProperties" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.000788" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="3">
+                <test-case id="0-1005" name="TestScriptRunnerProperties()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerProperties()" methodname="TestScriptRunnerProperties" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="693717428" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.000759" asserts="3" />
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="0-1010" name="TestScriptRunnerRun" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerRun" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.000327" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="2">
+                <test-case id="0-1009" name="TestScriptRunnerRun()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerRun()" methodname="TestScriptRunnerRun" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="999164419" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.000309" asserts="2" />
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="0-1012" name="TestScriptRunnerWithInputsAndPropertiesRun" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerWithInputsAndPropertiesRun" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.003425" total="1" passed="1" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="4">
+                <test-case id="0-1011" name="TestScriptRunnerWithInputsAndPropertiesRun()" fullname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest.TestScriptRunnerWithInputsAndPropertiesRun()" methodname="TestScriptRunnerWithInputsAndPropertiesRun" classname="Step.Handlers.NetHandler.Tests.ScriptRunnerTest" runstate="Runnable" seed="710006449" result="Passed" start-time="2020-01-29 15:01:24Z" end-time="2020-01-29 15:01:24Z" duration="0.003388" asserts="4" />
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
