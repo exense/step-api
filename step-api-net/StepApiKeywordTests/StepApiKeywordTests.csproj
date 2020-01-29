@@ -106,4 +106,7 @@
       <Compile Include="Properties\Version.cs" />
     </ItemGroup>
   </Target>
+  <Target Name="Test">
+	<Exec Command="nunit3-console $(OutputPath)\$(PackageId).dll " />
+  </Target>
 </Project>
