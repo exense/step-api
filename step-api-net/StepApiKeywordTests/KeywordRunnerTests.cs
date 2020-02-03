@@ -1,8 +1,8 @@
 ﻿using KeywordsForTesting;
-using NUnit.Framework;
 using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Step.Handlers.NetHandler.Tests
 {
@@ -72,39 +72,39 @@ namespace Step.Handlers.NetHandler.Tests
     {
         Output output;
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerMultipleKeywords()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords), 
                 typeof(TestMultipleKeywords));
 
             output = runner.Run("My Other Keyword", @"{}");
-            Assert.AreEqual(null, output.error);
+            Assert.Null(output.error);
             output = runner.Run("My Keyword", @"{}");
-            Assert.AreEqual(null, output.error);
+            Assert.Null(output.error);
             output = runner.Run("My Other Keyword", @"{}");
-            Assert.AreEqual(null, output.error);
+            Assert.Null(output.error);
 
             output = runner.Run("My Other non existing Keyword", @"{}");
-            Assert.AreEqual("Unable to find method annoted by 'Keyword' with name == 'My Other non existing Keyword'", 
+            Assert.Equal("Unable to find method annoted by 'Keyword' with name == 'My Other non existing Keyword'", 
                 output.error.msg);
         }
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerOnError()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
 
             output = runner.Run("My Error Keyword", @"{onError_return:'false'}");
-            Assert.AreEqual(null, output.error);
-            Assert.AreEqual("true", output.payload["onError"].ToString());
+            Assert.Null(output.error);
+            Assert.Equal("true", output.payload["onError"].ToString());
             
             output = runner.Run("My Error Keyword", @"{onError_return:'true'}");
-            Assert.AreEqual("This is a test", output.error.msg);
-            Assert.AreEqual("true", output.payload["onError"].ToString());
+            Assert.Equal("This is a test", output.error.msg);
+            Assert.Equal("true", output.payload["onError"].ToString());
         }
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerProperties()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(
@@ -112,59 +112,55 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             output = runner.Run("My Prop Keyword", @"{}");
-            Assert.AreEqual("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
+            Assert.Equal("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
-            Assert.AreEqual("The Keyword is missing the following properties 'prop2'", output.error.msg);
+            Assert.Equal("The Keyword is missing the following properties 'prop2'", output.error.msg);
 
             output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" },
                 { "prop2", "val2" } });
-            Assert.IsNull(output.error);
+            Assert.Null(output.error);
         }
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerComplexProperties()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(
                 new Dictionary<string, string>() { { "$validateProperties", "true" } },
                 typeof(TestKeywords));
 
-            //properties  {"param_scope_global", "param_scope_App1", "param_scope_App2", "param_scope_KW",
-                    //"param_scope_KW2", "app.user.name","app.user.{app.user.name}.pwd" },
-            //optionalProperties = new string[] { "optionalProp", "optionalPropMissing"  }
-
             output = runner.Run("My Keyword With Complex Properties", @"{}");
-            Assert.AreEqual("The Keyword is missing the following properties 'param_scope_global, param_scope_App1, param_scope_App2, " +
+            Assert.Equal("The Keyword is missing the following properties 'param_scope_global, param_scope_App1, param_scope_App2, " +
                 "param_scope_KW, param_scope_KW2, app.user.name, app.user.{app.user.name}.pwd'", output.error.msg);
 
             output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
                 { "param_scope_global", "val1" }, { "app.user.name", "testUser" } });
-            Assert.AreEqual("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
+            Assert.Equal("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
                 "param_scope_KW, param_scope_KW2, app.user.{app.user.name}.pwd or app.user.testUser.pwd'", output.error.msg);
 
             output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
                 { "param_scope_global", "val1" }, { "app.user.name", "testUser" },  { "app.user.testUser.pwd", "testUserPwd" } });
-            Assert.AreEqual("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
+            Assert.Equal("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
                 "param_scope_KW, param_scope_KW2'", output.error.msg);
 
             output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
                 { "param_scope_global", "val1" }, { "param_scope_App1", "val1" }, { "param_scope_App2", "val1" },
                 { "param_scope_KW", "val1" }, { "param_scope_KW2", "val1" }, { "app.user.name", "testUser" },
                 { "app.user.testUser.pwd", "testUserPwd" }, { "optionalProp", "optionalPropVal" } });
-            Assert.IsNull(output.error);
+            Assert.Null(output.error);
         }
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerRun()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             output = runner.Run("My Keyword", @"{}");
 
-            Assert.AreEqual(null, output.error);
-            Assert.AreEqual("value", output.payload["key"].ToString());
+            Assert.Null(output.error);
+            Assert.Equal("value", output.payload["key"].ToString());
         }
 
-        [TestCase]
+        [Fact]
         public void TestScriptRunnerWithInputsAndPropertiesRun()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -175,10 +171,10 @@ namespace Step.Handlers.NetHandler.Tests
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
 
-            Assert.AreEqual(null, output.error);
-            Assert.AreEqual("value", output.payload["key"].ToString());
-            Assert.AreEqual("myValue1", output.payload["myProp1"].ToString());
-            Assert.AreEqual("myInputValue1", output.payload["myInput1"].ToString());
+            Assert.Null(output.error);
+            Assert.Equal("value", output.payload["key"].ToString());
+            Assert.Equal("myValue1", output.payload["myProp1"].ToString());
+            Assert.Equal("myInputValue1", output.payload["myInput1"].ToString());
         }
     }
 }
