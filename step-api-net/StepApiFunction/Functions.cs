@@ -1,5 +1,4 @@
-﻿
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Step.Core.Reports;
 using Step.Grid.IO;
 using System;

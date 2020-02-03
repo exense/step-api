@@ -3,18 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiFunction", "StepApiFunction\StepApiFunction.csproj", "{3B4A9710-4D2A-47A5-B1D1-429CF7B45F9A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiReporting", "StepApiReporting\StepApiReporting.csproj", "{A23F2713-B67E-470E-9EE6-63DA332DF147}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeyword", "StepApiKeyword\StepApiKeyword.csproj", "{2D632B20-4B2B-47EF-A134-E5AC9DA5B810}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepApiFunction", "StepApiFunction\StepApiFunction.csproj", "{3B4A9710-4D2A-47A5-B1D1-429CF7B45F9A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A23F2713-B67E-470E-9EE6-63DA332DF147} = {A23F2713-B67E-470E-9EE6-63DA332DF147}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeywordTests", "StepApiKeywordTests\StepApiKeywordTests.csproj", "{5EA31ABD-7413-4AD6-AB87-9D355F368803}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepApiReporting", "StepApiReporting\StepApiReporting.csproj", "{A23F2713-B67E-470E-9EE6-63DA332DF147}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeywordsForTesting", "KeywordsForTesting\KeywordsForTesting.csproj", "{5F59CC78-A800-469B-946A-E04BCEFD83DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepApiKeyword", "StepApiKeyword\StepApiKeyword.csproj", "{2D632B20-4B2B-47EF-A134-E5AC9DA5B810}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A23F2713-B67E-470E-9EE6-63DA332DF147} = {A23F2713-B67E-470E-9EE6-63DA332DF147}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepApiKeywordTests", "StepApiKeywordTests\StepApiKeywordTests.csproj", "{5EA31ABD-7413-4AD6-AB87-9D355F368803}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeywordsForTesting", "KeywordsForTesting\KeywordsForTesting.csproj", "{5F59CC78-A800-469B-946A-E04BCEFD83DF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2D632B20-4B2B-47EF-A134-E5AC9DA5B810} = {2D632B20-4B2B-47EF-A134-E5AC9DA5B810}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
