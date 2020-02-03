@@ -61,16 +61,6 @@
     <Compile Include="Runner.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StepApiFunction\StepApiFunction.csproj">
-      <Project>{3B4A9710-4D2A-47A5-B1D1-429CF7B45F9A}</Project>
-      <Name>StepApiFunction</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj">
-      <Project>{A23F2713-B67E-470E-9EE6-63DA332DF147}</Project>
-      <Name>StepApiReporting</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="log4net">
       <Version>2.0.8</Version>
     </PackageReference>
@@ -98,11 +88,21 @@
   <Target Name="Test">
     <Message Text="Nothing to be done">
     </Message>
-  </Target>  
+  </Target>
   <ItemGroup>
     <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.2.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StepApiFunction\StepApiFunction.csproj">
+      <Project>{3b4a9710-4d2a-47a5-b1d1-429cf7b45f9a}</Project>
+      <Name>StepApiFunction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj">
+      <Project>{a23f2713-b67e-470e-9ee6-63da332df147}</Project>
+      <Name>StepApiReporting</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Target Name="Publish">
-	<Exec WorkingDirectory="$(PackageOutputPath)" Command="nuget.exe push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -Source $(NEXUS_URL)" />
+    <Exec WorkingDirectory="$(PackageOutputPath)" Command="nuget.exe push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -Source $(NEXUS_URL)" />
   </Target>
 </Project>

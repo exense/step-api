@@ -7,19 +7,24 @@ using Step.Grid;
 using Step.Grid.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Step.Handlers.NetHandler
 {
     public class KeywordExecutor
     {
+        private static Mutex mut = new Mutex();
+
         protected static readonly ILog logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
         protected List<Assembly> keywordAssemblies = new List<Assembly>();
+        private Thread thread;
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
         private readonly string pattern = @"(.*)\{(.*)\}(.*)";
 
@@ -60,6 +65,10 @@ namespace Step.Handlers.NetHandler
 
         public Output CallKeyword(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
+            mut.WaitOne();
+            thread = Thread.CurrentThread;
+            mut.ReleaseMutex();
+
             // Create the merged property map containing the input properties and the additional properties
             Dictionary<string, string> mergedProperties = new Dictionary<string, string>();
             if(input.properties != null)
@@ -186,6 +195,21 @@ namespace Step.Handlers.NetHandler
                     script.output.SetError(cause.Message, cause);
                 }
             }
+        }
+
+        public string Interrupt()
+        {
+            mut.WaitOne();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            thread.Suspend();
+            StackTrace trace = new StackTrace(thread, true);
+            thread.Resume();
+#pragma warning restore CS0618
+
+            mut.ReleaseMutex();
+
+            return trace.ToString();
         }
     }
 }
