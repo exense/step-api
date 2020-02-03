@@ -25,4 +25,7 @@
       <Compile Include="Properties\Version.cs" />
 		</ItemGroup>
 	</Target>
+	<Target Name="Push">
+    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -s $(NEXUS_URL)" />
+	</Target>
 </Project>
