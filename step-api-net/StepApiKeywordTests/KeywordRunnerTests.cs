@@ -66,12 +66,6 @@ namespace Step.Handlers.NetHandler.Tests
                 output.Add(key, properties[key]);
             }
         }
-
-        [Keyword(name = "My Html Keyword", htmlTemplate = "<label>this is a test</label>")]
-        public void MyKeywordWithCustomHtml()
-        {
-            output.Add("executed", "My Html Keyword");
-        }
     }
 
     public class ScriptRunnerTest
@@ -181,15 +175,6 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.Equal("value", output.payload["key"].ToString());
             Assert.Equal("myValue1", output.payload["myProp1"].ToString());
             Assert.Equal("myInputValue1", output.payload["myInput1"].ToString());
-        }
-
-        [Fact]
-        public void TestScriptRunnerCustomHtml()
-        {
-            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            output = runner.Run("My Html Keyword", @"{}");
-
-            Assert.Null(output.error);
         }
     }
 }

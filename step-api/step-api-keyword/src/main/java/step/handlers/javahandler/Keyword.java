@@ -48,10 +48,5 @@ public @interface Keyword {
 	 * @see <a href="https://json-schema.org/"> json-schema.org </a>
 	 */
 	String schema() default "";
-	
-	/**
-	 * @return the HTML code used as custom template
-	 */
-	String htmlTemplate() default "";
 
 }
