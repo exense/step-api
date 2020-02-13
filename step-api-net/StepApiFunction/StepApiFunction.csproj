@@ -24,6 +24,6 @@
 		</ItemGroup>
 	</Target>
 	<Target Name="Push">
-    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -s $(NEXUS_URL)" />
+    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
 	</Target>
 </Project>
