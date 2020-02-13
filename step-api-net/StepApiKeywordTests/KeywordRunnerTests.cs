@@ -66,6 +66,22 @@ namespace Step.Handlers.NetHandler.Tests
                 output.Add(key, properties[key]);
             }
         }
+
+        [Keyword(name = "My Prop Keyword With Placeholder", properties = new string[] { "prop.{myPlaceHolder}", "myPlaceHolder" })]
+        public void MyKeywordWithPropertiesPlaceHolder()
+        {
+            string propName = "prop." + properties["myPlaceHolder"];
+            output.Add(propName, properties[propName]);
+            output.Add("executed", "My Prop Keyword With Placeholder");
+        }
+
+        [Keyword(name = "My Prop Keyword With Placeholder in Inputs", properties = new string[] { "prop.{myPlaceHolder}" })]
+        public void MyKeywordWithPropertiesPlaceHolderInInputs()
+        {
+            string propName = "prop." + (string) input.GetValue("myPlaceHolder");
+            output.Add(propName, properties[propName]);
+            output.Add("executed", "My Prop Keyword With Placeholder");
+        }
     }
 
     public class ScriptRunnerTest
@@ -175,6 +191,38 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.Equal("value", output.payload["key"].ToString());
             Assert.Equal("myValue1", output.payload["myProp1"].ToString());
             Assert.Equal("myInputValue1", output.payload["myInput1"].ToString());
+        }
+
+
+        [Fact]
+        public void TestScriptRunnerPropertiesPlaceholder()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop.placeHolderValue"] = "My Property with Place holder",
+                ["myPlaceHolder"] = "placeHolderValue"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+            output = runner.Run("My Prop Keyword With Placeholder", @"{}", properties);
+
+            Assert.Null(output.error);
+            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+        }
+
+        [Fact]
+        public void TestScriptRunnerPropertiesPlaceholderInInput()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop.placeHolderValue"] = "My Property with Place holder"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+            output = runner.Run("My Prop Keyword With Placeholder in Inputs", @"{'myPlaceHolder':'placeHolderValue'}", properties);
+
+            Assert.Null(output.error);
+            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
         }
     }
 }

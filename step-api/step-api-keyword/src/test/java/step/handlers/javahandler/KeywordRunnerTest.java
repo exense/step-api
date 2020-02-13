@@ -48,6 +48,31 @@ public class KeywordRunnerTest {
 	}
 	
 	@Test
+	public void testPropertyValidationWithPlaceHolder() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		properties.put("myPlaceHolder", "placeHolderValue");
+		properties.put("prop.placeHolderValue", "My Property with Place holder");
+		
+		properties.put(KeywordExecutor.VALIDATE_PROPERTIES, "validate");
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperty");
+		Assert.assertEquals("My Property with Place holder",output.getPayload().getString("prop.placeHolderValue"));
+	}
+	
+	@Test
+	public void testPropertyValidationWithPlaceHolderInInput() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		//properties.put("myPlaceHolder", "placeHolderValue");
+		properties.put("prop.placeHolderValue", "My Property with Place holder");
+		
+		properties.put(KeywordExecutor.VALIDATE_PROPERTIES, "validate");
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInInput","{\"myPlaceHolder\": \"placeHolderValue\"}");
+		Assert.assertEquals("My Property with Place holder",output.getPayload().getString("prop.placeHolderValue"));
+	}
+	
+	
+	@Test
 	public void testPropertyValidationPropertyMissing() throws Exception {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("prop2", "My Property 2");

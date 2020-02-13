@@ -83,8 +83,8 @@ public class KeywordExecutor {
 								String[] optionalPropertyKeys = annotation.optionalProperties();
 								List<String> missingProperties = new ArrayList<>();
 								Map<String, String> reducedProperties = new HashMap<>();
-								processPropertyKeys(properties, requiredPropertyKeys, missingProperties, reducedProperties, true);
-								processPropertyKeys(properties, optionalPropertyKeys, missingProperties, reducedProperties, false);
+								processPropertyKeys(properties, input, requiredPropertyKeys, missingProperties, reducedProperties, true);
+								processPropertyKeys(properties, input, optionalPropertyKeys, missingProperties, reducedProperties, false);
 								
 								if(missingProperties.size()>0) {
 									OutputBuilder outputBuilder = new OutputBuilder();
@@ -107,14 +107,15 @@ public class KeywordExecutor {
 		throw new Exception("Unable to find method annoted by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
-	private void processPropertyKeys(Map<String, String> properties, String[] reducedPropertyKeys, List<String> missingProperties,
+	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] reducedPropertyKeys, List<String> missingProperties,
 			Map<String, String> reducedProperties, boolean required) {
 		for (String string : reducedPropertyKeys) {
 			if(!properties.containsKey(string)) {
 				//if the property uses place holder and place holder is a property 
 				Matcher ma = p.matcher(string);
-				if (ma.matches() && properties.containsKey(ma.group(2))) {
-					String resolvedName = ma.group(1) + properties.get(ma.group(2)) + ma.group(3);
+				if (ma.matches() && (properties.containsKey(ma.group(2)) || input.getPayload().containsKey(ma.group(2)))) {
+					String value = (properties.containsKey(ma.group(2))) ? properties.get(ma.group(2)) : input.getPayload().getString(ma.group(2));  
+					String resolvedName = ma.group(1) + value + ma.group(3);
 					if (properties.containsKey(resolvedName)) {
 						reducedProperties.put(resolvedName, properties.get(resolvedName));
 					} else if (required) {

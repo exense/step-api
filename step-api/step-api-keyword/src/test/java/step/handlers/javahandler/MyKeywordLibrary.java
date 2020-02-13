@@ -43,6 +43,24 @@ public class MyKeywordLibrary extends AbstractKeyword {
 		}
 	}
 	
+	@Keyword(properties = {"prop.{myPlaceHolder}", "myPlaceHolder"})
+	public void MyKeywordWithPlaceHoldersInProperty() {
+		String fullPropname = "prop." + properties.get("myPlaceHolder");
+		output.add(fullPropname, properties.get(fullPropname));
+		if(properties.size()!=2) {
+			output.setError("The property map contains more than one property. Required was only one property.");
+		}
+	}
+	
+	@Keyword(properties = {"prop.{myPlaceHolder}"})
+	public void MyKeywordWithPlaceHoldersInInput() {
+		String fullPropname = "prop." + input.getString("myPlaceHolder");
+		output.add(fullPropname, properties.get(fullPropname));
+		if(properties.size()!=1) {
+			output.setError("The property map contains more than one property. Required was only one property.");
+		}
+	}
+	
 	@Keyword
 	public void MyKeywordUsingSession1() {
 		session.put("object1","Test String");

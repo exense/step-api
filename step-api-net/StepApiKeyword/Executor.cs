@@ -98,11 +98,11 @@ namespace Step.Handlers.NetHandler
                 {
                     if (keyword.properties != null)
                     {
-                        processPropertyKeys(keyword.properties, mergedProperties, keywordProperties, missingProperties, true);
+                        processPropertyKeys(keyword.properties, input, mergedProperties, keywordProperties, missingProperties, true);
                     }
                     if (keyword.optionalProperties != null)
                     {
-                        processPropertyKeys(keyword.optionalProperties, mergedProperties, keywordProperties, missingProperties, false);
+                        processPropertyKeys(keyword.optionalProperties, input, mergedProperties, keywordProperties, missingProperties, false);
                     }
                     if (missingProperties.Count > 0)
                     {
@@ -143,7 +143,7 @@ namespace Step.Handlers.NetHandler
             return outputBuilder.Build();
         }
 
-        private void processPropertyKeys(string[] annotationProperties, Dictionary<string, string> mergedProperties, Dictionary<string, string> keywordProperties, List<string> missingProperties, bool required)
+        private void processPropertyKeys(string[] annotationProperties, Input input, Dictionary<string, string> mergedProperties, Dictionary<string, string> keywordProperties, List<string> missingProperties, bool required)
         {
             foreach (string val in annotationProperties)
             {
@@ -151,9 +151,12 @@ namespace Step.Handlers.NetHandler
                 {
 
                     Match m = Regex.Match(val, pattern);
-                    if (m.Success && mergedProperties.ContainsKey(m.Groups[2].ToString()))
+                    if (m.Success && (mergedProperties.ContainsKey(m.Groups[2].ToString()) || input.payload.ContainsKey(m.Groups[2].ToString())))
                     {
-                        string resolvedName = m.Groups[1] + mergedProperties[m.Groups[2].ToString()] + m.Groups[3];
+                        string value = mergedProperties.ContainsKey(m.Groups[2].ToString()) ?
+                            mergedProperties[m.Groups[2].ToString()] :
+                            (string) input.payload.GetValue(m.Groups[2].ToString());
+                        string resolvedName = m.Groups[1] + value + m.Groups[3];
                         if (mergedProperties.ContainsKey(resolvedName))
                         {
                             keywordProperties[resolvedName] = mergedProperties[resolvedName];
