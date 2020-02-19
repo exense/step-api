@@ -51,6 +51,11 @@
 			<url>http://step.exense.ch/</url>
 		</developer>
 	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/exense/step-api/</connection>
+		<developerConnection>scm:git:https://github.com/exense/step-api.git</developerConnection>
+		<url>https://github.com/exense/step-api/</url>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
