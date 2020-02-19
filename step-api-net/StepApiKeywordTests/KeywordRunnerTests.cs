@@ -48,39 +48,30 @@ namespace Step.Handlers.NetHandler.Tests
             output.SetBusinessError("Testing business errors");
         }
 
-        [Keyword(name = "My Prop Keyword", properties = new string[] { "prop1", "prop2" })]
-        public void MyKeywordWithProperties()
+        [Keyword()]
+        public void MyKeywordUsingProperties()
         {
-            output.Add("executed", "My Prop Keyword");
+            EchoProperties();
         }
 
-        [Keyword(name = "My Keyword With Complex Properties", properties = new string[] {
-            "param_scope_global", "param_scope_App1", "param_scope_App2", "param_scope_KW",
-                    "param_scope_KW2", "app.user.name","app.user.{app.user.name}.pwd" },
-            optionalProperties = new string[] { "optionalProp", "optionalPropMissing"  })]
-        public void MyKeywordWithComplexProperties()
+        [Keyword(properties = new string[] { "prop1" })]
+        public void MyKeywordWithPropertyAnnotation()
         {
-            output.Add("executed", "My Prop Keyword");
-            foreach (string key in properties.Keys)
+            EchoProperties();
+        }
+
+        [Keyword(properties = new string[] {"prop.{myPlaceHolder}"}, optionalProperties = new string[] { "myOptionalProperty" })]
+        public void MyKeywordWithPlaceHoldersInProperties()
+        {
+            EchoProperties();
+        }
+
+        protected void EchoProperties()
+        {
+            foreach(var key in properties.Keys)
             {
                 output.Add(key, properties[key]);
             }
-        }
-
-        [Keyword(name = "My Prop Keyword With Placeholder", properties = new string[] { "prop.{myPlaceHolder}", "myPlaceHolder" })]
-        public void MyKeywordWithPropertiesPlaceHolder()
-        {
-            string propName = "prop." + properties["myPlaceHolder"];
-            output.Add(propName, properties[propName]);
-            output.Add("executed", "My Prop Keyword With Placeholder");
-        }
-
-        [Keyword(name = "My Prop Keyword With Placeholder in Inputs", properties = new string[] { "prop.{myPlaceHolder}" })]
-        public void MyKeywordWithPropertiesPlaceHolderInInputs()
-        {
-            string propName = "prop." + (string) input.GetValue("myPlaceHolder");
-            output.Add(propName, properties[propName]);
-            output.Add("executed", "My Prop Keyword With Placeholder");
         }
     }
 
@@ -121,49 +112,143 @@ namespace Step.Handlers.NetHandler.Tests
         }
 
         [Fact]
-        public void TestScriptRunnerProperties()
+        public void TestPropertiesWithoutValidation()
         {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop1"] = "val1"
+            };
+
             ExecutionContext runner = KeywordRunner.GetExecutionContext(
-                new Dictionary<string, string>() { { "$validateProperties", "true" } }, 
+                new Dictionary<string, string>() {}, 
                 typeof(TestKeywords));
 
-            output = runner.Run("My Prop Keyword", @"{}");
-            Assert.Equal("The Keyword is missing the following properties 'prop1, prop2'", output.error.msg);
-
-            output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" } } );
-            Assert.Equal("The Keyword is missing the following properties 'prop2'", output.error.msg);
-
-            output = runner.Run("My Prop Keyword", @"{}", new Dictionary<string, string>() { { "prop1", "val1" },
-                { "prop2", "val2" } });
+            var output = runner.Run("MyKeywordUsingProperties", @"{}", properties);
+            Assert.Equal("val1", output.payload["prop1"].ToString());
             Assert.Null(output.error);
         }
 
         [Fact]
-        public void TestScriptRunnerComplexProperties()
+        public void TestPropertyValidation()
         {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop1"] = "val1"
+            };
+
             ExecutionContext runner = KeywordRunner.GetExecutionContext(
                 new Dictionary<string, string>() { { "$validateProperties", "true" } },
                 typeof(TestKeywords));
 
-            output = runner.Run("My Keyword With Complex Properties", @"{}");
-            Assert.Equal("The Keyword is missing the following properties 'param_scope_global, param_scope_App1, param_scope_App2, " +
-                "param_scope_KW, param_scope_KW2, app.user.name, app.user.{app.user.name}.pwd'", output.error.msg);
-
-            output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
-                { "param_scope_global", "val1" }, { "app.user.name", "testUser" } });
-            Assert.Equal("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
-                "param_scope_KW, param_scope_KW2, app.user.{app.user.name}.pwd or app.user.testUser.pwd'", output.error.msg);
-
-            output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
-                { "param_scope_global", "val1" }, { "app.user.name", "testUser" },  { "app.user.testUser.pwd", "testUserPwd" } });
-            Assert.Equal("The Keyword is missing the following properties 'param_scope_App1, param_scope_App2, " +
-                "param_scope_KW, param_scope_KW2'", output.error.msg);
-
-            output = runner.Run("My Keyword With Complex Properties", @"{}", new Dictionary<string, string>() {
-                { "param_scope_global", "val1" }, { "param_scope_App1", "val1" }, { "param_scope_App2", "val1" },
-                { "param_scope_KW", "val1" }, { "param_scope_KW2", "val1" }, { "app.user.name", "testUser" },
-                { "app.user.testUser.pwd", "testUserPwd" }, { "optionalProp", "optionalPropVal" } });
+            var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
+            Assert.Equal("val1", output.payload["prop1"].ToString());
+            Assert.Equal(1, output.payload.Count);
             Assert.Null(output.error);
+        }
+
+        [Fact]
+        public void TestPropertyValidationPropertyMissing()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop2"] = "My Property 2"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPropertyAnnotation", "{}", properties);
+            Assert.Equal("The Keyword is missing the following properties 'prop1'", output.error.msg);
+        }
+
+        [Fact]
+        public void TestPropertyValidationWithPlaceHolder()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop.placeHolderValue"] = "My Property with Place holder",
+                ["myPlaceHolder"] = "placeHolderValue"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
+            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.Equal(1, output.payload.Count);
+            Assert.Null(output.error);
+        }
+
+        [Fact]
+        public void TestPropertyValidationWithPlaceHolderInInput()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop.placeHolderValue"] = "My Property with Place holder"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
+            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.Equal(1, output.payload.Count);
+            Assert.Null(output.error);
+        }
+
+        [Fact]
+        public void TestPropertyValidationWithOptionalProperties()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["prop.placeHolderValue"] = "My Property with Place holder",
+                ["myOptionalProperty"] = "My optional Property"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
+            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.Equal("My optional Property", output.payload["myOptionalProperty"].ToString());
+            Assert.Equal(2, output.payload.Count);
+            Assert.Null(output.error);
+        }
+
+        [Fact]
+        public void TestPropertyValidationWithPlaceHolderInInputWhereTheResolvedPropertyIsMissing()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["other.placeHolderValue"] = "My Property with Place holder"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
+            Assert.Equal("The Keyword is missing the following properties 'prop.placeHolderValue'", output.error.msg);
+        }
+
+        [Fact]
+        public void TestPropertyValidationWithPlaceHolderInInputWhereThePlaceholderIsMissing()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>
+            {
+                ["other.placeHolderValue"] = "My Property with Place holder"
+            };
+
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(
+                new Dictionary<string, string>() { { "$validateProperties", "true" } },
+                typeof(TestKeywords));
+
+            var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{}", properties);
+            Assert.Equal("The Keyword is missing the following property or input 'myPlaceHolder'", output.error.msg);
         }
 
         [Fact]
@@ -191,38 +276,6 @@ namespace Step.Handlers.NetHandler.Tests
             Assert.Equal("value", output.payload["key"].ToString());
             Assert.Equal("myValue1", output.payload["myProp1"].ToString());
             Assert.Equal("myInputValue1", output.payload["myInput1"].ToString());
-        }
-
-
-        [Fact]
-        public void TestScriptRunnerPropertiesPlaceholder()
-        {
-            Dictionary<string, string> properties = new Dictionary<string, string>
-            {
-                ["prop.placeHolderValue"] = "My Property with Place holder",
-                ["myPlaceHolder"] = "placeHolderValue"
-            };
-
-            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            output = runner.Run("My Prop Keyword With Placeholder", @"{}", properties);
-
-            Assert.Null(output.error);
-            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-        }
-
-        [Fact]
-        public void TestScriptRunnerPropertiesPlaceholderInInput()
-        {
-            Dictionary<string, string> properties = new Dictionary<string, string>
-            {
-                ["prop.placeHolderValue"] = "My Property with Place holder"
-            };
-
-            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
-            output = runner.Run("My Prop Keyword With Placeholder in Inputs", @"{'myPlaceHolder':'placeHolderValue'}", properties);
-
-            Assert.Null(output.error);
-            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
         }
     }
 }

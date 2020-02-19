@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Runtime.Serialization;
 
 namespace Step.Handlers.NetHandler
 {
@@ -19,7 +20,6 @@ namespace Step.Handlers.NetHandler
         protected List<Assembly> keywordAssemblies = new List<Assembly>();
         private Thread thread;
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
-        private readonly string pattern = @"(.*)\{(.*)\}(.*)";
 
         public void AddKeywordAssembly(Assembly assembly)
         {
@@ -91,23 +91,28 @@ namespace Step.Handlers.NetHandler
 
                 Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
 
-                List<string> missingProperties = new List<string>();
-                Dictionary<string, string> keywordProperties = new Dictionary<string, string>();
+                Dictionary<string, string> keywordProperties;
                 
-                if (mergedProperties.ContainsKey(VALIDATE_PROPERTIES))
+                if (properties.ContainsKey(VALIDATE_PROPERTIES))
                 {
-                    if (keyword.properties != null)
+                    List<string> missingProperties = new List<string>();
+                    Dictionary<string, string> reducedProperties = new Dictionary<string, string>();
+                    try
                     {
-                        processPropertyKeys(keyword.properties, input, mergedProperties, keywordProperties, missingProperties, true);
-                    }
-                    if (keyword.optionalProperties != null)
+                        ProcessPropertyKeys(properties, input, keyword.properties, missingProperties, reducedProperties, true);
+                        ProcessPropertyKeys(properties, input, keyword.optionalProperties, missingProperties, reducedProperties, false);
+                        if (missingProperties.Count > 0)
+                        {
+                            outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
+                                        string.Join(", ", missingProperties) + "'");
+                            return outputBuilder.Build();
+                        } else
+                        {
+                            keywordProperties = reducedProperties;
+                        }
+                    } catch (MissingPlaceholderException e)
                     {
-                        processPropertyKeys(keyword.optionalProperties, input, mergedProperties, keywordProperties, missingProperties, false);
-                    }
-                    if (missingProperties.Count > 0)
-                    {
-                        outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
-                                    string.Join(", ", missingProperties) + "'");
+                        outputBuilder.SetBusinessError("The Keyword is missing the following property or input '"+e.placeholder+"'");
                         return outputBuilder.Build();
                     }
                 }
@@ -143,38 +148,70 @@ namespace Step.Handlers.NetHandler
             return outputBuilder.Build();
         }
 
-        private void processPropertyKeys(string[] annotationProperties, Input input, Dictionary<string, string> mergedProperties, Dictionary<string, string> keywordProperties, List<string> missingProperties, bool required)
+        private void ProcessPropertyKeys(Dictionary<string, string> properties, Input input, string[] requiredPropertyKeys, List<string> missingProperties, Dictionary<string, string> reducedProperties, bool required)
         {
-            foreach (string val in annotationProperties)
+            if(requiredPropertyKeys != null)
             {
-                if (!mergedProperties.ContainsKey(val))
+                // First try to resolve the place holders
+                var resolvedPropertyKeys = new List<string>();
+                foreach (string key in requiredPropertyKeys )
                 {
+                    resolvedPropertyKeys.Add(ReplacePlaceholders(key, properties, input));
+                }
 
-                    Match m = Regex.Match(val, pattern);
-                    if (m.Success && (mergedProperties.ContainsKey(m.Groups[2].ToString()) || input.payload.ContainsKey(m.Groups[2].ToString())))
+                // Then check if all properties exist
+                foreach (string val in resolvedPropertyKeys)
+                {
+                    if (properties.ContainsKey(val))
                     {
-                        string value = mergedProperties.ContainsKey(m.Groups[2].ToString()) ?
-                            mergedProperties[m.Groups[2].ToString()] :
-                            (string) input.payload.GetValue(m.Groups[2].ToString());
-                        string resolvedName = m.Groups[1] + value + m.Groups[3];
-                        if (mergedProperties.ContainsKey(resolvedName))
+                        reducedProperties[val] = properties[val];
+                    }
+                    else
+                    {
+                        if(required)
                         {
-                            keywordProperties[resolvedName] = mergedProperties[resolvedName];
-                        }
-                        else if (required)
-                        {
-                            missingProperties.Add(val + " or " + resolvedName);
+                            missingProperties.Add(val);
                         }
                     }
-                    else if (required)
-                    {
-                        missingProperties.Add(val);
-                    }
+                }
+            }
+        }
+
+        private String ReplacePlaceholders(String property, Dictionary<String, String> properties, Input input)
+        {
+            return Regex.Replace(property, "\\{(.+?)\\}", delegate (Match match)
+            {
+                var matchStr = match.ToString();
+                var key = matchStr.Substring(1, matchStr.Length - 2);
+                string replacement;
+                if (properties.ContainsKey(key))
+                {
+                    replacement = properties[key];
                 }
                 else
                 {
-                    keywordProperties[val] = mergedProperties[val];
+                    if (input.payload.ContainsKey(key))
+                    {
+                        replacement = input.payload[key].ToString();
+                    }
+                    else
+                    {
+                        throw new MissingPlaceholderException(key);
+                    }
                 }
+                return replacement;
+            });
+
+        }
+
+        [Serializable]
+        private class MissingPlaceholderException : Exception
+        {
+            public string placeholder { get; }
+
+            public MissingPlaceholderException(string placeholder) : base()
+            {
+                this.placeholder = placeholder;
             }
         }
 

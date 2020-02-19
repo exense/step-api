@@ -46,7 +46,7 @@ public class KeywordExecutor {
 	private static final Logger logger = LoggerFactory.getLogger(KeywordExecutor.class);
 	
 	private boolean throwExceptionOnError = false;
-	private static final Pattern p = Pattern.compile("(.*)\\{(.*)\\}(.*)");
+	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
 	public KeywordExecutor(boolean throwExceptionOnError) {
 		super();
@@ -83,15 +83,21 @@ public class KeywordExecutor {
 								String[] optionalPropertyKeys = annotation.optionalProperties();
 								List<String> missingProperties = new ArrayList<>();
 								Map<String, String> reducedProperties = new HashMap<>();
-								processPropertyKeys(properties, input, requiredPropertyKeys, missingProperties, reducedProperties, true);
-								processPropertyKeys(properties, input, optionalPropertyKeys, missingProperties, reducedProperties, false);
-								
-								if(missingProperties.size()>0) {
+								try {
+									processPropertyKeys(properties, input, requiredPropertyKeys, missingProperties, reducedProperties, true);
+									processPropertyKeys(properties, input, optionalPropertyKeys, missingProperties, reducedProperties, false);
+									
+									if(missingProperties.size()>0) {
+										OutputBuilder outputBuilder = new OutputBuilder();
+										outputBuilder.setBusinessError("The Keyword is missing the following properties "+missingProperties.toString());
+										return outputBuilder.build();
+									} else {
+										keywordProperties = reducedProperties;
+									}
+								} catch (MissingPlaceholderException e) {
 									OutputBuilder outputBuilder = new OutputBuilder();
-									outputBuilder.setBusinessError("The Keyword is missing the following properties "+missingProperties.toString());
+									outputBuilder.setBusinessError("The Keyword is missing the following property or input '"+e.placeholder+"'");
 									return outputBuilder.build();
-								} else {
-									keywordProperties = reducedProperties;
 								}
 							} else {
 								keywordProperties = properties;
@@ -107,30 +113,56 @@ public class KeywordExecutor {
 		throw new Exception("Unable to find method annoted by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
-	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] reducedPropertyKeys, List<String> missingProperties,
-			Map<String, String> reducedProperties, boolean required) {
-		for (String string : reducedPropertyKeys) {
-			if(!properties.containsKey(string)) {
-				//if the property uses place holder and place holder is a property 
-				Matcher ma = p.matcher(string);
-				if (ma.matches() && (properties.containsKey(ma.group(2)) || input.getPayload().containsKey(ma.group(2)))) {
-					String value = (properties.containsKey(ma.group(2))) ? properties.get(ma.group(2)) : input.getPayload().getString(ma.group(2));  
-					String resolvedName = ma.group(1) + value + ma.group(3);
-					if (properties.containsKey(resolvedName)) {
-						reducedProperties.put(resolvedName, properties.get(resolvedName));
-					} else if (required) {
-						missingProperties.add(string + " or " + resolvedName);
-					}
-						
-				} else if (required) {
-					missingProperties.add(string);
-				}
-					
-			} else {
-				reducedProperties.put(string, properties.get(string));
-			}
+	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] requiredPropertyKeys, List<String> missingProperties,
+			Map<String, String> reducedProperties, boolean required) throws MissingPlaceholderException {
+		// First try to resolve the place holders
+		List<String> resolvedPropertyKeys = new ArrayList<>();
+		for (String key : requiredPropertyKeys) {
+			resolvedPropertyKeys.add(replacePlaceholders(key, properties, input));
 		}
 		
+		// Then check if all required properties exist
+		for (String string : resolvedPropertyKeys) {
+			if(properties.containsKey(string)) { 
+				reducedProperties.put(string, properties.get(string));
+			} else {
+				if(required) {
+					missingProperties.add(string);
+				}
+			}
+		}
+	}
+	
+	private String replacePlaceholders(String string, Map<String, String> properties, Input<JsonObject> input) throws MissingPlaceholderException {
+		StringBuffer sb = new StringBuffer();
+		Matcher m = PLACEHOLDER_PATTERN.matcher(string);
+		while (m.find()) {
+            String key = m.group(1);
+            String replacement;
+            if(properties.containsKey(key)) {
+            	replacement = properties.get(key);
+            } else {
+            	if(input.getPayload().containsKey(key)) {
+            		replacement = input.getPayload().getString(key);
+            	} else {
+            		throw new MissingPlaceholderException(key);
+            	}
+            }
+        	m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+		m.appendTail(sb);
+		return sb.toString();
+	}
+	
+	@SuppressWarnings({"serial" })
+	private static class MissingPlaceholderException extends Exception {
+		
+		String placeholder;
+
+		public MissingPlaceholderException(String placeholder) {
+			super();
+			this.placeholder = placeholder;
+		}
 	}
 
 	private Output<JsonObject> invokeMethod(Method m, Input<JsonObject> input, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties)
