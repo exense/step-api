@@ -15,7 +15,10 @@
       </AssemblyAttributes>
       <AssemblyAttributes Include="AssemblyFileVersionAttribute">
         <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes> 	  
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyVersionAttribute">
+        <_Parameter1>$(VERSION)</_Parameter1>
+      </AssemblyAttributes>	  
     </ItemGroup>
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
