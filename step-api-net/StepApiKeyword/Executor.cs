@@ -93,14 +93,14 @@ namespace Step.Handlers.NetHandler
 
                 Dictionary<string, string> keywordProperties;
                 
-                if (properties.ContainsKey(VALIDATE_PROPERTIES))
+                if (mergedProperties.ContainsKey(VALIDATE_PROPERTIES))
                 {
                     List<string> missingProperties = new List<string>();
                     Dictionary<string, string> reducedProperties = new Dictionary<string, string>();
                     try
                     {
-                        ProcessPropertyKeys(properties, input, keyword.properties, missingProperties, reducedProperties, true);
-                        ProcessPropertyKeys(properties, input, keyword.optionalProperties, missingProperties, reducedProperties, false);
+                        ProcessPropertyKeys(mergedProperties, input, keyword.properties, missingProperties, reducedProperties, true);
+                        ProcessPropertyKeys(mergedProperties, input, keyword.optionalProperties, missingProperties, reducedProperties, false);
                         if (missingProperties.Count > 0)
                         {
                             outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
