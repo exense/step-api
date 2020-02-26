@@ -11,18 +11,13 @@
 			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
 			"https://nexus-enterprise.exense.ch/repository/staging-nuget/"
 		],
-		"URL_QA":		[ 
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
-			"https://nexus-enterprise.exense.ch/repository/staging-nuget/"
-		],
 		"URL_PROD":		[ 
 			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
 			"https://nexus-enterprise.exense.ch/repository/exense-nuget/"
 		],
 		
 		"CONFIG_STAGING": [ "DefaultBuild", "Debug"],
-		"CONFIG_QA": [ "DefaultBuild", "Debug"], 
 		"CONFIG_PROD": [ "DefaultBuild", "Release"]
 	},
-	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_QA":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
+	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
 }
