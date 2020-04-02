@@ -142,7 +142,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
             Assert.Equal("val1", output.payload["prop1"].ToString());
-            Assert.Equal(1, output.payload.Count);
+            Assert.Single(output.payload);
             Assert.Null(output.error);
         }
 
@@ -177,7 +177,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(1, output.payload.Count);
+            Assert.Single(output.payload);
             Assert.Null(output.error);
         }
 
@@ -195,7 +195,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(1, output.payload.Count);
+            Assert.Single(output.payload);
             Assert.Null(output.error);
         }
 
