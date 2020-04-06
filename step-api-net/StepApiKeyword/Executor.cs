@@ -184,15 +184,15 @@ namespace Step.Handlers.NetHandler
                 var matchStr = match.ToString();
                 var key = matchStr.Substring(1, matchStr.Length - 2);
                 string replacement;
-                if (properties.ContainsKey(key))
+                if (input.payload.ContainsKey(key))
                 {
-                    replacement = properties[key];
+                    replacement = input.payload[key].ToString();
                 }
                 else
                 {
-                    if (input.payload.ContainsKey(key))
+                    if (properties.ContainsKey(key))
                     {
-                        replacement = input.payload[key].ToString();
+                        replacement = properties[key];
                     }
                     else
                     {

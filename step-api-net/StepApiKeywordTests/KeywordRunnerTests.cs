@@ -186,7 +186,9 @@ namespace Step.Handlers.NetHandler.Tests
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
             {
-                ["prop.placeHolderValue"] = "My Property with Place holder"
+                ["prop.placeHolderValue"] = "My Property with Place holder",
+                 // The placeholder value from the input should be taken
+                ["myPlaceHolder"] = "placeHolderValue from properties",
             };
 
             ExecutionContext runner = KeywordRunner.GetExecutionContext(

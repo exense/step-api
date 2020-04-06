@@ -139,11 +139,11 @@ public class KeywordExecutor {
 		while (m.find()) {
             String key = m.group(1);
             String replacement;
-            if(properties.containsKey(key)) {
-            	replacement = properties.get(key);
+            if(input.getPayload().containsKey(key)) {
+        		replacement = input.getPayload().getString(key);
             } else {
-            	if(input.getPayload().containsKey(key)) {
-            		replacement = input.getPayload().getString(key);
+            	if(properties.containsKey(key)) {
+                	replacement = properties.get(key);
             	} else {
             		throw new MissingPlaceholderException(key);
             	}

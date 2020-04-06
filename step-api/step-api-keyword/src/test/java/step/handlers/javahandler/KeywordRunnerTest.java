@@ -83,6 +83,8 @@ public class KeywordRunnerTest {
 		String myPropertyValue = "My Property with Place holder";
 		String myPropertyKey = "prop.placeHolderValue";
 		properties.put(myPropertyKey, myPropertyValue);
+		// The placeholder value from the input should be taken
+		properties.put("myPlaceHolder", "placeHolderValueFromProperties");
 		
 		properties.put(KeywordExecutor.VALIDATE_PROPERTIES, "validate");
 		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
