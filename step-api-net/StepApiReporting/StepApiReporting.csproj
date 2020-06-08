@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
