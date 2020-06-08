@@ -11,6 +11,9 @@
       <AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
         <_Parameter1>$(VERSION)</_Parameter1>
       </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyFileVersionAttribute">
+        <_Parameter1>$(VERSION)</_Parameter1>
+      </AssemblyAttributes>
     </ItemGroup>
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
@@ -19,6 +22,6 @@
 		</ItemGroup>
 	</Target>
 	<Target Name="Push">
-    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;$(AssemblyName).$(VERSION).nupkg&quot; -s $(NEXUS_URL)" />
+    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
 	</Target>
 </Project>
