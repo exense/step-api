@@ -236,7 +236,7 @@ namespace Step.Handlers.NetHandler
 
 #pragma warning disable CS0618 // Type or member is obsolete
             thread.Suspend();
-            StackTrace trace = new StackTrace(thread, true);
+            CompressedStack trace = thread.GetCompressedStack();
             thread.Resume();
 #pragma warning restore CS0618
 
