@@ -6,9 +6,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.8">
-      <PrivateAssets>true</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="log4net" Version="2.0.8" />
   </ItemGroup>
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
