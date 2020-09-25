@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (C) Copyright 2016 Jerome Comte and Dorian Cransac
+ * Copyright (C) 2020, exense GmbH
  *  
  * This file is part of STEP
  *  
@@ -15,7 +15,7 @@
  *  
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
- *******************************************************************************/
+ ******************************************************************************/
 package step.functions.io;
 
 import java.io.PrintWriter;
@@ -40,9 +40,6 @@ import step.grid.io.AttachmentHelper;
 
 /**
  * A builder for Output instances.
- * 
- * @author JÃ©rÃ´me Comte
- * @author Dorian Cransac
  *
  */
 public class OutputBuilder {

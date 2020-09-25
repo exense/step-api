@@ -1,24 +1,26 @@
 <!--
-    (C) Copyright 2016 Jerome Comte and Dorian Cransac
-     
-    This file is part of STEP
-     
-    STEP is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-     
-    STEP is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-     
-    You should have received a copy of the GNU Affero General Public License
-    along with STEP.  If not, see <http://www.gnu.org/licenses />.
- -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  Copyright (C) 2020, exense GmbH
+   
+  This file is part of STEP
+   
+  STEP is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+   
+  STEP is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+   
+  You should have received a copy of the GNU Affero General Public License
+  along with STEP.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>ch.exense.step</groupId>
 	<artifactId>step-api</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
@@ -37,18 +39,11 @@
 	</licenses>
 	<developers>
 		<developer>
-			<name>Jerome Comte</name>
-			<email>jerome.comte@exense.ch</email>
-			<organization>Exense</organization>
-			<organizationUrl>http://exense.ch</organizationUrl>
-			<url>http://step.exense.ch/</url>
-		</developer>
-		<developer>
-			<name>Dorian Cransac</name>
-			<email>dorian.cransac@exense.ch</email>
-			<organization>Exense</organization>
-			<organizationUrl>http://exense.ch</organizationUrl>
-			<url>http://step.exense.ch/</url>
+			<name>exense Team</name>
+			<email>contact@exense.ch</email>
+			<organization>exense GmbH</organization>
+			<organizationUrl>http://www.exense.ch</organizationUrl>
+			<url>http://step.exense.ch</url>
 		</developer>
 	</developers>
 	<scm>
@@ -62,7 +57,7 @@
 		<junit.version>4.8.1</junit.version>
 		<jackson.version>2.10.0</jackson.version>
 	</properties>
-	
+
 	<modules>
 		<module>step-api-function</module>
 		<module>step-api-keyword</module>
@@ -80,16 +75,16 @@
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
-		</dependency>	
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>3.0.0-M1</version>
-				</plugin>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -119,8 +114,8 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.1.1</version>
 				<configuration>
-			      <source>8</source>
-			    </configuration>
+					<source>8</source>
+				</configuration>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -150,9 +145,9 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>	
+		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>Default</id>
