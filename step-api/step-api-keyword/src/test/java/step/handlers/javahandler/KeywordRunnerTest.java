@@ -26,7 +26,6 @@ import javax.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import step.core.reports.Measure;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
@@ -37,10 +36,6 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeyword");
 		Assert.assertEquals("test",output.getPayload().getString("test"));
-		Assert.assertEquals(1, output.getMeasures().size());
-		Measure measure = output.getMeasures().get(0);
-		Assert.assertEquals("MyKeyword", measure.getName());
-		Assert.assertEquals(Measure.TYPE_KEYWORD, measure.getData().get(Measure.ATTRIBUTE_TYPE));
 	}
 	
 	@Test

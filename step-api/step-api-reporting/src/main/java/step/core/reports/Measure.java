@@ -30,10 +30,6 @@ public class Measure {
 	private long begin;
 	
 	private Map<String, Object> data;
-	
-	public static final String ATTRIBUTE_TYPE = "type";
-	public static final String TYPE_KEYWORD = "keyword";
-	public static final String TYPE_CUSTOM = "custom";
 
 	public Measure() {
 		super();

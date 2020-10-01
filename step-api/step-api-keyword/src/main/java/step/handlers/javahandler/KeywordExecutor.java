@@ -32,7 +32,6 @@ import javax.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import step.core.reports.Measure;
 import step.functions.io.AbstractSession;
 import step.functions.io.Input;
 import step.functions.io.Output;
@@ -187,14 +186,7 @@ public class KeywordExecutor {
 			script.setOutputBuilder(outputBuilder);
 
 			try {
-				outputBuilder.startMeasure(input.getFunction());
-				try {
-					m.invoke(instance);
-				} finally {
-					Map<String, Object> data = new HashMap<>();
-					data.put(Measure.ATTRIBUTE_TYPE, Measure.TYPE_KEYWORD);
-					outputBuilder.stopMeasure(data);
-				}
+				m.invoke(instance);
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {
