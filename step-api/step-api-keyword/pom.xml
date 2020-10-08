@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>ch.exense.step</groupId>
 		<artifactId>step-api</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>2020.10.08-ID2649a2b</version>
 	</parent>
 
 	<dependencies>
