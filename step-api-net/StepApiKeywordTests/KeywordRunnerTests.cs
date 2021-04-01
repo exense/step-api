@@ -272,6 +272,7 @@ namespace Step.Handlers.NetHandler.Tests
             };
 
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+
             output = runner.Run("My Keyword", @"{""myInput1"":""myInputValue1""}", properties);
 
             Assert.Null(output.error);

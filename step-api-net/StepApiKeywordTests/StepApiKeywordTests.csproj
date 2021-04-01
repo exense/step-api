@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -14,7 +14,27 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KeywordsForTesting\KeywordsForTesting.csproj" />
-    <ProjectReference Include="..\StepApiKeyword\StepApiKeyword.csproj" />
+    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj" />
   </ItemGroup>
-
+  
+  <Target Name="UpdateVersion">
+    <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
+    <Message Text="Writing to AssemblyInfo files"></Message>
+    <ItemGroup>
+      <AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
+        <_Parameter1>$(VERSION)</_Parameter1>
+      </AssemblyAttributes>
+      <AssemblyAttributes Include="AssemblyFileVersionAttribute">
+        <_Parameter1>$(VERSION)</_Parameter1>
+      </AssemblyAttributes>
+    </ItemGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
+    <ItemGroup>
+      <Compile Include="Properties\Version.cs" />
+    </ItemGroup>
+  </Target>
+  <Target Name="Push">
+    <Message Text="Nothing to be done"></Message>
+  </Target>
 </Project>
