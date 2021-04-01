@@ -1,7 +1,7 @@
-﻿using Step.Functions.IO;
+﻿using Newtonsoft.Json.Linq;
+using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Step.Handlers.NetHandler
 {
@@ -16,7 +16,7 @@ namespace Step.Handlers.NetHandler
 
     public class AbstractKeyword
     {
-        public Dictionary<string, object> input;
+        public JObject input;
 
         public Dictionary<string, string> properties;
 
@@ -25,7 +25,7 @@ namespace Step.Handlers.NetHandler
         public TokenSession session;
 
         public TokenSession tokenSession;
-
+        
         public virtual bool OnError(Exception e)
         {
             return true;

@@ -1,41 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFramework>net5.0</TargetFramework>
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0-preview-20200519-01" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\KeywordsForTesting\KeywordsForTesting.csproj" />
-    <ProjectReference Include="..\StepApiFunction\StepApiFunction.csproj" />
-    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj" />
+    <ProjectReference Include="..\StepApiKeyword\StepApiKeyword.csproj" />
   </ItemGroup>
-  <Target Name="UpdateVersion">
-    <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
-    <Message Text="Writing to AssemblyInfo files"></Message>
-    <ItemGroup>
-      <AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
-        <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes>
-      <AssemblyAttributes Include="AssemblyFileVersionAttribute">
-        <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes>
-    </ItemGroup>
-    <MakeDir Directories="$(IntermediateOutputPath)" />
-    <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
-		<ItemGroup>
-      <Compile Include="Properties\Version.cs" />
-		</ItemGroup>
-	</Target>
-	<Target Name="Push">
-    <Message Text="Nothing to be done"></Message>
-	</Target>
+
 </Project>

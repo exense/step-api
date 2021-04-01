@@ -2,18 +2,23 @@
 using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Runtime.Serialization;
 
 namespace Step.Handlers.NetHandler
 {
     public class KeywordExecutor
     {
+        private static Mutex mut = new Mutex();
+
         protected static readonly ILog logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
-        protected List<Assembly> keywordAssemblies = new();
+        protected List<Assembly> keywordAssemblies = new List<Assembly>();
+        private Thread thread;
         private readonly string VALIDATE_PROPERTIES = "$validateProperties";
 
         public void AddKeywordAssembly(Assembly assembly)
@@ -24,11 +29,11 @@ namespace Step.Handlers.NetHandler
         public MethodInfo GetKeywordMethodByName(string name)
         {
             return GetKeywordMethods()
-                .FirstOrDefault(m =>
-                {
-                    Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
-                    return GetKeywordName(m) == name;
-                });
+                        .FirstOrDefault(m =>
+                        {
+                            Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
+                            return GetKeywordName(m) == name;
+                        });
         }
 
         public List<MethodInfo> GetKeywordMethods()
@@ -36,15 +41,15 @@ namespace Step.Handlers.NetHandler
             if (keywordAssemblies.Count == 0)
                 throw new Exception("No Keyword Assembly has been set. Please define the Keyword Assembly using the method AddKeywordAssembly()");
 
-            List<MethodInfo> result = new();
-            keywordAssemblies.ForEach(assembly => result.AddRange(assembly.GetTypes()
+            List<MethodInfo> result = new List<MethodInfo>();
+            keywordAssemblies.ForEach(assembly=> result.AddRange(assembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
                       .ToList()));
             return result;
         }
 
-        protected static string GetKeywordName(MethodInfo m)
+        protected string GetKeywordName(MethodInfo m)
         {
             Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
             string keywordName = keyword.name;
@@ -53,9 +58,13 @@ namespace Step.Handlers.NetHandler
 
         public Output CallKeyword(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
+            mut.WaitOne();
+            thread = Thread.CurrentThread;
+            mut.ReleaseMutex();
+
             // Create the merged property map containing the input properties and the additional properties
-            Dictionary<string, string> mergedProperties = new();
-            if (input.properties != null)
+            Dictionary<string, string> mergedProperties = new Dictionary<string, string>();
+            if(input.properties != null)
             {
                 foreach (var prop in input.properties)
                 {
@@ -67,12 +76,12 @@ namespace Step.Handlers.NetHandler
                 mergedProperties[prop.Key] = prop.Value;
             }
 
-            OutputBuilder outputBuilder = new();
+            OutputBuilder outputBuilder = new OutputBuilder();
             var methodName = input.function;
             try
             {
                 MethodInfo method = GetKeywordMethodByName(methodName);
-                if (method == null)
+                if(method == null)
                 {
                     outputBuilder.SetError("Unable to find method annoted by 'Keyword' with name == '" + methodName + "'");
                     return outputBuilder.Build();
@@ -83,11 +92,11 @@ namespace Step.Handlers.NetHandler
                 Keyword keyword = method.GetCustomAttribute(typeof(Keyword)) as Keyword;
 
                 Dictionary<string, string> keywordProperties;
-
+                
                 if (mergedProperties.ContainsKey(VALIDATE_PROPERTIES))
                 {
-                    List<string> missingProperties = new();
-                    Dictionary<string, string> reducedProperties = new();
+                    List<string> missingProperties = new List<string>();
+                    Dictionary<string, string> reducedProperties = new Dictionary<string, string>();
                     try
                     {
                         ProcessPropertyKeys(mergedProperties, input, keyword.properties, missingProperties, reducedProperties, true);
@@ -97,15 +106,13 @@ namespace Step.Handlers.NetHandler
                             outputBuilder.SetBusinessError("The Keyword is missing the following properties '" +
                                         string.Join(", ", missingProperties) + "'");
                             return outputBuilder.Build();
-                        }
-                        else
+                        } else
                         {
                             keywordProperties = reducedProperties;
                         }
-                    }
-                    catch (MissingPlaceholderException e)
+                    } catch (MissingPlaceholderException e)
                     {
-                        outputBuilder.SetBusinessError("The Keyword is missing the following property or input '" + e.placeholder + "'");
+                        outputBuilder.SetBusinessError("The Keyword is missing the following property or input '"+e.placeholder+"'");
                         return outputBuilder.Build();
                     }
                 }
@@ -127,11 +134,11 @@ namespace Step.Handlers.NetHandler
 
                 try
                 {
-                    method.Invoke(c, Array.Empty<object>());
+                    method.Invoke(c, new object[] { });
                 }
                 catch (Exception e)
                 {
-                    CallOnError(c, e, alwaysThrowException);
+                    CallOnError(c, e, methodName, alwaysThrowException);
                 }
             }
             catch (Exception e)
@@ -141,14 +148,13 @@ namespace Step.Handlers.NetHandler
             return outputBuilder.Build();
         }
 
-        private static void ProcessPropertyKeys(Dictionary<string, string> properties, Input input, string[] requiredPropertyKeys, 
-            List<string> missingProperties, Dictionary<string, string> reducedProperties, bool required)
+        private void ProcessPropertyKeys(Dictionary<string, string> properties, Input input, string[] requiredPropertyKeys, List<string> missingProperties, Dictionary<string, string> reducedProperties, bool required)
         {
-            if (requiredPropertyKeys != null)
+            if(requiredPropertyKeys != null)
             {
                 // First try to resolve the place holders
                 var resolvedPropertyKeys = new List<string>();
-                foreach (string key in requiredPropertyKeys)
+                foreach (string key in requiredPropertyKeys )
                 {
                     resolvedPropertyKeys.Add(ReplacePlaceholders(key, properties, input));
                 }
@@ -162,7 +168,7 @@ namespace Step.Handlers.NetHandler
                     }
                     else
                     {
-                        if (required)
+                        if(required)
                         {
                             missingProperties.Add(val);
                         }
@@ -171,14 +177,13 @@ namespace Step.Handlers.NetHandler
             }
         }
 
-        private static String ReplacePlaceholders(String property, Dictionary<String, String> properties, Input input)
+        private String ReplacePlaceholders(String property, Dictionary<String, String> properties, Input input)
         {
             return Regex.Replace(property, "\\{(.+?)\\}", delegate (Match match)
             {
                 var matchStr = match.ToString();
-                var key = matchStr[1..^1];
+                var key = matchStr.Substring(1, matchStr.Length - 2);
                 string replacement;
-
                 if (input.payload.ContainsKey(key))
                 {
                     replacement = input.payload[key].ToString();
@@ -210,7 +215,7 @@ namespace Step.Handlers.NetHandler
             }
         }
 
-        private static void CallOnError(object c, Exception exception, bool alwaysThrowException)
+        private void CallOnError(object c, Exception exception, string methodName, bool alwaysThrowException)
         {
             if (c.GetType().IsSubclassOf(typeof(AbstractKeyword)))
             {
@@ -225,9 +230,19 @@ namespace Step.Handlers.NetHandler
             }
         }
 
-        public static string Interrupt()
+        public string Interrupt()
         {
-            return "Not supported :(";
+            mut.WaitOne();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            //            thread.Suspend();
+            //            StackTrace trace = new StackTrace(thread, true);
+            //            thread.Resume();
+#pragma warning restore CS0618
+
+            //           mut.ReleaseMutex();
+
+            return "Not supported :(";//trace.ToString();
         }
     }
 }

@@ -2,19 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>StepApiReporting</RootNamespace>
+    <AssemblyName>StepApiReporting</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <IsPackable>false</IsPackable>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\StepApiKeyword\StepApiKeyword.csproj" />
-  </ItemGroup>
   
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
@@ -34,6 +26,9 @@
     </ItemGroup>
   </Target>
   <Target Name="Push">
-    <Message Text="Nothing to be done"></Message>
+    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
   </Target>
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.12" />
+  </ItemGroup>
 </Project>
