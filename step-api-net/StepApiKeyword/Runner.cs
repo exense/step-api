@@ -43,7 +43,7 @@ namespace Step.Handlers.NetHandler
                 function = function,
                 payload = JsonSerializer.Deserialize<Dictionary<string, object>>(inputJson.ToString())
             };
-            return executor.CallKeyword(input, session, session, properties, false);
+            return executor.CallKeyword(input, session, properties, false);
         }
 
         public void Close()

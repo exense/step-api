@@ -21,7 +21,6 @@ namespace Step.Functions.IO
 
         public long functionCallTimeout;
 
-        //public JsonDocument payload;
         public Dictionary<string, object> payload;
 
         public Dictionary<string, string> properties;

@@ -51,7 +51,7 @@ namespace Step.Handlers.NetHandler
             return keywordName != null && keywordName.Length > 0 ? keywordName : m.Name;
         }
 
-        public Output CallKeyword(Input input, TokenSession tokenReservationSession, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
+        public Output CallKeyword(Input input, TokenSession tokenSession, Dictionary<string, string> properties, bool alwaysThrowException = false)
         {
             // Create the merged property map containing the input properties and the additional properties
             Dictionary<string, string> mergedProperties = new();
@@ -119,8 +119,7 @@ namespace Step.Handlers.NetHandler
                 {
                     AbstractKeyword script = (AbstractKeyword)c;
                     script.input = input.payload;
-                    script.session = tokenReservationSession;
-                    script.tokenSession = tokenSession;
+                    script.session = tokenSession;
                     script.output = outputBuilder;
                     script.properties = keywordProperties;
                 }
