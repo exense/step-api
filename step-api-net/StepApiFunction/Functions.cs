@@ -90,7 +90,7 @@ namespace Step.Functions.IO
             measureHelper.StartMeasure(id, begin);
         }
 
-        public void StopMeasure(long end, Dictionary<string, Object> data)
+        public void StopMeasure(long end, Dictionary<string, string> data)
         {
             measureHelper.StopMeasure(end, data);
         }
@@ -100,7 +100,7 @@ namespace Step.Functions.IO
             measureHelper.AddMeasure(measureName, durationMillis);
         }
 
-        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
+        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, string> data)
         {
             measureHelper.AddMeasure(measureName, aDurationMillis, data);
         }
@@ -110,7 +110,7 @@ namespace Step.Functions.IO
             measureHelper.StopMeasure();
         }
 
-        public void StopMeasure(Dictionary<string, Object> data)
+        public void StopMeasure(Dictionary<string, string> data)
         {
             measureHelper.StopMeasure(data);
         }
