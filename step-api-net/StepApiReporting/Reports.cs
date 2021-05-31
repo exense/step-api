@@ -4,25 +4,23 @@ using System.Text.Json.Serialization;
 
 namespace Step.Core.Reports
 {
-    [Serializable]
     public enum ErrorType
     {
         TECHNICAL,
         BUSINESS
     }
 
-    [Serializable]
     public class Error
     {
-        public ErrorType type = ErrorType.TECHNICAL;
+        public ErrorType type { get; set; } = ErrorType.TECHNICAL;
 
-        public string layer;
+        public string layer { get; set; }
 
-        public string msg;
+        public string msg { get; set; }
 
-        public int code;
+        public int code { get; set; }
 
-        public bool root;
+        public bool root { get; set; }
 
         public Error(ErrorType type, string message) : this(type, null, message, 0, true)
         { }
@@ -40,18 +38,17 @@ namespace Step.Core.Reports
         }
     }
 
-    [Serializable]
     public class Measure
     {
-        public string name;
+        public string name { get; set; }
 
-        public long duration;
+        public long duration { get; set; }
 
-        public long begin;
+        public long begin { get; set; }
 
-        public Dictionary<string, Object> data;
+        public Dictionary<string, string> data { get; set; }
 
-        public Measure(string name, long duration, long begin, Dictionary<string, Object> data)
+        public Measure(string name, long duration, long begin, Dictionary<string, string> data)
         {
             this.name = name;
             this.duration = duration;
@@ -60,7 +57,6 @@ namespace Step.Core.Reports
         }
     }
 
-    [Serializable]
     public class MeasurementsBuilder
     {
         private readonly Stack<Measure> stack = new();
