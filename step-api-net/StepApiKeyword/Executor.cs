@@ -32,8 +32,13 @@ namespace Step.Handlers.NetHandler
             if (keywordAssemblies.Count == 0)
                 throw new Exception("No Keyword Assembly has been set. Please define the Keyword Assembly using the method AddKeywordAssembly()");
 
+            foreach (Assembly a in keywordAssemblies)
+            {
+                Console.WriteLine(a.FullName);
+            }
+
             List<MethodInfo> result = new();
-            keywordAssemblies.ForEach(assembly => result.AddRange(assembly.GetTypes()
+            keywordAssemblies.ForEach(keywordAssembly => result.AddRange(keywordAssembly.GetTypes()
                       .SelectMany(t => t.GetMethods())
                       .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
                       .ToList()));
