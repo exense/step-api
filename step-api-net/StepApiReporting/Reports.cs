@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Step.Core.Reports
 {
@@ -29,7 +28,6 @@ namespace Step.Core.Reports
         public Error(ErrorType type, string message, int code) : this(type, null, message, code, true)
         { }
 
-        [JsonConstructor]
         public Error(ErrorType type, string layer, string msg, int code, bool root)
         {
             this.type = type;
