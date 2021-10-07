@@ -2,15 +2,16 @@
 
 namespace Step.Grid.IO
 {
+    [Serializable]
     public class Attachment
     {
-        public string name { get; set; }
+        public string name;
 
-        public string description { get; set; }
+        public string description;
 
-        public string hexContent { get; set; }
+        public string hexContent;
 
-        public Boolean isDirectory { get; set; }
+        public Boolean isDirectory;
     }
 
     public class AttachmentHelper

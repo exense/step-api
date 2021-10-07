@@ -10,33 +10,33 @@ namespace Step.Functions.IO
     {
         public string type = "step.plugins.dotnet.DotNetFunction";
 
-        public Dictionary<string, string> attributes { get; set; }
+        public Dictionary<string, string> attributes;
 
-        public JsonDocument schema { get; set; }
+        public JsonDocument schema;
     }
 
     public class Input
     {
-        public string function { get; set; }
+        public string function;
 
-        public long functionCallTimeout { get; set; }
+        public long functionCallTimeout;
 
-        public Dictionary<string, object> payload { get; set; }
+        public Dictionary<string, object> payload;
 
-        public Dictionary<string, string> properties { get; set; }
+        public Dictionary<string, string> properties;
 
-        public List<Attachment> attachments { get; set; }
+        public List<Attachment> attachments;
     }
 
     public class Output
     {
-        public Dictionary<string, object> payload { get; set; }
+        public Dictionary<string, object> payload;
 
-        public Error error { get; set; }
+        public Error error;
 
-        public List<Attachment> attachments { get; set; }
+        public List<Attachment> attachments;
 
-        public List<Measure> measures { get; set; }
+        public List<Measure> measures;
     }
 
     public class OutputBuilder
