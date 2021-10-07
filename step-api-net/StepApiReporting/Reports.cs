@@ -87,7 +87,7 @@ namespace Step.Core.Reports
             }
         }
 
-        public void StopMeasure(long end, Dictionary<string, string> data)
+        public void StopMeasure(long end, Dictionary<string, Object> data)
         {
             Measure tr;
             lock (stack)
@@ -110,7 +110,7 @@ namespace Step.Core.Reports
             }
         }
 
-        public void StopMeasure(Dictionary<string, string> data)
+        public void StopMeasure(Dictionary<string, Object> data)
         {
             StopMeasure(GetCurrentMillis(), data);
         }
@@ -125,7 +125,7 @@ namespace Step.Core.Reports
             AddMeasure(measureName, aDurationMillis, null);
         }
 
-        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, string> data)
+        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
         {
             lock (closedMeasures)
             {
