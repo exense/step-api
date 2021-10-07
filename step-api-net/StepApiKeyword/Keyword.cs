@@ -24,6 +24,8 @@ namespace Step.Handlers.NetHandler
 
         public TokenSession session;
 
+        public TokenSession tokenSession;
+
         public virtual bool OnError(Exception e)
         {
             return true;
