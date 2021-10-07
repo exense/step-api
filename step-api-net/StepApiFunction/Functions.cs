@@ -130,7 +130,7 @@ namespace Step.Functions.IO
         {
             Output output = new()
             {
-                payload = this.output,
+                payload =this.output,
                 error = this.error,
                 measures = this.measureHelper.GetMeasures(),
                 attachments = this.attachments
