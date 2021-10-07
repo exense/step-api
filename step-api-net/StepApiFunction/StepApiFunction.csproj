@@ -1,19 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
-  </ItemGroup>
+  
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
     <Message Text="Writing to AssemblyInfo files"></Message>
@@ -27,11 +23,11 @@
     </ItemGroup>
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
-		<ItemGroup>
+    <ItemGroup>
       <Compile Include="Properties\Version.cs" />
-		</ItemGroup>
-	</Target>
-	<Target Name="Push">
+    </ItemGroup>
+  </Target>
+  <Target Name="Push">
     <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
-	</Target>
+  </Target>
 </Project>

@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
-using Step.Core.Reports;
+﻿using Step.Core.Reports;
 using Step.Grid.IO;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Step.Functions.IO
 {
@@ -10,48 +11,48 @@ namespace Step.Functions.IO
     {
         public string type = "step.plugins.dotnet.DotNetFunction";
 
-        public Dictionary<string, string> attributes;
+        public Dictionary<string, string> attributes { get; set; }
 
-        public JObject schema;
+        public JsonDocument schema { get; set; }
     }
 
     public class Input
     {
-        public string function;
+        public string function { get; set; }
 
-        public long functionCallTimeout;
+        public long functionCallTimeout { get; set; }
 
-        public JObject payload;
+        public Dictionary<string, object> payload { get; set; }
 
-        public Dictionary<string, string> properties;
+        public Dictionary<string, string> properties { get; set; }
 
-        public List<Attachment> attachments;
+        public List<Attachment> attachments { get; set; }
     }
 
     public class Output
     {
-        public JObject payload;
+        public Dictionary<string, object> payload { get; set; }
 
-        public Error error;
+        public Error error { get; set; }
 
-        public List<Attachment> attachments;
+        public List<Attachment> attachments { get; set; }
 
-        public List<Measure> measures;
+        public List<Measure> measures { get; set; }
     }
 
     public class OutputBuilder
     {
-        public JObject output { get; } = new JObject();
+        public Dictionary<string, object> output { get;} = new();
 
-        public MeasurementsBuilder measureHelper { get; } = new MeasurementsBuilder();
+        public MeasurementsBuilder measureHelper { get; } = new();
 
-        public List<Attachment> attachments { get; } = new List<Attachment>();
+        public List<Attachment> attachments { get; } = new();
 
         public Error error { get; private set; }
 
-        public OutputBuilder Add(string key, string val)
+        public OutputBuilder Add(string key, object value)
         {
-            output.Add(key, val);
+            output.Add(key, value);
             return this;
         }
 
@@ -90,7 +91,7 @@ namespace Step.Functions.IO
             measureHelper.StartMeasure(id, begin);
         }
 
-        public void StopMeasure(long end, Dictionary<string, Object> data)
+        public void StopMeasure(long end, Dictionary<string, string> data)
         {
             measureHelper.StopMeasure(end, data);
         }
@@ -100,7 +101,7 @@ namespace Step.Functions.IO
             measureHelper.AddMeasure(measureName, durationMillis);
         }
 
-        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
+        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, string> data)
         {
             measureHelper.AddMeasure(measureName, aDurationMillis, data);
         }
@@ -110,7 +111,7 @@ namespace Step.Functions.IO
             measureHelper.StopMeasure();
         }
 
-        public void StopMeasure(Dictionary<string, Object> data)
+        public void StopMeasure(Dictionary<string, string> data)
         {
             measureHelper.StopMeasure(data);
         }
@@ -127,7 +128,7 @@ namespace Step.Functions.IO
 
         public Output Build()
         {
-            Output output = new Output
+            Output output = new()
             {
                 payload = this.output,
                 error = this.error,

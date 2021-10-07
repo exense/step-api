@@ -16,8 +16,8 @@
 			"https://nexus-enterprise.exense.ch/repository/exense-nuget/"
 		],
 		
-		"CONFIG_STAGING": [ "DefaultBuild", "Debug"],
-		"CONFIG_PROD": [ "DefaultBuild", "Release"]
+		"CONFIG_STAGING": [ "DefaultBuild", "-p:Configuration=Debug"],
+		"CONFIG_PROD": [ "DefaultBuild", "-p:Configuration=Release"]
 	},
 	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
 }

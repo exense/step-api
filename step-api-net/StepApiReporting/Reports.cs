@@ -1,34 +1,33 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Step.Core.Reports
 {
-    [Serializable]
     public enum ErrorType
     {
         TECHNICAL,
         BUSINESS
     }
 
-    [Serializable]
     public class Error
     {
-        public ErrorType type = ErrorType.TECHNICAL;
+        public ErrorType type { get; set; } = ErrorType.TECHNICAL;
 
-        public string layer;
+        public string layer { get; set; }
 
-        public string msg;
+        public string msg { get; set; }
 
-        public int code;
+        public int code { get; set; }
 
-        public bool root;
+        public bool root { get; set; }
 
         public Error(ErrorType type, string message) : this(type, null, message, 0, true)
         { }
         public Error(ErrorType type, string message, int code) : this(type, null, message, code, true)
         { }
 
+        [JsonConstructor]
         public Error(ErrorType type, string layer, string msg, int code, bool root)
         {
             this.type = type;
@@ -39,18 +38,17 @@ namespace Step.Core.Reports
         }
     }
 
-    [Serializable]
     public class Measure
     {
-        public string name;
+        public string name { get; set; }
 
-        public long duration;
+        public long duration { get; set; }
 
-        public long begin;
+        public long begin { get; set; }
 
-        public Dictionary<string, Object> data;
+        public Dictionary<string, string> data { get; set; }
 
-        public Measure(string name, long duration, long begin, Dictionary<string, Object> data)
+        public Measure(string name, long duration, long begin, Dictionary<string, string> data)
         {
             this.name = name;
             this.duration = duration;
@@ -59,15 +57,14 @@ namespace Step.Core.Reports
         }
     }
 
-    [Serializable]
     public class MeasurementsBuilder
     {
-        private Stack<Measure> stack = new Stack<Measure>();
-        private List<Measure> closedMeasures = new List<Measure>();
+        private readonly Stack<Measure> stack = new();
+        private readonly List<Measure> closedMeasures = new();
 
-        private long GetCurrentMillis()
+        private static long GetCurrentMillis()
         {
-            DateTime Jan1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            DateTime Jan1970 = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             TimeSpan javaSpan = DateTime.UtcNow - Jan1970;
             return (long)javaSpan.TotalMilliseconds;
         }
@@ -90,7 +87,7 @@ namespace Step.Core.Reports
             }
         }
 
-        public void StopMeasure(long end, Dictionary<string, Object> data)
+        public void StopMeasure(long end, Dictionary<string, string> data)
         {
             Measure tr;
             lock (stack)
@@ -113,7 +110,7 @@ namespace Step.Core.Reports
             }
         }
 
-        public void StopMeasure(Dictionary<string, Object> data)
+        public void StopMeasure(Dictionary<string, string> data)
         {
             StopMeasure(GetCurrentMillis(), data);
         }
@@ -128,7 +125,7 @@ namespace Step.Core.Reports
             AddMeasure(measureName, aDurationMillis, null);
         }
 
-        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, Object> data)
+        public void AddMeasure(string measureName, long aDurationMillis, Dictionary<string, string> data)
         {
             lock (closedMeasures)
             {

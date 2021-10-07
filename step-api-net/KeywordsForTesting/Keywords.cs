@@ -1,4 +1,4 @@
-﻿using Step.Handlers.NetHandler;
+using Step.Handlers.NetHandler;
 
 namespace KeywordsForTesting
 {

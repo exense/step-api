@@ -1,5 +1,4 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,9 +11,7 @@ namespace Step.Functions.IO
 
     public class TokenSession
     {
-        protected static readonly ILog logger = LogManager.GetLogger(typeof(TokenSession));
-
-        private Dictionary<string, object> attributes = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> attributes = new();
 
         public virtual Object Get(string arg0)
         {
@@ -29,17 +26,17 @@ namespace Step.Functions.IO
             return attributes[arg0] = arg1;
         }
 
-        protected void CloseIfCloseable(Object o)
+        protected static void CloseIfCloseable(Object o)
         {
-            if (o != null && o is ICloseable)
+            if (o != null && o is ICloseable closeable)
             {
                 try
                 {
-                    ((ICloseable)o).Close();
+                    closeable.Close();
                 }
                 catch (Exception e)
                 {
-                    logger.Error("Unexpected error when closing a session object.",e);
+                   // logger.Error("Unexpected error when closing a session object.", e);
                 }
             }
         }

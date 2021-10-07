@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>StepApiReporting</RootNamespace>
+    <AssemblyName>StepApiReporting</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.12" />
-  </ItemGroup>
+   
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
     <Message Text="Writing to AssemblyInfo files"></Message>
@@ -16,15 +17,15 @@
       </AssemblyAttributes>
       <AssemblyAttributes Include="AssemblyFileVersionAttribute">
         <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes>	  
+      </AssemblyAttributes>
     </ItemGroup>
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
-		<ItemGroup>
+    <ItemGroup>
       <Compile Include="Properties\Version.cs" />
-		</ItemGroup>
-	</Target>
-	<Target Name="Push">
+    </ItemGroup>
+  </Target>
+  <Target Name="Push">
     <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
-	</Target>
+  </Target>
 </Project>

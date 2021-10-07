@@ -1,18 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
-using Step.Functions.IO;
+﻿using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace Step.Handlers.NetHandler
 {
     public class ExecutionContext
     {
-        private TokenSession session = new TokenSession();
-        private readonly Dictionary<string, string> contextProperties = new Dictionary<string, string>();
+        private readonly TokenSession session = new();
+        private readonly Dictionary<string, string> contextProperties = new();
         private readonly Type[] keywordClasses;
 
-        public ExecutionContext(Dictionary<string, string> contextProperties, bool throwExceptionOnError, params Type[] keywordClasses)
+        public ExecutionContext(Dictionary<string, string> contextProperties, params Type[] keywordClasses)
         {
             this.keywordClasses = keywordClasses;
             this.contextProperties = contextProperties;
@@ -32,7 +32,7 @@ namespace Step.Handlers.NetHandler
         {
             contextProperties.ToList().ForEach(x => properties[x.Key] = x.Value);
 
-            KeywordExecutor executor = new KeywordExecutor();
+            KeywordExecutor executor = new();
 
             foreach (Type type in keywordClasses)
             {
@@ -41,9 +41,9 @@ namespace Step.Handlers.NetHandler
             var input = new Input
             {
                 function = function,
-                payload = JObject.Parse(inputJson)
+                payload = JsonSerializer.Deserialize<Dictionary<string, object>>(inputJson.ToString())
             };
-            return executor.CallKeyword(input, session, session, properties, false);
+            return executor.CallKeyword(input, session, properties, false);
         }
 
         public void Close()
@@ -56,12 +56,12 @@ namespace Step.Handlers.NetHandler
     {
         public static ExecutionContext GetExecutionContext(params Type[] keywordClasses)
         {
-            return GetExecutionContext(new Dictionary<string,string>(), keywordClasses);
+            return GetExecutionContext(new Dictionary<string, string>(), keywordClasses);
         }
 
         public static ExecutionContext GetExecutionContext(Dictionary<string, string> properties, params Type[] keywordClasses)
         {
-            return new ExecutionContext(properties, true, keywordClasses);
+            return new ExecutionContext(properties, keywordClasses);
         }
     }
 }
