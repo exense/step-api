@@ -111,7 +111,7 @@ namespace Step.Handlers.NetHandler
                     keywordProperties = mergedProperties;
                 }
 
-                dynamic c = Activator.CreateInstance(type);
+                var c = Activator.CreateInstance(type);
                 if (type.IsSubclassOf(typeof(AbstractKeyword)))
                 {
                     AbstractKeyword script = (AbstractKeyword)c;
