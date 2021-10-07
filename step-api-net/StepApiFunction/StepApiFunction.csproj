@@ -5,6 +5,10 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\step-api-net\StepApiReporting.csproj" />
+  </ItemGroup>
   
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
@@ -26,7 +30,4 @@
   <Target Name="Push">
     <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
   </Target>
-  <ItemGroup>
-    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj" />
-  </ItemGroup>
 </Project>

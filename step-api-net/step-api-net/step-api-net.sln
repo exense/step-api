@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiReporting", "StepApiReporting\StepApiReporting.csproj", "{CD382941-A6DF-4AB8-8345-C0F299F7EF11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiReporting", "StepApiReporting.csproj", "{CD382941-A6DF-4AB8-8345-C0F299F7EF11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiFunction", "StepApiFunction\StepApiFunction.csproj", "{4D98A0EB-330E-4846-B91C-6E473D24682B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiFunction", "..\StepApiFunction\StepApiFunction.csproj", "{4D98A0EB-330E-4846-B91C-6E473D24682B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeyword", "StepApiKeyword\StepApiKeyword.csproj", "{F7C25039-2AFE-4E32-A9E5-9A82A7F4FE2F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeyword", "..\StepApiKeyword\StepApiKeyword.csproj", "{F7C25039-2AFE-4E32-A9E5-9A82A7F4FE2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeywordsForTesting", "KeywordsForTesting\KeywordsForTesting.csproj", "{2375B355-580A-4392-B6E3-98E66E30F313}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeywordsForTesting", "..\KeywordsForTesting\KeywordsForTesting.csproj", "{2375B355-580A-4392-B6E3-98E66E30F313}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeywordTests", "StepApiKeywordTests\StepApiKeywordTests.csproj", "{9161641D-8C2B-44D0-9D3F-6C6B2536C21F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepApiKeywordTests", "..\StepApiKeywordTests\StepApiKeywordTests.csproj", "{9161641D-8C2B-44D0-9D3F-6C6B2536C21F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
