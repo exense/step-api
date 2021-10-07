@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +12,8 @@ namespace Step.Functions.IO
 
     public class TokenSession
     {
+        protected static readonly ILog logger = LogManager.GetLogger(typeof(TokenSession));
+
         private readonly Dictionary<string, object> attributes = new();
 
         public virtual Object Get(string arg0)
@@ -36,7 +39,7 @@ namespace Step.Functions.IO
                 }
                 catch (Exception e)
                 {
-                   // logger.Error("Unexpected error when closing a session object.", e);
+                    logger.Error("Unexpected error when closing a session object.", e);
                 }
             }
         }
