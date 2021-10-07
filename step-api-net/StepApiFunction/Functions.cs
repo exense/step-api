@@ -1,8 +1,8 @@
-﻿using Step.Core.Reports;
+﻿using Newtonsoft.Json.Linq;
+using Step.Core.Reports;
 using Step.Grid.IO;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Step.Functions.IO
 {
@@ -12,7 +12,7 @@ namespace Step.Functions.IO
 
         public Dictionary<string, string> attributes;
 
-        public JsonDocument schema;
+        public JObject schema;
     }
 
     public class Input
@@ -21,8 +21,7 @@ namespace Step.Functions.IO
 
         public long functionCallTimeout;
 
-        //public JsonDocument payload;
-        public Dictionary<string, object> payload;
+        public JObject payload;
 
         public Dictionary<string, string> properties;
 
@@ -31,7 +30,7 @@ namespace Step.Functions.IO
 
     public class Output
     {
-        public Dictionary<string, object> payload;
+        public JObject payload;
 
         public Error error;
 
@@ -42,17 +41,17 @@ namespace Step.Functions.IO
 
     public class OutputBuilder
     {
-        public Dictionary<string, object> output { get;} = new();
+        public JObject output { get; } = new JObject();
 
-        public MeasurementsBuilder measureHelper { get; } = new();
+        public MeasurementsBuilder measureHelper { get; } = new MeasurementsBuilder();
 
-        public List<Attachment> attachments { get; } = new();
+        public List<Attachment> attachments { get; } = new List<Attachment>();
 
         public Error error { get; private set; }
 
-        public OutputBuilder Add(string key, object value)
+        public OutputBuilder Add(string key, string val)
         {
-            output.Add(key, value);
+            output.Add(key, val);
             return this;
         }
 
@@ -128,9 +127,9 @@ namespace Step.Functions.IO
 
         public Output Build()
         {
-            Output output = new()
+            Output output = new Output
             {
-                payload =this.output,
+                payload = this.output,
                 error = this.error,
                 measures = this.measureHelper.GetMeasures(),
                 attachments = this.attachments
