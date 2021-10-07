@@ -20,6 +20,7 @@ namespace Step.Handlers.NetHandler
         public MethodInfo GetKeywordMethodByName(string name)
         {
             return GetKeywordMethods()
+                .ForEach(m => Console.WriteLine(m.Name))
                 .FirstOrDefault(m =>
                 {
                     Keyword keyword = (Keyword)m.GetCustomAttribute(typeof(Keyword));
