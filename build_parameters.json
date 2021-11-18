@@ -1,23 +1,40 @@
+
 {
-	"NAME": "Step API",
-	"OS": "WINDOWS",
-	
-	"SUBPROJECTS":
-	{
-		"TYPE":		["POM", "SLN"],
-		"FOLDER":	["step-api/", "step-api-net/"],
-		
-		"URL_STAGING":	[ 
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
-			"https://nexus-enterprise.exense.ch/repository/staging-nuget/"
-		],
-		"URL_PROD":		[ 
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"https://nexus-enterprise.exense.ch/repository/exense-nuget/"
-		],
-		
-		"CONFIG_STAGING": [ "DefaultBuild", "-p:Configuration=Debug"],
-		"CONFIG_PROD": [ "DefaultBuild", "-p:Configuration=Release"]
-	},
-	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
+	"ACTION": "COMPILE",
+
+	"ACTIONS": [
+		{
+			"TYPE": "POM",
+			"FOLDER": "step-api/",
+			"PARAMETERS": [
+				{
+					"NAME": "DEVELOPMENT",
+					"URL": "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
+					"CONFIG": "DefaultBuild"
+				},
+				{
+					"NAME": "PRODUCTION",
+					"URL": "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
+					"CONFIG": "DefaultBuild"
+				}
+			]
+		},
+		{
+			"TYPE": "SLN",
+			"FOLDER": "step-api-net/",
+			"PARAMETERS": [
+				{
+					"NAME": "DEVELOPMENT",
+					"URL": "https://nexus-enterprise.exense.ch/repository/staging-nuget/",
+					"CONFIG": "-p:Configuration=Debug"
+				},
+				{
+					"NAME": "PRODUCTION",
+					"URL": "https://nexus-enterprise.exense.ch/repository/exense-nuget/",
+					"CONFIG": "-p:Configuration=Release"
+				}
+			]
+		}
+	],
+
 }
