@@ -5,7 +5,7 @@
 	"SUBPROJECTS":
 	{
 		"TYPE":		["POM", "SLN"],
-		"FOLDER":	["step-api/", "step-api-net/"],
+		"FOLDER":	["step-api/", "step-api-net/step-api-net.sln"],
 		
 		"URL_STAGING":	[ 
 			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
