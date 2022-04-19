@@ -37,7 +37,7 @@ namespace Step.Functions.IO
                 catch (Exception e)
                 {
                     //logger.Error("Unexpected error when closing a session object.",e);
-                    Console.Error.Writeline("Unexpected error when closing a session object.", e);
+                    Console.Error.WriteLine("Unexpected error when closing a session object.", e);
                 }
             }
         }
