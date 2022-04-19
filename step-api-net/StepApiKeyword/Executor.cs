@@ -1,5 +1,4 @@
-﻿using log4net;
-using Step.Functions.IO;
+﻿using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,8 +13,6 @@ namespace Step.Handlers.NetHandler
     public class KeywordExecutor
     {
         private static Mutex mut = new Mutex();
-
-        protected static readonly ILog logger = LogManager.GetLogger(typeof(KeywordExecutor));
 
         protected List<Assembly> keywordAssemblies = new List<Assembly>();
         private Thread thread;
