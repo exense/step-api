@@ -54,6 +54,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<slf4j.version>1.7.5</slf4j.version>
 		<junit.version>4.13.1</junit.version>
 		<jackson.version>2.13.3</jackson.version>
 	</properties>
@@ -68,7 +71,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -155,11 +158,21 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<build>
+			</build>
+			<!-- Local compilation - no signature -->
+		</profile>
+		<profile>
+			<id>DependencyCheck</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<!-- Profile use for checking security issues in external dependencies -->
+			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.owasp</groupId>
 						<artifactId>dependency-check-maven</artifactId>
-						<version>6.1.6</version>
+						<version>7.1.0</version>
 						<executions>
 							<execution>
 								<goals>
@@ -170,7 +183,6 @@
 					</plugin>
 				</plugins>
 			</build>
-			<!-- Local compilation - no signature -->
 		</profile>
 		<profile>
 			<id>DefaultBuild</id>
