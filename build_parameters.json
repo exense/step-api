@@ -25,12 +25,14 @@
 				{
 					"NAME": "DEVELOPMENT",
 					"URL": "https://nexus-enterprise.exense.ch/repository/staging-nuget/",
-					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any -f net6.0"
+					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net6.0"
 				},
 				{
 					"NAME": "PRODUCTION",
 					"URL": "https://nexus-enterprise.exense.ch/repository/exense-nuget/",
-					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any -f net6.0"
+					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net6.0"
 				}
 			]
 		},
@@ -41,12 +43,14 @@
 				{
 					"NAME": "DEVELOPMENT",
 					"URL": "https://nexus-enterprise.exense.ch/repository/staging-nuget/",
-					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any -f net4.8"
+					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net5.0"
 				},
 				{
 					"NAME": "PRODUCTION",
 					"URL": "https://nexus-enterprise.exense.ch/repository/exense-nuget/",
-					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any -f net4.8"
+					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net5.0"
 				}
 			]
 		},
@@ -57,12 +61,14 @@
 				{
 					"NAME": "DEVELOPMENT",
 					"URL": "https://nexus-enterprise.exense.ch/repository/staging-nuget/",
-					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any -f net5.0"
+					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net4.8"
 				},
 				{
 					"NAME": "PRODUCTION",
 					"URL": "https://nexus-enterprise.exense.ch/repository/exense-nuget/",
-					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any -f net5.0"
+					"CONFIG": "-p:Configuration=Release -p:RuntimeIdentifier=any",
+					"FRAMEWORK": "net4.8"
 				}
 			]
 		}
