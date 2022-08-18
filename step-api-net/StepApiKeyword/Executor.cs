@@ -232,17 +232,21 @@ namespace Step.Handlers.NetHandler
 
         public string Interrupt()
         {
+
+#if NET6_0_OR_GREATER
+            return "not supported";
+#else
+#pragma warning disable CS0618 // Type or member is obsolete
             mut.WaitOne();
 
-#pragma warning disable CS0618 // Type or member is obsolete
             thread.Suspend();
             StackTrace trace = new StackTrace(thread, true);
             thread.Resume();
-#pragma warning restore CS0618
-
             mut.ReleaseMutex();
 
             return trace.ToString();
+#pragma warning restore CS0618
+#endif
         }
     }
 }
