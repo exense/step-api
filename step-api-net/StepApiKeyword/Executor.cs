@@ -233,9 +233,7 @@ namespace Step.Handlers.NetHandler
         public string Interrupt()
         {
 
-#if NET6_0_OR_GREATER
-            return "not supported";
-#else
+#if NET4_8
 #pragma warning disable CS0618 // Type or member is obsolete
             mut.WaitOne();
 
@@ -246,6 +244,8 @@ namespace Step.Handlers.NetHandler
 
             return trace.ToString();
 #pragma warning restore CS0618
+#else
+            return "not supported";
 #endif
         }
     }
