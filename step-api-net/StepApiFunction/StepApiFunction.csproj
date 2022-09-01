@@ -1,38 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	  <TargetFrameworks>net4.8;net5.0;net6.0</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.15" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
-  </ItemGroup>
-  <Target Name="UpdateVersion">
-    <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
-    <Message Text="Writing to AssemblyInfo files"></Message>
-    <ItemGroup>
-      <AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
-        <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes>
-      <AssemblyAttributes Include="AssemblyFileVersionAttribute">
-        <_Parameter1>$(VERSION)</_Parameter1>
-      </AssemblyAttributes>
-    </ItemGroup>
-    <MakeDir Directories="$(IntermediateOutputPath)" />
-    <WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
+	<PropertyGroup>
+		<TargetFrameworks>net4.8;net5.0;net6.0</TargetFrameworks>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="log4net" Version="2.0.15" >
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\StepApiReporting\StepApiReporting.csproj">
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
+	</ItemGroup>
+	<Target Name="UpdateVersion">
+		<Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
+		<Message Text="Writing to AssemblyInfo files"></Message>
 		<ItemGroup>
-      <Compile Include="Properties\Version.cs" />
+			<AssemblyAttributes Include="AssemblyInformationalVersionAttribute">
+				<_Parameter1>$(VERSION)</_Parameter1>
+			</AssemblyAttributes>
+			<AssemblyAttributes Include="AssemblyFileVersionAttribute">
+				<_Parameter1>$(VERSION)</_Parameter1>
+			</AssemblyAttributes>
+		</ItemGroup>
+		<MakeDir Directories="$(IntermediateOutputPath)" />
+		<WriteCodeFragment Language="C#" OutputFile="Properties\Version.cs" AssemblyAttributes="@(AssemblyAttributes)" />
+		<ItemGroup>
+			<Compile Include="Properties\Version.cs" />
 		</ItemGroup>
 	</Target>
 	<Target Name="Push">
-    <Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
+		<Exec WorkingDirectory="$(PackageOutputPath)" Command="dotnet nuget push &quot;*.nupkg&quot; -s $(NEXUS_URL)" />
 	</Target>
 </Project>
