@@ -42,11 +42,23 @@ namespace Step.Handlers.NetHandler
                 throw new Exception("No Keyword Assembly has been set. Please define the Keyword Assembly using the method AddKeywordAssembly()");
 
             List<MethodInfo> result = new List<MethodInfo>();
-            keywordAssemblies.ForEach(assembly=> result.AddRange(assembly.GetTypes()
-                      .SelectMany(t => t.GetMethods())
-                      .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
-                      .ToList()));
-            return result;
+            try
+            {
+                keywordAssemblies.ForEach(assembly => result.AddRange(assembly.GetTypes()
+                        .SelectMany(t => t.GetMethods())
+                        .Where(m => m.GetCustomAttributes(typeof(Keyword), false).Length > 0)
+                        .ToList()));
+                return result;
+            }
+            catch (ReflectionTypeLoadException typeLoadException)
+            {
+                String message = "The following exceptions occur when loading the keywords:\n"
+                foreach (Exception e in typeLoadException.LoaderExceptions)
+                {
+                    message += e.Message+"\n";
+                }
+                throw new Exception(message);
+            }
         }
 
         protected string GetKeywordName(MethodInfo m)
