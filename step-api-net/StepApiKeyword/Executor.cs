@@ -52,7 +52,7 @@ namespace Step.Handlers.NetHandler
             }
             catch (ReflectionTypeLoadException typeLoadException)
             {
-                String message = "The following exceptions occur when loading the keywords:\n"
+                String message = "The following exceptions occur when loading the keywords:\n";
                 foreach (Exception e in typeLoadException.LoaderExceptions)
                 {
                     message += e.Message+"\n";
