@@ -49,4 +49,8 @@ public @interface Keyword {
 	 */
 	String schema() default "";
 
+	/**
+	 * @return the call timeout for this keyword
+	 */
+	int timeout() default 180000;
 }
