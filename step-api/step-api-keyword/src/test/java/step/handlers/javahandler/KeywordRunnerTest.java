@@ -249,7 +249,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Unable to find method annoted by 'step.handlers.javahandler.Keyword' with name=='UnexistingKeyword'",exception.getMessage());
+		Assert.assertEquals("Unable to find method annotated by 'step.handlers.javahandler.Keyword' with name=='UnexistingKeyword'",exception.getMessage());
 	}
 	
 	@Test
@@ -260,7 +260,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Please specify at leat one class containing the keyword definitions",exception.getMessage());
+		Assert.assertEquals("Please specify at least one class containing the keyword definitions",exception.getMessage());
 	}
 	
 	@Test
@@ -272,7 +272,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Unable to find method annoted by 'step.handlers.javahandler.Keyword' with name=='MyKeyword'",exception.getMessage());
+		Assert.assertEquals("Unable to find method annotated by 'step.handlers.javahandler.Keyword' with name=='MyKeyword'",exception.getMessage());
 	}
 	
 	@Test
