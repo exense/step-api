@@ -121,7 +121,7 @@ public class KeywordRunner {
 	
 	public static ExecutionContext getExecutionContext(Map<String, String> properties, Class<?>... keywordClass) {
 		if(keywordClass.length==0) {
-			throw new RuntimeException("Please specify at leat one class containing the keyword definitions");
+			throw new RuntimeException("Please specify at least one class containing the keyword definitions");
 		}
 		return new ExecutionContext(Arrays.asList(keywordClass), properties, true);
 	}

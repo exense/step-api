@@ -12,6 +12,7 @@ namespace Step.Handlers.NetHandler
         public string schema;
         public string[] properties;
         public string[] optionalProperties;
+        public int timeout = 180000;
     }
 
     public class AbstractKeyword
