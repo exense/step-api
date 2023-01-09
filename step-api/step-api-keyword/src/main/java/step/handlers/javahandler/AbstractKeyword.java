@@ -18,7 +18,6 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.json.JsonObject;
@@ -91,17 +90,4 @@ public class AbstractKeyword {
 		return true;
 	}
 
-	/**
-	 * Hook called before each keyword call.
-	 *
-	 * @param keyword: the keyword to be called
-	 */
-	public void beforeKeyword(Method keyword) {}
-
-	/**
-	 * Hook called after each keyword call.
-	 *
-	 * @param keyword: the keyword to be called
-	 */
-	public void afterKeyword(Method keyword) {}
 }
