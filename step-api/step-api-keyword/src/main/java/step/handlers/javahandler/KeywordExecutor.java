@@ -110,7 +110,7 @@ public class KeywordExecutor {
 			}
 		}
 
-		throw new Exception("Unable to find method annotated by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
+		throw new Exception("Unable to find method annoted by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
 	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] requiredPropertyKeys, List<String> missingProperties,
