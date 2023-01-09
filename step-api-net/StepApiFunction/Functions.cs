@@ -25,8 +25,6 @@ namespace Step.Functions.IO
     {
         public string type = "step.plugins.dotnet.DotNetFunction";
 
-        public string description = "";
-
         public Dictionary<string, string> attributes;
 
         public JObject schema;
