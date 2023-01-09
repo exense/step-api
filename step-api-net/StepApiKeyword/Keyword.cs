@@ -9,6 +9,7 @@ namespace Step.Handlers.NetHandler
     public class Keyword : Attribute
     {
         public string name;
+        public string description;
         public string schema;
         public string[] properties;
         public string[] optionalProperties;
