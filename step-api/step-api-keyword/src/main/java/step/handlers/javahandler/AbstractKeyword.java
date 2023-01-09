@@ -18,6 +18,7 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.json.JsonObject;
@@ -89,7 +90,7 @@ public class AbstractKeyword {
 	public boolean onError(Exception e) {
 		return true;
 	}
-  
+
 	/**
 	 * Hook called before each keyword call.
 	 *
