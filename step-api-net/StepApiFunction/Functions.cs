@@ -13,6 +13,8 @@ namespace Step.Functions.IO
         public Dictionary<string, string> attributes;
 
         public JObject schema;
+
+        public int callTimeout = 180000;
     }
 
     public class Input
