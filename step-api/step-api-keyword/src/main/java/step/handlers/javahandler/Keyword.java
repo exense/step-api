@@ -32,6 +32,11 @@ public @interface Keyword {
 	 * used as keyword name
 	 */
 	String name() default "";
+
+	/**
+	 * @return the description of this keyword.
+	 */
+	String description() default "";
 	
 	/**
 	 * @return the list of properties required by this keyword
