@@ -6,6 +6,21 @@ using System.Collections.Generic;
 
 namespace Step.Functions.IO
 {
+
+    public class DynamicValue<T>
+    {
+
+        public bool dynamic = false;
+        public T value;
+        public String expression = "";
+        public String expressionType = "";
+
+        public DynamicValue(T value)
+        {
+            this.value = value;
+        }
+    }
+
     public class Function
     {
         public string type = "step.plugins.dotnet.DotNetFunction";
@@ -14,7 +29,7 @@ namespace Step.Functions.IO
 
         public JObject schema;
 
-        public int callTimeout = 180000;
+        public DynamicValue<int> callTimeout = new DynamicValue<int>(180000);
     }
 
     public class Input
