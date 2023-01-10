@@ -42,13 +42,13 @@ namespace Step.Handlers.NetHandler
          *
          * @param keyword: the keyword to be called
          */
-        public virtual void beforeKeyword(MethodInfo keyword) { }
+        public virtual void BeforeKeyword(MethodInfo keyword) { }
 
         /**
          * Hook called after each keyword call.
          *
          * @param keyword: the keyword to be called
          */
-        public virtual void afterKeyword(MethodInfo keyword) { }
+        public virtual void AfterKeyword(MethodInfo keyword) { }
     }
 }
