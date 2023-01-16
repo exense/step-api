@@ -115,7 +115,7 @@ public class KeywordExecutor {
 
 	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] requiredPropertyKeys, List<String> missingProperties,
 			Map<String, String> reducedProperties, boolean required) throws MissingPlaceholderException {
-		// First try to resolve the placeholders
+		// First try to resolve the place holders
 		List<String> resolvedPropertyKeys = new ArrayList<>();
 		for (String key : requiredPropertyKeys) {
 			resolvedPropertyKeys.add(replacePlaceholders(key, properties, input));
@@ -186,9 +186,7 @@ public class KeywordExecutor {
 			script.setOutputBuilder(outputBuilder);
 
 			try {
-				script.beforeKeyword(m);
 				m.invoke(instance);
-				script.afterKeyword(m);
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {
