@@ -28,7 +28,11 @@ namespace Step.Handlers.NetHandler
         public TokenSession session;
 
         public TokenSession tokenSession;
-        
+
+        /**
+         * @param e
+         * @return true if the exception passed as argument has to be rethrown.
+         */
         public virtual bool OnError(Exception e)
         {
             return true;
