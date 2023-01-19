@@ -96,7 +96,7 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperties");
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ public class KeywordRunnerTest {
 		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperties","{\"myPlaceHolder\": \"placeHolderValue\"}");
 		Assert.assertNull(output.getError());
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -132,7 +132,7 @@ public class KeywordRunnerTest {
 		Assert.assertNull(output.getError());
 		Assert.assertEquals(myPropValue,output.getPayload().getString(myPropKey));
 		Assert.assertEquals(myOptionalPropertyValue,output.getPayload().getString(myOptionalPropertyKey));
-		Assert.assertEquals(2, output.getPayload().keySet().size());
+		Assert.assertEquals(4, output.getPayload().keySet().size());
 	}
 	
 	@Test
