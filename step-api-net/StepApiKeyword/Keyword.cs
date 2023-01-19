@@ -14,6 +14,7 @@ namespace Step.Handlers.NetHandler
         public string schema;
         public string[] properties;
         public string[] optionalProperties;
+        // keyword timeout in milliseconds:
         public int timeout = 180000;
     }
 
