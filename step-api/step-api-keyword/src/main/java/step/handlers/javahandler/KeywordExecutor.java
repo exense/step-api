@@ -186,9 +186,9 @@ public class KeywordExecutor {
 			script.setOutputBuilder(outputBuilder);
 
 			try {
-				script.beforeKeyword(m);
+				script.beforeKeyword(m.getAnnotation(Keyword.class));
 				m.invoke(instance);
-				script.afterKeyword(m);
+				script.afterKeyword(m.getAnnotation(Keyword.class));
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {

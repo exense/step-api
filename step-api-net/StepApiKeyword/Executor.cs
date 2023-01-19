@@ -147,9 +147,9 @@ namespace Step.Handlers.NetHandler
 
                 try
                 {
-                    script?.BeforeKeyword(method);
+                    script?.BeforeKeyword(keyword);
                     method.Invoke(c, new object[] { });
-                    script?.AfterKeyword(method);
+                    script?.AfterKeyword(keyword);
                 }
                 catch (Exception e)
                 {

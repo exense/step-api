@@ -29,27 +29,31 @@ namespace Step.Handlers.NetHandler
 
         public TokenSession tokenSession;
 
-        /**
-         * @param e
-         * @return true if the exception passed as argument has to be rethrown.
-         */
+        /// <summary>
+        /// Hook called when an exception is thrown by a keyword or by the BeforeKeyword 
+        /// and AfterKeyword hooks
+        /// </summary>
+        /// <param name="e">the exception thrown</param>
+        /// <returns>return true if the exception passed as argument has to be rethrown</returns>
         public virtual bool OnError(Exception e)
         {
             return true;
         }
 
-        /**
-         * Hook called before each keyword call.
-         *
-         * @param keyword: the keyword to be called
-         */
-        public virtual void BeforeKeyword(MethodInfo keyword) { }
+        /// <summary>
+        /// Hook called before each keyword call.
+        /// If an error is thrown by this function, nor the keyword nor
+        /// the afterKeyword hook will be called(but onError will be)
+        /// </summary>
+        /// <param name="annotation">the annotation of the called keyword</param>
+        public virtual void BeforeKeyword(Keyword annotation) { }
 
-        /**
-         * Hook called after each keyword call.
-         *
-         * @param keyword: the keyword to be called
-         */
-        public virtual void AfterKeyword(MethodInfo keyword) { }
+        /// <summary>
+        /// Hook called after each keyword call.
+        /// If an error is thrown by the keyword or the beforeKeyword hook,
+        /// the afterKeyword hook will not be called(but onError will be)
+        /// </summary>
+        /// <param name="annotation">the annotation of the called keyword</param>
+        public virtual void AfterKeyword(Keyword annotation) { }
     }
 }
