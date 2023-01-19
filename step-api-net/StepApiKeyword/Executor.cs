@@ -145,7 +145,7 @@ namespace Step.Handlers.NetHandler
                     script.properties = keywordProperties;
                 }
 
-                String keywordName = keyword.name.Length==0 ? method.Name : keyword.name;
+                String keywordName = keyword.name ?? method.Name;
                 try
                 {
                     script?.BeforeKeyword(keywordName,keyword);
