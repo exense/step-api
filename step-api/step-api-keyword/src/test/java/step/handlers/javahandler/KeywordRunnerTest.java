@@ -71,7 +71,7 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeywordWithPropertyAnnotation");
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
