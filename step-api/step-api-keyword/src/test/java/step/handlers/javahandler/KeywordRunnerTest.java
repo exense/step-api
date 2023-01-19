@@ -36,8 +36,8 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeyword");
 		Assert.assertEquals("test",output.getPayload().getString("test"));
-		Assert.assertEquals("",output.getPayload().getString("beforeKeyword"));
-		Assert.assertEquals("",output.getPayload().getString("afterKeyword"));
+		Assert.assertEquals("MyKeyword",output.getPayload().getString("beforeKeyword"));
+		Assert.assertEquals("MyKeyword",output.getPayload().getString("afterKeyword"));
 	}
 	
 	@Test

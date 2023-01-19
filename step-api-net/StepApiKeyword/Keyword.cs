@@ -46,15 +46,17 @@ namespace Step.Handlers.NetHandler
         /// If an error is thrown by this function, nor the keyword nor
         /// the afterKeyword hook will be called(but onError will be)
         /// </summary>
-        /// <param name="annotation">the annotation of the called keyword</param>
-        public virtual void BeforeKeyword(Keyword annotation) { }
+        /// <param name="KeywordName">the name of the keyword.  Will be the function name if annotation.name is empty </param>
+        /// <param name="Annotation">the annotation of the called keyword</param>
+        public virtual void BeforeKeyword(String KeywordName, Keyword Annotation) { }
 
         /// <summary>
         /// Hook called after each keyword call.
         /// If an error is thrown by the keyword or the beforeKeyword hook,
         /// the afterKeyword hook will not be called(but onError will be)
         /// </summary>
-        /// <param name="annotation">the annotation of the called keyword</param>
-        public virtual void AfterKeyword(Keyword annotation) { }
+        /// <param name="KeywordName">the name of the keyword.  Will be the function name if annotation.name is empty </param>
+        /// <param name="Annotation">the annotation of the called keyword</param>
+        public virtual void AfterKeyword(String KeywordName, Keyword Annotation) { }
     }
 }

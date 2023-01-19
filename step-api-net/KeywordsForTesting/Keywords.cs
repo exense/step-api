@@ -1,4 +1,5 @@
 ﻿using Step.Handlers.NetHandler;
+using System;
 
 namespace KeywordsForTesting
 {
@@ -9,14 +10,14 @@ namespace KeywordsForTesting
         {
             // We need a separate Assembly for testing "TestScriptRunnerMultipleKeywords"
         }
-        public override void BeforeKeyword(Keyword annotation)
+        public override void BeforeKeyword(String KeywordName, Keyword Annotation)
         {
-            output.Add("BeforeKeyword", annotation.name);
+            output.Add("BeforeKeyword", KeywordName);
         }
 
-        public override void AfterKeyword(Keyword annotation)
+        public override void AfterKeyword(String KeywordName, Keyword Annotation)
         {
-            output.Add("AfterKeyword", annotation.name);
+            output.Add("AfterKeyword", KeywordName);
         }
     }
     public class TestNotAbstractKeywords

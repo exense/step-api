@@ -186,10 +186,11 @@ public class KeywordExecutor {
 			script.setOutputBuilder(outputBuilder);
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
+			String keywordName = annotation.name().isEmpty()?m.getName():annotation.name();
 			try {
-				script.beforeKeyword(annotation);
+				script.beforeKeyword(keywordName,annotation);
 				m.invoke(instance);
-				script.afterKeyword(annotation);
+				script.afterKeyword(keywordName,annotation);
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {

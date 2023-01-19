@@ -15,14 +15,14 @@ namespace Step.Handlers.NetHandler.Tests
             return (bool) input.GetValue("onError_return");
         }
 
-        public override void BeforeKeyword(Keyword annotation)
+        public override void BeforeKeyword(String KeywordName, Keyword Annotation)
         {
-            output.Add("BeforeKeyword", annotation.name);
+            output.Add("BeforeKeyword", KeywordName);
         }
 
-        public override void AfterKeyword(Keyword annotation)
+        public override void AfterKeyword(String KeywordName, Keyword Annotation)
         {
-            output.Add("AfterKeyword", annotation.name);
+            output.Add("AfterKeyword", KeywordName);
         }
 
         [Keyword(name = "My Keyword")]
