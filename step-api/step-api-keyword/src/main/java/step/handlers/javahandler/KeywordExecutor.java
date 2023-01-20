@@ -186,7 +186,7 @@ public class KeywordExecutor {
 			script.setOutputBuilder(outputBuilder);
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
-			String keywordName = annotation.name().isEmpty()?m.getName():annotation.name();
+			String keywordName = input.getFunction();
 			try {
 				script.beforeKeyword(keywordName,annotation);
 				m.invoke(instance);
