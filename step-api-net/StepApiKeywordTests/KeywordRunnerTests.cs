@@ -2,6 +2,7 @@
 using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Xunit;
 
 namespace Step.Handlers.NetHandler.Tests
@@ -12,6 +13,16 @@ namespace Step.Handlers.NetHandler.Tests
         {
             output.Add("onError", "true");
             return (bool) input.GetValue("onError_return");
+        }
+
+        public override void BeforeKeyword(String KeywordName, Keyword Annotation)
+        {
+            output.Add("BeforeKeyword", KeywordName);
+        }
+
+        public override void AfterKeyword(String KeywordName, Keyword Annotation)
+        {
+            output.Add("AfterKeyword", KeywordName);
         }
 
         [Keyword(name = "My Keyword")]
@@ -80,6 +91,16 @@ namespace Step.Handlers.NetHandler.Tests
         Output output;
 
         [Fact]
+        public void TestNotAbstractClass()
+        {
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestNotAbstractKeywords));
+
+            output = runner.Run("Not Abstract Keyword");
+            Assert.Null(output.error);
+            Assert.Empty(output.payload);
+        }
+
+        [Fact]
         public void TestScriptRunnerMultipleKeywords()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords), 
@@ -87,8 +108,13 @@ namespace Step.Handlers.NetHandler.Tests
 
             output = runner.Run("My Other Keyword", @"{}");
             Assert.Null(output.error);
+            Assert.Equal(output.payload["BeforeKeyword"], "My Other Keyword");
+            Assert.Equal(output.payload["AfterKeyword"], "My Other Keyword");
+
             output = runner.Run("My Keyword", @"{}");
             Assert.Null(output.error);
+            Assert.Equal(output.payload["BeforeKeyword"], "My Keyword");
+            Assert.Equal(output.payload["AfterKeyword"], "My Keyword");
             output = runner.Run("My Other Keyword", @"{}");
             Assert.Null(output.error);
 
@@ -142,7 +168,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
             Assert.Equal("val1", output.payload["prop1"].ToString());
-            Assert.Single(output.payload);
+            Assert.Equal(3,output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -177,7 +203,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Single(output.payload);
+            Assert.Equal(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -197,7 +223,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Single(output.payload);
+            Assert.Equal(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -217,7 +243,7 @@ namespace Step.Handlers.NetHandler.Tests
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
             Assert.Equal("My optional Property", output.payload["myOptionalProperty"].ToString());
-            Assert.Equal(2, output.payload.Count);
+            Assert.Equal(4, output.payload.Count);
             Assert.Null(output.error);
         }
 

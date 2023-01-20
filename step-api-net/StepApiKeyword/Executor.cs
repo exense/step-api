@@ -134,9 +134,10 @@ namespace Step.Handlers.NetHandler
                 }
 
                 var c = Activator.CreateInstance(type);
+                AbstractKeyword script = null;
                 if (type.IsSubclassOf(typeof(AbstractKeyword)))
                 {
-                    AbstractKeyword script = (AbstractKeyword)c;
+                    script = (AbstractKeyword)c;
                     script.input = input.payload;
                     script.session = tokenReservationSession;
                     script.tokenSession = tokenSession;
@@ -144,9 +145,12 @@ namespace Step.Handlers.NetHandler
                     script.properties = keywordProperties;
                 }
 
+                String keywordName = keyword.name ?? method.Name;
                 try
                 {
+                    script?.BeforeKeyword(keywordName,keyword);
                     method.Invoke(c, new object[] { });
+                    script?.AfterKeyword(keywordName, keyword);
                 }
                 catch (Exception e)
                 {

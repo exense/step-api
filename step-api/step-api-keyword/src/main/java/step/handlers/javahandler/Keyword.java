@@ -32,6 +32,11 @@ public @interface Keyword {
 	 * used as keyword name
 	 */
 	String name() default "";
+
+	/**
+	 * @return the description of this keyword.
+	 */
+	String description() default "";
 	
 	/**
 	 * @return the list of properties required by this keyword
@@ -49,4 +54,8 @@ public @interface Keyword {
 	 */
 	String schema() default "";
 
+	/**
+	 * @return the call timeout for this keyword in milliseconds
+	 */
+	int timeout() default 180000;
 }

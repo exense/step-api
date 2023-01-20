@@ -8,6 +8,7 @@
     <PackageReference Include="log4net" Version="2.0.15">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>

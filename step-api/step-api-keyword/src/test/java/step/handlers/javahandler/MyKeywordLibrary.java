@@ -23,6 +23,16 @@ import java.io.IOException;
 
 public class MyKeywordLibrary extends AbstractKeyword {
 
+	@Override
+	public void beforeKeyword(String keywordName,Keyword keyword) {
+		output.add("beforeKeyword",keywordName);
+	}
+
+	@Override
+	public void afterKeyword(String keywordName,Keyword keyword) {
+		output.add("afterKeyword",keywordName);
+	}
+
 	@Keyword
 	public void MyKeyword() {
 		output.add("test", "test");

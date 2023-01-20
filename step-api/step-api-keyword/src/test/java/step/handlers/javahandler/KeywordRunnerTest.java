@@ -36,6 +36,8 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeyword");
 		Assert.assertEquals("test",output.getPayload().getString("test"));
+		Assert.assertEquals("MyKeyword",output.getPayload().getString("beforeKeyword"));
+		Assert.assertEquals("MyKeyword",output.getPayload().getString("afterKeyword"));
 	}
 	
 	@Test
@@ -43,6 +45,8 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("My Keyword");
 		Assert.assertEquals("test",output.getPayload().getString("test"));
+		Assert.assertEquals("My Keyword",output.getPayload().getString("beforeKeyword"));
+		Assert.assertEquals("My Keyword",output.getPayload().getString("afterKeyword"));
 	}
 	
 	@Test
@@ -67,7 +71,7 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeywordWithPropertyAnnotation");
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -92,7 +96,7 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
 		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperties");
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -109,7 +113,7 @@ public class KeywordRunnerTest {
 		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperties","{\"myPlaceHolder\": \"placeHolderValue\"}");
 		Assert.assertNull(output.getError());
 		Assert.assertEquals(myPropertyValue,output.getPayload().getString(myPropertyKey));
-		Assert.assertEquals(1, output.getPayload().keySet().size());
+		Assert.assertEquals(3, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -128,7 +132,7 @@ public class KeywordRunnerTest {
 		Assert.assertNull(output.getError());
 		Assert.assertEquals(myPropValue,output.getPayload().getString(myPropKey));
 		Assert.assertEquals(myOptionalPropertyValue,output.getPayload().getString(myOptionalPropertyKey));
-		Assert.assertEquals(2, output.getPayload().keySet().size());
+		Assert.assertEquals(4, output.getPayload().keySet().size());
 	}
 	
 	@Test
@@ -249,7 +253,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Unable to find method annoted by 'step.handlers.javahandler.Keyword' with name=='UnexistingKeyword'",exception.getMessage());
+		Assert.assertEquals("Unable to find method annotated by 'step.handlers.javahandler.Keyword' with name=='UnexistingKeyword'",exception.getMessage());
 	}
 	
 	@Test
@@ -260,7 +264,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Please specify at leat one class containing the keyword definitions",exception.getMessage());
+		Assert.assertEquals("Please specify at least one class containing the keyword definitions",exception.getMessage());
 	}
 	
 	@Test
@@ -272,7 +276,7 @@ public class KeywordRunnerTest {
 		} catch(Exception e) {
 			exception = e;
 		}
-		Assert.assertEquals("Unable to find method annoted by 'step.handlers.javahandler.Keyword' with name=='MyKeyword'",exception.getMessage());
+		Assert.assertEquals("Unable to find method annotated by 'step.handlers.javahandler.Keyword' with name=='MyKeyword'",exception.getMessage());
 	}
 	
 	@Test
