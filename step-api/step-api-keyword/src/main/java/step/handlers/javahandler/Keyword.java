@@ -58,4 +58,9 @@ public @interface Keyword {
 	 * @return the call timeout for this keyword in milliseconds
 	 */
 	int timeout() default 180000;
+
+	/**
+	 * @return the reference to file with implementing plan (for composite keyword only)
+	 */
+	String planReference() default "";
 }
