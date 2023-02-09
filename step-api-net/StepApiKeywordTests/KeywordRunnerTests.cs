@@ -169,7 +169,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
             Assert.Equal("val1", output.payload["prop1"].ToString());
-            Assert.Equal(3,output.payload.Count);
+            Assert.Equal(4,output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -204,7 +204,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(3, output.payload.Count);
+            Assert.Equal(4, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -224,7 +224,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(3, output.payload.Count);
+            Assert.Equal(4, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -244,7 +244,7 @@ namespace Step.Handlers.NetHandler.Tests
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
             Assert.Equal("My optional Property", output.payload["myOptionalProperty"].ToString());
-            Assert.Equal(4, output.payload.Count);
+            Assert.Equal(5, output.payload.Count);
             Assert.Null(output.error);
         }
 
