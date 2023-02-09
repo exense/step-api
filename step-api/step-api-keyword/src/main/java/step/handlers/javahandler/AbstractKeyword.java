@@ -97,18 +97,19 @@ public class AbstractKeyword {
 	 * If an error is thrown by this function, nor the keyword nor
 	 * the afterKeyword hook will be called (but onError will be)
 	 *
-	 * @param keywordName: the name of the keyword. Will be the function name if annotation.name() is empty
-	 * @param annotation: the annotation of the called keyword
+	 * @param keywordName the name of the keyword. Will be the function name if annotation.name() is empty
+	 * @param annotation the annotation of the called keyword
 	 */
 	public void beforeKeyword(String keywordName, Keyword annotation) {}
 
 	/**
 	 * Hook called after each keyword call.
 	 * If an error is thrown by the keyword or the beforeKeyword hook,
-	 * the afterKeyword hook will not be called (but onError will be)
+	 * the afterKeyword hook will be called with hadError to true
 	 *
-	 * @param keywordName: the name of the keyword. Will be the function name if annotation.name() is empty
-	 * @param annotation: the annotation of the called keyword
+	 * @param keywordName the name of the keyword. Will be the function name if annotation.name() is empty
+	 * @param annotation the annotation of the called keyword
+	 * @param hadError if an error occurred
 	 */
-	public void afterKeyword(String keywordName, Keyword annotation) {}
+	public void afterKeyword(String keywordName, Keyword annotation, boolean hadError) {}
 }

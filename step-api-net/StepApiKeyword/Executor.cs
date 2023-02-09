@@ -145,16 +145,21 @@ namespace Step.Handlers.NetHandler
                     script.properties = keywordProperties;
                 }
 
+                bool HadError = false;
                 String keywordName = keyword.name ?? method.Name;
                 try
                 {
                     script?.BeforeKeyword(keywordName,keyword);
                     method.Invoke(c, new object[] { });
-                    script?.AfterKeyword(keywordName, keyword);
                 }
                 catch (Exception e)
                 {
+                    HadError = true;
                     CallOnError(c, e, methodName, alwaysThrowException);
+                }
+                finally
+                {
+                    script?.AfterKeyword(keywordName, keyword, HadError);
                 }
             }
             catch (Exception e)

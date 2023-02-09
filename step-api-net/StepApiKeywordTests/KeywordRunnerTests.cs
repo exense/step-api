@@ -20,9 +20,10 @@ namespace Step.Handlers.NetHandler.Tests
             output.Add("BeforeKeyword", KeywordName);
         }
 
-        public override void AfterKeyword(String KeywordName, Keyword Annotation)
+        public override void AfterKeyword(String KeywordName, Keyword Annotation, bool HadError)
         {
             output.Add("AfterKeyword", KeywordName);
+            output.Add("HadError", HadError.ToString());
         }
 
         [Keyword(name = "My Keyword")]

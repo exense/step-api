@@ -185,13 +185,15 @@ public class KeywordExecutor {
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
 
+			boolean hadError = false;
+
 			Keyword annotation = m.getAnnotation(Keyword.class);
 			String keywordName = input.getFunction();
 			try {
 				script.beforeKeyword(keywordName,annotation);
 				m.invoke(instance);
-				script.afterKeyword(keywordName,annotation);
 			} catch (Exception e) {
+				hadError = true;
 				boolean throwException = script.onError(e);
 				if (throwException) {
 					Throwable cause = e.getCause();
@@ -208,7 +210,7 @@ public class KeywordExecutor {
 					}
 				}
 			} finally {
-				// TODO error handling
+				script.afterKeyword(keywordName,annotation,hadError);
 			}
 		} else {
 			outputBuilder.add("Info", "The class '" + clazz.getName() + "' doesn't extend '" + AbstractKeyword.class.getName()
