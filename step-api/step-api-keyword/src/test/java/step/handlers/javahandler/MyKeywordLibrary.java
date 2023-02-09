@@ -29,7 +29,7 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	}
 
 	@Override
-	public void afterKeyword(String keywordName,Keyword keyword) {
+	public void afterKeyword(String keywordName,Keyword keyword, boolean hadError) {
 		output.add("afterKeyword",keywordName);
 	}
 
