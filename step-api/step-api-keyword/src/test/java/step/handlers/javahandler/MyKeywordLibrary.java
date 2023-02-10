@@ -23,14 +23,41 @@ import java.io.IOException;
 
 public class MyKeywordLibrary extends AbstractKeyword {
 
+	public static final String ON_ERROR_MARKER = "onError";
+	public static final String THROW_EXCEPTION_IN_AFTER = "throwExceptionInAfter";
+	public static final String THROW_EXCEPTION_IN_BEFORE = "throwExceptionInBefore";
+	public static final String RETHROW_EXCEPTION_IN_ON_ERROR = "rethrowException";
+
 	@Override
 	public void beforeKeyword(String keywordName,Keyword keyword) {
 		output.add("beforeKeyword",keywordName);
+		if(getBooleanProperty(THROW_EXCEPTION_IN_BEFORE)) {
+			throw new RuntimeException(THROW_EXCEPTION_IN_BEFORE);
+		}
+
 	}
 
 	@Override
-	public void afterKeyword(String keywordName,Keyword keyword, boolean hadError) {
+	public void afterKeyword(String keywordName,Keyword keyword) {
 		output.add("afterKeyword",keywordName);
+		if(getBooleanProperty(THROW_EXCEPTION_IN_AFTER)) {
+			throw new RuntimeException(THROW_EXCEPTION_IN_AFTER);
+		}
+	}
+
+	@Override
+	public boolean onError(Exception e) {
+		Throwable cause = e.getCause();
+		output.add(ON_ERROR_MARKER, cause != null ? cause.getMessage() : e.getMessage());
+		return getBooleanProperty(RETHROW_EXCEPTION_IN_ON_ERROR, true);
+	}
+
+	private boolean getBooleanProperty(String key) {
+		return Boolean.parseBoolean(properties.getOrDefault(key, Boolean.FALSE.toString()));
+	}
+
+	private boolean getBooleanProperty(String key, boolean defaultValue) {
+		return Boolean.parseBoolean(properties.getOrDefault(key, Boolean.toString(defaultValue)));
 	}
 
 	@Keyword

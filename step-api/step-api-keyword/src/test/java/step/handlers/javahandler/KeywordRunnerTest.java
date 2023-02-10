@@ -180,6 +180,53 @@ public class KeywordRunnerTest {
 		}
 		Assert.assertEquals("My error",exception.getMessage());
 	}
+
+	@Test
+	public void testExceptionsInBeforeHook() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		properties.put(MyKeywordLibrary.THROW_EXCEPTION_IN_BEFORE, Boolean.TRUE.toString());
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		runner.setThrowExceptionOnError(false);
+		Output<JsonObject> output = runner.run("MyKeyword");
+		// Assert that the onError hook has been called and that the output set within it are available
+		Assert.assertEquals(MyKeywordLibrary.THROW_EXCEPTION_IN_BEFORE, output.getPayload().getString(MyKeywordLibrary.ON_ERROR_MARKER));
+		// Assert that the keyword hasn't been called
+		Assert.assertFalse(output.getPayload().containsKey("test"));
+		// Assert that the afterKeyword hook has been called
+		Assert.assertEquals("MyKeyword",output.getPayload().getString("afterKeyword"));
+	}
+
+	@Test
+	public void testOnErrorHook() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		// Enable error rethrow
+		properties.put(MyKeywordLibrary.RETHROW_EXCEPTION_IN_ON_ERROR, Boolean.TRUE.toString());
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		runner.setThrowExceptionOnError(false);
+		Output<JsonObject> output = runner.run("MyExceptionKeyword");
+		// Assert that the error has been handled properly
+		Assert.assertEquals("My exception", output.getError().getMsg());
+		// Assert that the onError hook has been called and that the output set within it are available
+		Assert.assertEquals("My exception", output.getPayload().getString(MyKeywordLibrary.ON_ERROR_MARKER));
+		// Assert that the afterKeyword hook has been called
+		Assert.assertEquals("MyExceptionKeyword",output.getPayload().getString("afterKeyword"));
+	}
+
+	@Test
+	public void testOnErrorHookWithoutRethrow() throws Exception {
+		Map<String, String> properties = new HashMap<>();
+		// Disable exception rethrow after the onError hook
+		properties.put(MyKeywordLibrary.RETHROW_EXCEPTION_IN_ON_ERROR, Boolean.FALSE.toString());
+		ExecutionContext runner = KeywordRunner.getExecutionContext(properties, MyKeywordLibrary.class);
+		runner.setThrowExceptionOnError(false);
+		Output<JsonObject> output = runner.run("MyExceptionKeyword");
+		// Assert that the error isn't set as the exception rethrow has been disabled
+		Assert.assertNull(output.getError());
+		// Assert that the onError hook has been called and that the output set within it are available
+		Assert.assertEquals("My exception", output.getPayload().getString(MyKeywordLibrary.ON_ERROR_MARKER));
+		// Assert that the afterKeyword hook has been called
+		Assert.assertEquals("MyExceptionKeyword",output.getPayload().getString("afterKeyword"));
+	}
 	
 	@Test
 	public void testException() throws Exception {

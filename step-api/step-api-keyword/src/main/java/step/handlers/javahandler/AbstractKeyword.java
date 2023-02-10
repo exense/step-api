@@ -83,10 +83,11 @@ public class AbstractKeyword {
 	}
 
 	/**
-	 * Hook called when an exception is thrown by a keyword or by the BeforeKeyword
-	 * and AfterKeyword hooks
+	 * Hook called when an exception is thrown by a keyword or by the beforeKeyword hook
+	 *
 	 * @param e the exception thrown
 	 * @return true if the exception passed as argument has to be rethrown.
+	 * Set to false if the error has already been handled by this hook and shouldn't be handled.
 	 */
 	public boolean onError(Exception e) {
 		return true;
@@ -94,8 +95,7 @@ public class AbstractKeyword {
 
 	/**
 	 * Hook called before each keyword call.
-	 * If an error is thrown by this function, nor the keyword nor
-	 * the afterKeyword hook will be called (but onError will be)
+	 * If an exception is thrown by this method, the keyword won't be executed (but afterKeyword and onError will)
 	 *
 	 * @param keywordName the name of the keyword. Will be the function name if annotation.name() is empty
 	 * @param annotation the annotation of the called keyword
@@ -104,12 +104,11 @@ public class AbstractKeyword {
 
 	/**
 	 * Hook called after each keyword call.
-	 * If an error is thrown by the keyword or the beforeKeyword hook,
-	 * the afterKeyword hook will be called with hadError to true
+	 * This method is always called. If an exception is thrown by the keyword or the beforeKeyword hook,
+	 * this method is called after the onError hook.
 	 *
-	 * @param keywordName the name of the keyword. Will be the function name if annotation.name() is empty
+	 * @param keywordName the name of the keyword. Will be the method name if annotation.name() is empty
 	 * @param annotation the annotation of the called keyword
-	 * @param hadError if an error occurred
 	 */
-	public void afterKeyword(String keywordName, Keyword annotation, boolean hadError) {}
+	public void afterKeyword(String keywordName, Keyword annotation) {}
 }
