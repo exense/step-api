@@ -15,7 +15,7 @@ namespace KeywordsForTesting
             output.Add("BeforeKeyword", KeywordName);
         }
 
-        public override void AfterKeyword(String KeywordName, Keyword Annotation, bool HadError)
+        public override void AfterKeyword(String KeywordName, Keyword Annotation)
         {
             output.Add("AfterKeyword", KeywordName);
         }

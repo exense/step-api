@@ -31,8 +31,7 @@ namespace Step.Handlers.NetHandler
         public TokenSession tokenSession;
 
         /// <summary>
-        /// Hook called when an exception is thrown by a keyword or by the BeforeKeyword 
-        /// and AfterKeyword hooks
+        /// Hook called when an exception is thrown by a keyword or by the BeforeKeyword hooks
         /// </summary>
         /// <param name="e">the exception thrown</param>
         /// <returns>return true if the exception passed as argument has to be rethrown</returns>
@@ -43,8 +42,8 @@ namespace Step.Handlers.NetHandler
 
         /// <summary>
         /// Hook called before each keyword call.
-        /// If an error is thrown by this function, nor the keyword nor
-        /// the afterKeyword hook will be called(but onError will be)
+        /// If an exception is thrown by this method, the keyword won't be executed 
+        /// (but AfterKeyword and OnError will)
         /// </summary>
         /// <param name="KeywordName">the name of the keyword.  Will be the function name if annotation.name is empty </param>
         /// <param name="Annotation">the annotation of the called keyword</param>
@@ -52,12 +51,11 @@ namespace Step.Handlers.NetHandler
 
         /// <summary>
         /// Hook called after each keyword call.
-        /// If an error is thrown by the keyword or the beforeKeyword hook,
-        /// the afterKeyword hook will be called with hadError to true
+        /// This method is always called. If an exception is thrown by the keyword or the BeforeKeyword hook,
+        /// this method is called after the OnError hook.
         /// </summary>
         /// <param name="KeywordName">the name of the keyword.  Will be the function name if annotation.name is empty </param>
         /// <param name="Annotation">the annotation of the called keyword</param>
-        /// <param name="HadError">if an error occurred</param>
-        public virtual void AfterKeyword(String KeywordName, Keyword Annotation, bool HadError) { }
+        public virtual void AfterKeyword(String KeywordName, Keyword Annotation) { }
     }
 }
