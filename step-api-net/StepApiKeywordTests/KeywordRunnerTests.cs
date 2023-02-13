@@ -9,21 +9,31 @@ namespace Step.Handlers.NetHandler.Tests
 {
     public class TestKeywords : AbstractKeyword
     {
+        public static string THROW_EXCEPTION_IN_BEFORE = "THROW_BEFORE";
+        public static string THROW_EXCEPTION_IN_AFTER = "THROW_AFTER";
+
         public override bool OnError(Exception e)
         {
             output.Add("onError", "true");
-            return (bool) input.GetValue("onError_return");
+            return input["onError_return"]!=null && (bool) input["onError_return"];
         }
 
         public override void BeforeKeyword(String KeywordName, Keyword Annotation)
         {
             output.Add("BeforeKeyword", KeywordName);
+            if (input.ContainsKey(THROW_EXCEPTION_IN_BEFORE))
+            {
+                throw new Exception(input[THROW_EXCEPTION_IN_BEFORE].ToString());
+            }
         }
 
-        public override void AfterKeyword(String KeywordName, Keyword Annotation, bool HadError)
+        public override void AfterKeyword(String KeywordName, Keyword Annotation)
         {
             output.Add("AfterKeyword", KeywordName);
-            output.Add("HadError", HadError.ToString());
+            if (input.ContainsKey(THROW_EXCEPTION_IN_AFTER))
+            {
+                throw new Exception(input[THROW_EXCEPTION_IN_AFTER].ToString());
+            }
         }
 
         [Keyword(name = "My Keyword")]
@@ -169,7 +179,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
             Assert.Equal("val1", output.payload["prop1"].ToString());
-            Assert.Equal(4,output.payload.Count);
+            Assert.Equal(3,output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -204,7 +214,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(4, output.payload.Count);
+            Assert.Equal(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -224,7 +234,7 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(4, output.payload.Count);
+            Assert.Equal(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -244,7 +254,7 @@ namespace Step.Handlers.NetHandler.Tests
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
             Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
             Assert.Equal("My optional Property", output.payload["myOptionalProperty"].ToString());
-            Assert.Equal(5, output.payload.Count);
+            Assert.Equal(4, output.payload.Count);
             Assert.Null(output.error);
         }
 
@@ -278,6 +288,17 @@ namespace Step.Handlers.NetHandler.Tests
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{}", properties);
             Assert.Equal("The Keyword is missing the following property or input 'myPlaceHolder'", output.error.msg);
+        }
+
+        [Fact]
+        public void TestBeforeAfterException()
+        {
+            ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
+            output = runner.Run("My Keyword", @"{'"+ TestKeywords.THROW_EXCEPTION_IN_BEFORE + "':'Error Before'}");
+            Assert.Null(output.error);
+            Assert.Equal(output.payload["BeforeKeyword"], "My Keyword");
+            Assert.Equal(output.payload["AfterKeyword"], "My Keyword");
+            Assert.Null(output.payload["key"]);
         }
 
         [Fact]
