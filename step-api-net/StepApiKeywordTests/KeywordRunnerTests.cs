@@ -1,9 +1,8 @@
 ﻿using KeywordsForTesting;
+using NUnit.Framework;
 using Step.Functions.IO;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Xunit;
 
 namespace Step.Handlers.NetHandler.Tests
 {
@@ -101,17 +100,17 @@ namespace Step.Handlers.NetHandler.Tests
     {
         Output output;
 
-        [Fact]
+        [Test]
         public void TestNotAbstractClass()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestNotAbstractKeywords));
 
             output = runner.Run("Not Abstract Keyword");
             Assert.Null(output.error);
-            Assert.Empty(output.payload);
+            Assert.IsEmpty(output.payload);
         }
 
-        [Fact]
+        [Test]
         public void TestScriptRunnerMultipleKeywords()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords), 
@@ -119,36 +118,36 @@ namespace Step.Handlers.NetHandler.Tests
 
             output = runner.Run("My Other Keyword", @"{}");
             Assert.Null(output.error);
-            Assert.Equal(output.payload["BeforeKeyword"], "My Other Keyword");
-            Assert.Equal(output.payload["AfterKeyword"], "My Other Keyword");
+            Assert.AreEqual(output.payload["BeforeKeyword"].ToString(), "My Other Keyword");
+            Assert.AreEqual(output.payload["AfterKeyword"].ToString(), "My Other Keyword");
 
             output = runner.Run("My Keyword", @"{}");
             Assert.Null(output.error);
-            Assert.Equal(output.payload["BeforeKeyword"], "My Keyword");
-            Assert.Equal(output.payload["AfterKeyword"], "My Keyword");
+            Assert.AreEqual(output.payload["BeforeKeyword"].ToString(), "My Keyword");
+            Assert.AreEqual(output.payload["AfterKeyword"].ToString(), "My Keyword");
             output = runner.Run("My Other Keyword", @"{}");
             Assert.Null(output.error);
 
             output = runner.Run("My Other non existing Keyword", @"{}");
-            Assert.Equal("Unable to find method annoted by 'Keyword' with name == 'My Other non existing Keyword'", 
+            Assert.AreEqual("Unable to find method annoted by 'Keyword' with name == 'My Other non existing Keyword'", 
                 output.error.msg);
         }
 
-        [Fact]
+        [Test]
         public void TestScriptRunnerOnError()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
 
             output = runner.Run("My Error Keyword", @"{onError_return:'false'}");
             Assert.Null(output.error);
-            Assert.Equal("true", output.payload["onError"].ToString());
+            Assert.AreEqual("true", output.payload["onError"].ToString());
             
             output = runner.Run("My Error Keyword", @"{onError_return:'true'}");
-            Assert.Equal("This is a test", output.error.msg);
-            Assert.Equal("true", output.payload["onError"].ToString());
+            Assert.AreEqual("This is a test", output.error.msg);
+            Assert.AreEqual("true", output.payload["onError"].ToString());
         }
 
-        [Fact]
+        [Test]
         public void TestPropertiesWithoutValidation()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -161,11 +160,11 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordUsingProperties", @"{}", properties);
-            Assert.Equal("val1", output.payload["prop1"].ToString());
+            Assert.AreEqual("val1", output.payload["prop1"].ToString());
             Assert.Null(output.error);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidation()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -178,12 +177,12 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", @"{}", properties);
-            Assert.Equal("val1", output.payload["prop1"].ToString());
-            Assert.Equal(3,output.payload.Count);
+            Assert.AreEqual("val1", output.payload["prop1"].ToString());
+            Assert.AreEqual(3,output.payload.Count);
             Assert.Null(output.error);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationPropertyMissing()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -196,10 +195,10 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPropertyAnnotation", "{}", properties);
-            Assert.Equal("The Keyword is missing the following properties 'prop1'", output.error.msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop1'", output.error.msg);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationWithPlaceHolder()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -213,12 +212,12 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", @"{}", properties);
-            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(3, output.payload.Count);
+            Assert.AreEqual("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.AreEqual(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationWithPlaceHolderInInput()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -233,12 +232,12 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
-            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal(3, output.payload.Count);
+            Assert.AreEqual("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.AreEqual(3, output.payload.Count);
             Assert.Null(output.error);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationWithOptionalProperties()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -252,13 +251,13 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
-            Assert.Equal("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
-            Assert.Equal("My optional Property", output.payload["myOptionalProperty"].ToString());
-            Assert.Equal(4, output.payload.Count);
+            Assert.AreEqual("My Property with Place holder", output.payload["prop.placeHolderValue"].ToString());
+            Assert.AreEqual("My optional Property", output.payload["myOptionalProperty"].ToString());
+            Assert.AreEqual(4, output.payload.Count);
             Assert.Null(output.error);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationWithPlaceHolderInInputWhereTheResolvedPropertyIsMissing()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -271,10 +270,10 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{\"myPlaceHolder\": \"placeHolderValue\"}", properties);
-            Assert.Equal("The Keyword is missing the following properties 'prop.placeHolderValue'", output.error.msg);
+            Assert.AreEqual("The Keyword is missing the following properties 'prop.placeHolderValue'", output.error.msg);
         }
 
-        [Fact]
+        [Test]
         public void TestPropertyValidationWithPlaceHolderInInputWhereThePlaceholderIsMissing()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -287,31 +286,31 @@ namespace Step.Handlers.NetHandler.Tests
                 typeof(TestKeywords));
 
             var output = runner.Run("MyKeywordWithPlaceHoldersInProperties", "{}", properties);
-            Assert.Equal("The Keyword is missing the following property or input 'myPlaceHolder'", output.error.msg);
+            Assert.AreEqual("The Keyword is missing the following property or input 'myPlaceHolder'", output.error.msg);
         }
 
-        [Fact]
+        [Test]
         public void TestBeforeAfterException()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             output = runner.Run("My Keyword", @"{'"+ TestKeywords.THROW_EXCEPTION_IN_BEFORE + "':'Error Before'}");
             Assert.Null(output.error);
-            Assert.Equal(output.payload["BeforeKeyword"], "My Keyword");
-            Assert.Equal(output.payload["AfterKeyword"], "My Keyword");
+            Assert.AreEqual(output.payload["BeforeKeyword"].ToString(), "My Keyword");
+            Assert.AreEqual(output.payload["AfterKeyword"].ToString(), "My Keyword");
             Assert.Null(output.payload["key"]);
         }
 
-        [Fact]
+        [Test]
         public void TestScriptRunnerRun()
         {
             ExecutionContext runner = KeywordRunner.GetExecutionContext(typeof(TestKeywords));
             output = runner.Run("My Keyword", @"{}");
 
             Assert.Null(output.error);
-            Assert.Equal("value", output.payload["key"].ToString());
+            Assert.AreEqual("value", output.payload["key"].ToString());
         }
 
-        [Fact]
+        [Test]
         public void TestScriptRunnerWithInputsAndPropertiesRun()
         {
             Dictionary<string, string> properties = new Dictionary<string, string>
@@ -323,9 +322,9 @@ namespace Step.Handlers.NetHandler.Tests
             output = runner.Run("My Keyword", @"{'myInput1':'myInputValue1'}", properties);
 
             Assert.Null(output.error);
-            Assert.Equal("value", output.payload["key"].ToString());
-            Assert.Equal("myValue1", output.payload["myProp1"].ToString());
-            Assert.Equal("myInputValue1", output.payload["myInput1"].ToString());
+            Assert.AreEqual("value", output.payload["key"].ToString());
+            Assert.AreEqual("myValue1", output.payload["myProp1"].ToString());
+            Assert.AreEqual("myInputValue1", output.payload["myInput1"].ToString());
         }
     }
 }
