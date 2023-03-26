@@ -54,6 +54,8 @@ public @interface Keyword {
 	 */
 	String schema() default "";
 
+	JsonSchema[] jsonSchema() default {};
+
 	/**
 	 * @return the call timeout for this keyword in milliseconds
 	 */
