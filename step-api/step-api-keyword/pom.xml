@@ -27,26 +27,46 @@
 		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 
-	<dependencies>
-		<dependency>
-		    <groupId>ch.exense.step</groupId>
-		    <artifactId>step-api-function</artifactId>
-		    <version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.glassfish</groupId>
-					<artifactId>javax.json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.json</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>ch.exense.step</groupId>
+            <artifactId>step-api-function</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish</groupId>
+                    <artifactId>javax.json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- TODO: javax or jakarta -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.glassfish</groupId>-->
+        <!--            <artifactId>javax.json</artifactId>-->
+        <!--            <version>1.0</version>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.json</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
+        </dependency>
 
-	<build>
-	</build>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+    </build>
 </project>
