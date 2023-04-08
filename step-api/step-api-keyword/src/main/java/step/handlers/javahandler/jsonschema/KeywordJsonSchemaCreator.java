@@ -22,6 +22,8 @@ import java.util.Objects;
 
 public class KeywordJsonSchemaCreator {
 
+	private final JsonProvider jsonProvider = JsonProvider.provider();
+
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
 	 *
@@ -52,16 +54,14 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	private JsonObject readJsonSchemaFromInputAnnotations(Method method) throws JsonSchemaPreparationException {
-		JsonProvider provider = JsonProvider.provider();
-
-		JsonObjectBuilder topLevelBuilder = provider.createObjectBuilder();
+		JsonObjectBuilder topLevelBuilder = jsonProvider.createObjectBuilder();
 		// top-level type is always 'object'
 		topLevelBuilder.add("type", "object");
 
-		JsonObjectBuilder propertiesBuilder = provider.createObjectBuilder();
+		JsonObjectBuilder propertiesBuilder = jsonProvider.createObjectBuilder();
 		List<String> requiredProperties = new ArrayList<>();
 		for (Parameter p : method.getParameters()) {
-			JsonObjectBuilder propertyParamsBuilder = provider.createObjectBuilder();
+			JsonObjectBuilder propertyParamsBuilder = jsonProvider.createObjectBuilder();
 
 			if (!p.isAnnotationPresent(Input.class)) {
 				throw new JsonSchemaPreparationException("Parameter " + p.getName() + " is not annotated with " + Input.class.getName());
@@ -93,7 +93,7 @@ public class KeywordJsonSchemaCreator {
 		}
 		topLevelBuilder.add("properties", propertiesBuilder);
 
-		JsonArrayBuilder requiredBuilder = provider.createArrayBuilder();
+		JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
 		for (String requiredProperty : requiredProperties) {
 			requiredBuilder.add(requiredProperty);
 		}
@@ -102,14 +102,12 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	private void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
-		JsonProvider provider = JsonProvider.provider();
-
-		JsonObjectBuilder nestedPropertiesBuilder = provider.createObjectBuilder();
+		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
 		List<String> requiredProperties = new ArrayList<>();
 
 		Field[] fields = clazz.getDeclaredFields();
 		for (Field field : fields) {
-			JsonObjectBuilder nestedPropertyParamsBuilder = provider.createObjectBuilder();
+			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
 			if (field.isAnnotationPresent(Input.class)) {
 				Input input = field.getAnnotation(Input.class);
@@ -136,7 +134,7 @@ public class KeywordJsonSchemaCreator {
 		}
 		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
 
-		JsonArrayBuilder requiredBuilder = provider.createArrayBuilder();
+		JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
 		for (String requiredProperty : requiredProperties) {
 			requiredBuilder.add(requiredProperty);
 		}
@@ -178,12 +176,12 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	protected JsonObject createEmptyJsonSchema() {
-		return JsonProvider.provider().createObjectBuilder().build();
+		return jsonProvider.createObjectBuilder().build();
 	}
 
 	protected JsonObject readJsonSchemaFromPlainText(String schema, Method method) throws JsonSchemaPreparationException {
 		try {
-			return JsonProvider.provider().createReader(new StringReader(schema)).readObject();
+			return jsonProvider.createReader(new StringReader(schema)).readObject();
 		} catch (JsonParsingException e) {
 			throw new JsonSchemaPreparationException("Parsing error in the schema for keyword '" + method.getName() + "'. The error was: " + e.getMessage());
 		} catch (JsonException e) {

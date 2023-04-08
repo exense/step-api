@@ -18,8 +18,12 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -189,7 +193,7 @@ public class KeywordExecutor {
 			String keywordName = input.getFunction();
 			try {
 				script.beforeKeyword(keywordName,annotation);
-				m.invoke(instance);
+				m.invoke(instance, resolveMethodArguments(script.getInput(), m));
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {
@@ -220,5 +224,55 @@ public class KeywordExecutor {
 		} else {
 			return output;
 		}
+	}
+
+	private Object[] resolveMethodArguments(JsonObject input, Method m) throws Exception {
+		List<Object> res = new ArrayList<>();
+		for (Parameter p : m.getParameters()) {
+			if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
+				step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
+				String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
+				res.add(getValueFromJsonInput(input, name, p.getType()));
+			} else {
+				res.add(null);
+			}
+		}
+		return res.toArray();
+	}
+
+	private Object getValueFromJsonInput(JsonObject input, String name, Class<?> valueType) throws Exception {
+		Object value = null;
+		if (String.class.isAssignableFrom(valueType)) {
+			value = input.getString(name);
+		} else if (Boolean.class.isAssignableFrom(valueType)) {
+			value = input.getBoolean(name);
+		} else if (Integer.class.isAssignableFrom(valueType)) {
+			value = input.getInt(name);
+		} else if (Double.class.isAssignableFrom(valueType)) {
+			value = input.getJsonNumber(name).doubleValue();
+		} else if (Long.class.isAssignableFrom(valueType)) {
+			value = input.getJsonNumber(name).longValue();
+		} else if (BigDecimal.class.isAssignableFrom(valueType)) {
+			value = input.getJsonNumber(name).bigDecimalValue();
+		} else if (BigInteger.class.isAssignableFrom(valueType)) {
+			value = input.getJsonNumber(name).bigIntegerValue();
+		} else {
+			// complex object with nested fields
+			value = valueType.getConstructor().newInstance();
+
+			Field[] fields = value.getClass().getFields();
+			for (Field field : fields) {
+				if(field.isAnnotationPresent(step.handlers.javahandler.Input.class)){
+					step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
+					field.setAccessible(true);
+
+					String nameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
+					field.set(value, getValueFromJsonInput(input, nameForField, field.getClass()));
+				}
+			}
+		}
+
+		// TODO: arrays?
+		return value;
 	}
 }
