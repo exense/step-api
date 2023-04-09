@@ -23,7 +23,7 @@ public class KeywordJsonSchemaCreatorTest {
 
 	@Test
 	public void jsonInputParamsReaderTest() throws Throwable {
-		KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
 
 		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
@@ -46,7 +46,7 @@ public class KeywordJsonSchemaCreatorTest {
 
 	@Test
 	public void jsonInputParamsReaderNestedFieldsTest() throws Throwable {
-		KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
 
 		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputNestedFieldAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
@@ -69,7 +69,7 @@ public class KeywordJsonSchemaCreatorTest {
 
 	@Test
 	public void jsonInputParamsReaderArrayFieldsTest() throws Throwable {
-		KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
 
 		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputArrays")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 

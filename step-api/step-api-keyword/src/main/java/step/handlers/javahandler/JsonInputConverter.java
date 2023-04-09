@@ -1,8 +1,5 @@
 package step.handlers.javahandler;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObjectBuilder;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import javax.json.JsonArray;
@@ -12,65 +9,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class JsonInputConverter {
-
-	public static final String ARRAY_VALUE_SEPARATOR = ";";
-
-	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Class<?> type, String jsonName) throws IllegalArgumentException {
-		if(String.class.isAssignableFrom(type)){
-			builder.add(jsonName, value);
-		} else if(Boolean.class.isAssignableFrom(type)){
-			builder.add(jsonName, Boolean.parseBoolean(value));
-		} else if(Integer.class.isAssignableFrom(type)){
-			builder.add(jsonName, Integer.parseInt(value));
-		} else if(Long.class.isAssignableFrom(type)){
-			builder.add(jsonName, Long.parseLong(value));
-		} else if(Double.class.isAssignableFrom(type)){
-			builder.add(jsonName, Double.parseDouble(value));
-		} else if(BigInteger.class.isAssignableFrom(type)){
-			builder.add(jsonName, BigInteger.valueOf(Long.parseLong(value)));
-		} else if(BigDecimal.class.isAssignableFrom(type)){
-			builder.add(jsonName, BigDecimal.valueOf(Double.parseDouble(value)));
-		} else if(type.isArray()){
-			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
-				Class<?> arrayValueType = type.getComponentType();
-				if(String.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(arrayValue);
-				} else if(Boolean.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(Boolean.parseBoolean(arrayValue));
-				} else if(Integer.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(Integer.parseInt(arrayValue));
-				} else if(Long.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(Long.parseLong(arrayValue));
-				} else if(Double.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(Double.parseDouble(arrayValue));
-				} else if(BigInteger.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(BigInteger.valueOf(Long.parseLong(arrayValue)));
-				} else if(BigDecimal.class.isAssignableFrom(arrayValueType)) {
-					arrayBuilder.add(BigDecimal.valueOf(Double.parseDouble(arrayValue)));
-				} else {
-					throw new IllegalArgumentException("Unable to apply the following type to array json builder: " + type);
-				}
-			}
-			builder.add(jsonName, arrayBuilder);
-		} else {
-			throw new IllegalArgumentException("Unable to apply the following type to json builder: " + type);
-		}
-	}
-
-	public static String resolveJsonPropertyType(Class<?> type) {
-		if (String.class.isAssignableFrom(type)) {
-			return "string";
-		} else if (Boolean.class.isAssignableFrom(type)) {
-			return "boolean";
-		} else if (Number.class.isAssignableFrom(type)) {
-			return "number";
-		} else if (type.isArray()){
-			return "array";
-		} else {
-			return "object";
-		}
-	}
 
 	public static Object getValueFromJsonInput(JsonObject input, String name, Class<?> valueType) throws Exception {
 		Object value = null;

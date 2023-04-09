@@ -67,7 +67,8 @@
 		<module>step-api-function</module>
 		<module>step-api-keyword</module>
 		<module>step-api-reporting</module>
-	</modules>
+        <module>step-api-json-schema</module>
+    </modules>
 
 	<dependencyManagement>
 		<dependencies>
