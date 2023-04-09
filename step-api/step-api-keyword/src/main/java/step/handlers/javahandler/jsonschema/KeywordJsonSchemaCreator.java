@@ -6,15 +6,15 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonParsingException;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import step.handlers.javahandler.Input;
+import step.handlers.javahandler.JsonInputConverter;
 import step.handlers.javahandler.Keyword;
 
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +74,8 @@ public class KeywordJsonSchemaCreator {
 				throw new JsonSchemaPreparationException("Parameter name is not resolved for parameter " + p.getName());
 			}
 
-			String type = resolveJsonPropertyType(p.getType());
+			Class<?> type1 = p.getType();
+			String type = JsonInputConverter.resolveJsonPropertyType(type1);
 			propertyParamsBuilder.add("type", type);
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
@@ -105,7 +106,7 @@ public class KeywordJsonSchemaCreator {
 		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
 		List<String> requiredProperties = new ArrayList<>();
 
-		Field[] fields = clazz.getDeclaredFields();
+		Field[] fields = FieldUtils.getAllFields(clazz);
 		for (Field field : fields) {
 			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
@@ -117,7 +118,7 @@ public class KeywordJsonSchemaCreator {
 					requiredProperties.add(parameterName);
 				}
 
-				String type = resolveJsonPropertyType(field.getType());
+				String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
 				nestedPropertyParamsBuilder.add("type", type);
 
 				if (input.defaultValue() != null && !input.defaultValue().isEmpty()) {
@@ -142,37 +143,11 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Class<?> type, String paramName) throws JsonSchemaPreparationException {
-		if(String.class.isAssignableFrom(type)){
-			builder.add("default", defaultValue);
-		} else if(Boolean.class.isAssignableFrom(type)){
-			builder.add("default", Boolean.parseBoolean(defaultValue));
-		} else if(Integer.class.isAssignableFrom(type)){
-			builder.add("default", Integer.parseInt(defaultValue));
-		} else if(Long.class.isAssignableFrom(type)){
-			builder.add("default", Long.parseLong(defaultValue));
-		} else if(Double.class.isAssignableFrom(type)){
-			builder.add("default", Double.parseDouble(defaultValue));
-		} else if(BigInteger.class.isAssignableFrom(type)){
-			builder.add("default", BigInteger.valueOf(Long.parseLong(defaultValue)));
-		} else if(BigDecimal.class.isAssignableFrom(type)){
-			builder.add("default", BigDecimal.valueOf(Double.parseDouble(defaultValue)));
-		} else {
+		try {
+			JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
+		} catch (IllegalArgumentException ex) {
 			throw new JsonSchemaPreparationException("Unable to resolve default value for parameter " + paramName);
 		}
-	}
-
-	private String resolveJsonPropertyType(Class<?> type) {
-		if (String.class.isAssignableFrom(type)) {
-			return "string";
-		} else if (Boolean.class.isAssignableFrom(type)) {
-			return "boolean";
-		} else if (Number.class.isAssignableFrom(type)) {
-			return "number";
-		} else {
-			return "object";
-		}
-
-		// TODO: support arrays?
 	}
 
 	protected JsonObject createEmptyJsonSchema() {

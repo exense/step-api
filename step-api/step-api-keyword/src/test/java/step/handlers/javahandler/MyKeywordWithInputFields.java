@@ -7,17 +7,39 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 											 @Input(name = "booleanField", defaultValue = "true", required = true) Boolean booleanField,
 											 @Input(name = "stringField", defaultValue = "myDefaultValue", required = true) String stringField,
 											 @Input(name = "stringField2") String secondStringField) {
-		output.add("numberFieldOut", numberField);
-		output.add("booleanFieldOut", booleanField);
-		output.add("stringField1Out", stringField);
-		output.add("stringField2Out", secondStringField);
+		// fill output to check execution result in tests
+		if (numberField != null) {
+			output.add("numberFieldOut", numberField);
+		}
+		if (booleanField != null) {
+			output.add("booleanFieldOut", booleanField);
+		}
+		if (stringField != null) {
+			output.add("stringField1Out", stringField);
+		}
+		if (secondStringField != null) {
+			output.add("stringField2Out", secondStringField);
+		}
 	}
 
 	@Keyword
-	public void MyKeywordWithCustomSchemaNested( @Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
-												 @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField,
-												 @Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields) {
-		output.add("test", "test");
+	public void MyKeywordWithInputNested(@Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
+										 @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField,
+										 @Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields) {
+		// fill output to check execution result in tests
+		if (stringField != null) {
+			output.add("stringField1Out", stringField);
+		}
+		if (secondStringField != null) {
+			output.add("stringField2Out", secondStringField);
+		}
+		output.add("classWithNestedFieldsNotNull", classWithNestedFields == null ? "false" : "true");
+		if (classWithNestedFields != null && classWithNestedFields.getNestedStringProperty() != null) {
+			output.add("classWithNestedFieldsOut.nestedStringProperty", classWithNestedFields.getNestedStringProperty());
+		}
+		if (classWithNestedFields != null && classWithNestedFields.getNestedNumberProperty() != null) {
+			output.add("classWithNestedFieldsOut.nestedNumberProperty", classWithNestedFields.getNestedNumberProperty());
+		}
 	}
 
 	public static class ClassWithNestedFields {

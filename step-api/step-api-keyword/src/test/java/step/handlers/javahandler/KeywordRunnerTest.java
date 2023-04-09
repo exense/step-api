@@ -360,6 +360,25 @@ public class KeywordRunnerTest {
 		Assert.assertEquals("myValue2", result.getString("stringField2Out"));
 	}
 
+	@Test
+	public void testKeywordWithNestedAttributes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputNested",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/nested-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals("myValue1", result.getString("stringField1Out"));
+		Assert.assertEquals("myValue2", result.getString("stringField2Out"));
+		Assert.assertEquals("true", result.getString("classWithNestedFieldsNotNull"));
+		Assert.assertEquals(77, result.getInt("classWithNestedFieldsOut.nestedNumberProperty"));
+		Assert.assertEquals("myValue3", result.getString("classWithNestedFieldsOut.nestedStringProperty"));
+	}
+
 	private static JsonNode readJsonFromFile(String path) throws IOException {
 		File inputFile = new File(path);
 

@@ -232,7 +232,7 @@ public class KeywordExecutor {
 			if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 				step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
 				String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
-				res.add(getValueFromJsonInput(input, name, p.getType()));
+				res.add(JsonInputConverter.getValueFromJsonInput(input, name, p.getType()));
 			} else {
 				res.add(null);
 			}
@@ -240,39 +240,4 @@ public class KeywordExecutor {
 		return res.toArray();
 	}
 
-	private Object getValueFromJsonInput(JsonObject input, String name, Class<?> valueType) throws Exception {
-		Object value = null;
-		if (String.class.isAssignableFrom(valueType)) {
-			value = input.getString(name);
-		} else if (Boolean.class.isAssignableFrom(valueType)) {
-			value = input.getBoolean(name);
-		} else if (Integer.class.isAssignableFrom(valueType)) {
-			value = input.getInt(name);
-		} else if (Double.class.isAssignableFrom(valueType)) {
-			value = input.getJsonNumber(name).doubleValue();
-		} else if (Long.class.isAssignableFrom(valueType)) {
-			value = input.getJsonNumber(name).longValue();
-		} else if (BigDecimal.class.isAssignableFrom(valueType)) {
-			value = input.getJsonNumber(name).bigDecimalValue();
-		} else if (BigInteger.class.isAssignableFrom(valueType)) {
-			value = input.getJsonNumber(name).bigIntegerValue();
-		} else {
-			// complex object with nested fields
-			value = valueType.getConstructor().newInstance();
-
-			Field[] fields = value.getClass().getFields();
-			for (Field field : fields) {
-				if(field.isAnnotationPresent(step.handlers.javahandler.Input.class)){
-					step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
-					field.setAccessible(true);
-
-					String nameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
-					field.set(value, getValueFromJsonInput(input, nameForField, field.getClass()));
-				}
-			}
-		}
-
-		// TODO: arrays?
-		return value;
-	}
 }
