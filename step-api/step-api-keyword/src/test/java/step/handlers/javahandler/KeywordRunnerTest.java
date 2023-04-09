@@ -379,6 +379,40 @@ public class KeywordRunnerTest {
 		Assert.assertEquals("myValue3", result.getString("classWithNestedFieldsOut.nestedStringProperty"));
 	}
 
+	@Test
+	public void testKeywordWithNullAttributes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputAnnotation",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/null-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertFalse(result.containsKey("numberFieldOut"));
+		Assert.assertFalse(result.containsKey("booleanFieldOut"));
+		Assert.assertFalse(result.containsKey("stringField1Out"));
+		Assert.assertFalse(result.containsKey("stringField2Out"));
+	}
+
+	@Test
+	public void testKeywordWithArrays() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputArrays",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/array-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals("d+e+f", result.getString("stringArrayOut"));
+		Assert.assertEquals("4+5+6", result.getString("integerArrayOut"));
+	}
+
 	private static JsonNode readJsonFromFile(String path) throws IOException {
 		File inputFile = new File(path);
 

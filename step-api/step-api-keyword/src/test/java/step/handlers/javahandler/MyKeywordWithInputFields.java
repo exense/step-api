@@ -1,5 +1,8 @@
 package step.handlers.javahandler;
 
+import java.util.Arrays;
+import java.util.function.BinaryOperator;
+
 public class MyKeywordWithInputFields extends AbstractKeyword {
 
 	@Keyword
@@ -39,6 +42,19 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 		}
 		if (classWithNestedFields != null && classWithNestedFields.getNestedNumberProperty() != null) {
 			output.add("classWithNestedFieldsOut.nestedNumberProperty", classWithNestedFields.getNestedNumberProperty());
+		}
+	}
+
+	@Keyword
+	public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
+										 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray) {
+		// fill output to check execution result in tests
+		if (stringArray != null) {
+			output.add("stringArrayOut", Arrays.stream(stringArray).reduce((s, s2) -> s + "+" + s2).orElse(""));
+		}
+
+		if (integerArray != null) {
+			output.add("integerArrayOut", Arrays.stream(integerArray).map(Object::toString).reduce((integer, integer2) -> integer + "+" + integer2).orElse(""));
 		}
 	}
 

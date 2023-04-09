@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "stringArray": {
+      "type": "array",
+      "default": ["a", "b", "c"]
+    },
+    "integerArray": {
+      "type": "array",
+      "default": [1, 2, 3]
+    }
+  },
+  "required": [
+    "stringArray"
+  ]
+}

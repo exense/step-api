@@ -67,6 +67,30 @@ public class KeywordJsonSchemaCreatorTest {
 		Assert.assertEquals(expectedJsonNode, actualJsonNode);
 	}
 
+	@Test
+	public void jsonInputParamsReaderArrayFieldsTest() throws Throwable {
+		KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+
+		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputArrays")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+
+		log.info("Check json schema for method " + method.getName());
+		JsonObject schema = reader.createJsonSchemaForKeyword(method);
+		String jsonString = schema.toString();
+		log.info(jsonString);
+
+		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-3.json");
+
+		JsonFactory factory = new JsonFactory();
+		ObjectMapper mapper = new ObjectMapper(factory);
+
+		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+		JsonNode actualJsonNode = mapper.readTree(jsonString);
+
+		Assert.assertEquals(expectedJsonNode, actualJsonNode);
+	}
+
+
 	public static class KeywordTestClass extends AbstractKeyword {
 		@Keyword
 		public void MyKeywordWithInputAnnotation(@Input(name = "numberField", defaultValue = "1", required = true) Integer numberField,
@@ -80,6 +104,12 @@ public class KeywordJsonSchemaCreatorTest {
 		public void MyKeywordWithInputNestedFieldAnnotation(@Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
 															@Input(name = "stringField2", defaultValue = "myValue2") String secondStringField,
 															@Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields) {
+			output.add("test", "test");
+		}
+
+		@Keyword
+		public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
+											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray) {
 			output.add("test", "test");
 		}
 	}
