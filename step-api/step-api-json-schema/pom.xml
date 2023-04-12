@@ -19,7 +19,7 @@
 
     <dependencies>
 
-        <!-- TODO: all classes from step-api-json-schema module could be included in step-api-keyword module, but it leads to conflict (jakarta.json vs javax.json) -->
+        <!-- all classes from this step-api-json-schema module could be moved to step-api-keyword module, but it leads to conflict in unit-tests (jakarta.json vs javax.json) -->
 
         <dependency>
             <groupId>ch.exense.step</groupId>
