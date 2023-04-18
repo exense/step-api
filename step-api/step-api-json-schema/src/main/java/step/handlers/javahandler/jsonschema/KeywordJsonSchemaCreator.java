@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * Copyright (C) 2020, exense GmbH
+ *
+ * This file is part of STEP
+ *
+ * STEP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * STEP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
 import jakarta.json.JsonArrayBuilder;
@@ -6,7 +24,6 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonParsingException;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import step.handlers.javahandler.Input;
 import step.handlers.javahandler.Keyword;
 
@@ -105,7 +122,7 @@ public class KeywordJsonSchemaCreator {
 		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
 		List<String> requiredProperties = new ArrayList<>();
 
-		Field[] fields = FieldUtils.getAllFields(clazz);
+		List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
 		for (Field field : fields) {
 			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 

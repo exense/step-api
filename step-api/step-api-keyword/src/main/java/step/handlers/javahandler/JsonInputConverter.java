@@ -1,12 +1,31 @@
+/*******************************************************************************
+ * Copyright (C) 2020, exense GmbH
+ *
+ * This file is part of STEP
+ *
+ * STEP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * STEP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package step.handlers.javahandler;
-
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class JsonInputConverter {
 
@@ -76,13 +95,13 @@ public class JsonInputConverter {
 
 					JsonObject nestedObjectFromInput = input.getJsonObject(name);
 
-					Field[] fields = FieldUtils.getAllFields(value.getClass());
+					List<Field> fields = getAllFields(value.getClass());
 					for (Field field : fields) {
 						if (field.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 							step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
 							String jsonNameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
 
-							FieldUtils.writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, field.getType()), true);
+							writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, field.getType()));
 						}
 					}
 				}
@@ -91,6 +110,24 @@ public class JsonInputConverter {
 		}
 
 		return value;
+	}
+
+	public static List<Field> getAllFields(final Class<?> cls) {
+		final List<Field> allFields = new ArrayList<>();
+		Class<?> currentClass = cls;
+		while (currentClass != null) {
+			final Field[] declaredFields = currentClass.getDeclaredFields();
+			Collections.addAll(allFields, declaredFields);
+			currentClass = currentClass.getSuperclass();
+		}
+		return allFields;
+	}
+
+	public static void writeField(final Field field, final Object target, final Object value) throws IllegalAccessException {
+		if (!field.isAccessible()) {
+			field.setAccessible(true);
+		}
+		field.set(target, value);
 	}
 
 }
