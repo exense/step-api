@@ -97,12 +97,12 @@ public class JsonInputConverter {
 
 					List<Field> fields = getAllFields(value.getClass());
 					for (Field field : fields) {
+						String jsonNameForField = field.getName();
 						if (field.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 							step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
-							String jsonNameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
-
-							writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, field.getType()));
+							jsonNameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
 						}
+						writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, field.getType()));
 					}
 				}
 

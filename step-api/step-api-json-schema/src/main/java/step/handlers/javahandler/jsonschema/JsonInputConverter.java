@@ -63,12 +63,12 @@ public class JsonInputConverter {
 				} else if(BigDecimal.class.isAssignableFrom(arrayValueType)) {
 					arrayBuilder.add(BigDecimal.valueOf(Double.parseDouble(arrayValue)));
 				} else {
-					throw new IllegalArgumentException("Unable to apply the following type to array json builder: " + type);
+					throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + arrayValueType);
 				}
 			}
 			builder.add(jsonName, arrayBuilder);
 		} else {
-			throw new IllegalArgumentException("Unable to apply the following type to json builder: " + type);
+			throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
 		}
 	}
 

@@ -50,6 +50,7 @@ public class KeywordJsonSchemaCreator {
 		if (keywordAnnotation == null) {
 			throw new JsonSchemaPreparationException("Method is not annotated with Keyword annotation");
 		}
+		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
 
 		// use explicit (plain text) schema specified in annotation
 		boolean useTextJsonSchema = keywordAnnotation.schema() != null && !keywordAnnotation.schema().isEmpty();
@@ -57,7 +58,7 @@ public class KeywordJsonSchemaCreator {
 		// build json schema via @Input annotations taken from method parameters
 		boolean useAnnotatedJsonInputs = method.getParameters() != null && Arrays.stream(method.getParameters()).anyMatch(p -> p.isAnnotationPresent(Input.class));
 		if (useTextJsonSchema && useAnnotatedJsonInputs) {
-			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword. You should define either 'jsonSchema' or 'schema' parameter in @Keyword annotation");
+			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword '" + functionName +"'. You should use either '@Input' annotation or define the 'schema' element of the @Keyword annotation");
 		}
 
 		if (useTextJsonSchema) {
@@ -70,6 +71,8 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	private JsonObject readJsonSchemaFromInputAnnotations(Method method) throws JsonSchemaPreparationException {
+		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
+		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
 		JsonObjectBuilder topLevelBuilder = jsonProvider.createObjectBuilder();
 		// top-level type is always 'object'
 		topLevelBuilder.add("type", "object");
@@ -80,14 +83,14 @@ public class KeywordJsonSchemaCreator {
 			JsonObjectBuilder propertyParamsBuilder = jsonProvider.createObjectBuilder();
 
 			if (!p.isAnnotationPresent(Input.class)) {
-				throw new JsonSchemaPreparationException("Parameter " + p.getName() + " is not annotated with " + Input.class.getName());
+				throw new JsonSchemaPreparationException("Parameter " + p.getName() + " is not annotated with " + Input.class.getName() + " for keyword " + functionName);
 			}
 
 			Input inputAnnotation = p.getAnnotation(Input.class);
 
 			String parameterName = inputAnnotation.name();
 			if(parameterName == null || parameterName.isEmpty()){
-				throw new JsonSchemaPreparationException("Parameter name is not resolved for parameter " + p.getName());
+				throw new JsonSchemaPreparationException("The mandatory 'name' element of the Input annotation is missing for parameter " + p.getName() + " in keyword " + functionName);
 			}
 
 			Class<?> type1 = p.getType();
@@ -95,7 +98,12 @@ public class KeywordJsonSchemaCreator {
 			propertyParamsBuilder.add("type", type);
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
-				addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getType(), parameterName);
+				try {
+					addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getType(), parameterName);
+				} catch (JsonSchemaPreparationException e) {
+					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
+							+ functionName + "': " + e.getMessage());
+				}
 			}
 
 			if (inputAnnotation.required()) {
@@ -103,7 +111,13 @@ public class KeywordJsonSchemaCreator {
 			}
 
 			if(Objects.equals("object", type)){
-				processNestedFields(propertyParamsBuilder, p.getType());
+				try {
+					processNestedFields(propertyParamsBuilder, p.getType());
+				} catch (JsonSchemaPreparationException e) {
+					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
+							+ functionName + "': " + e.getMessage());
+				}
+
 			}
 
 			propertiesBuilder.add(parameterName, propertyParamsBuilder);
@@ -162,7 +176,8 @@ public class KeywordJsonSchemaCreator {
 		try {
 			JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
 		} catch (IllegalArgumentException ex) {
-			throw new JsonSchemaPreparationException("Unable to resolve default value for parameter " + paramName);
+			throw new JsonSchemaPreparationException("Unable to resolve default value for input " + paramName +
+					". Caused by : " + ex.getMessage());
 		}
 	}
 

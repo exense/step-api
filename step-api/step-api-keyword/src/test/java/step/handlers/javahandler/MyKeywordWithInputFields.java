@@ -59,7 +59,6 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 	}
 
 	public static class ClassWithNestedFields {
-		@Input(defaultValue = "nestedValue1")
 		private String nestedStringProperty;
 
 		@Input(defaultValue = "2")
