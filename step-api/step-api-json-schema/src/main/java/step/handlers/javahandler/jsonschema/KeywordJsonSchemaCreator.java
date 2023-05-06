@@ -31,6 +31,7 @@ import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +100,7 @@ public class KeywordJsonSchemaCreator {
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {
-					addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getType(), parameterName);
+					addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
@@ -172,7 +173,7 @@ public class KeywordJsonSchemaCreator {
 		propertyParamsBuilder.add("required", requiredBuilder);
 	}
 
-	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Class<?> type, String paramName) throws JsonSchemaPreparationException {
+	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
 		try {
 			JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
 		} catch (IllegalArgumentException ex) {

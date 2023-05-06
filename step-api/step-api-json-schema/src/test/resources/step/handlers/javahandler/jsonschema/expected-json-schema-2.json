@@ -15,10 +15,6 @@
         "nestedStringProperty": {
           "type": "string",
           "default": "nestedValue1"
-        },
-        "numberProperty": {
-          "type": "number",
-          "default": 2
         }
       },
       "required": [

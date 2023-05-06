@@ -9,6 +9,14 @@
       "type": "boolean",
       "default": true
     },
+    "intPrimitiveField": {
+      "type": "number",
+      "default": 2
+    },
+    "booleanPrimitiveField": {
+      "type": "boolean",
+      "default": true
+    },
     "stringField": {
       "type": "string",
       "default": "myValue"
@@ -21,6 +29,8 @@
   "required": [
     "numberField",
     "booleanField",
+    "intPrimitiveField",
+    "booleanPrimitiveField",
     "stringField"
   ]
 }

@@ -22,41 +22,69 @@ import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 
 public class JsonInputConverter {
 
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
 
-	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Class<?> type, String jsonName) throws IllegalArgumentException {
-		if(String.class.isAssignableFrom(type)){
+	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
+		Class<?> clazz = null;
+
+		try {
+			if (type instanceof Class) {
+				clazz = (Class<?>) type;
+			} else if (type instanceof ParameterizedType) {
+				// we expect the parameterized collection here
+				clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+			} else {
+				throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+			}
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+		}
+
+		if(String.class.isAssignableFrom(clazz)){
 			builder.add(jsonName, value);
-		} else if(Boolean.class.isAssignableFrom(type)){
+		} else if(Boolean.class.isAssignableFrom(clazz) || clazz.equals(boolean.class)){
 			builder.add(jsonName, Boolean.parseBoolean(value));
-		} else if(Integer.class.isAssignableFrom(type)){
+		} else if(Integer.class.isAssignableFrom(clazz) || clazz.equals(int.class)){
 			builder.add(jsonName, Integer.parseInt(value));
-		} else if(Long.class.isAssignableFrom(type)){
+		} else if(Long.class.isAssignableFrom(clazz) || clazz.equals(long.class)){
 			builder.add(jsonName, Long.parseLong(value));
-		} else if(Double.class.isAssignableFrom(type)){
+		} else if(Double.class.isAssignableFrom(clazz) || clazz.equals(double.class)){
 			builder.add(jsonName, Double.parseDouble(value));
-		} else if(BigInteger.class.isAssignableFrom(type)){
+		} else if(BigInteger.class.isAssignableFrom(clazz)){
 			builder.add(jsonName, BigInteger.valueOf(Long.parseLong(value)));
-		} else if(BigDecimal.class.isAssignableFrom(type)){
+		} else if(BigDecimal.class.isAssignableFrom(clazz)){
 			builder.add(jsonName, BigDecimal.valueOf(Double.parseDouble(value)));
-		} else if(type.isArray()){
+		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)){
 			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+
+			Class<?> arrayValueType;
+			if (clazz.isArray()) {
+				arrayValueType = clazz.getComponentType();
+			} else if (Collection.class.isAssignableFrom(clazz)) {
+				// we need to check the generic parameter type for collection
+				arrayValueType = resolveGenericTypeForCollection(type, jsonName);
+			} else {
+				throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+			}
+
 			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
-				Class<?> arrayValueType = type.getComponentType();
 				if(String.class.isAssignableFrom(arrayValueType)){
 					arrayBuilder.add(arrayValue);
-				} else if(Boolean.class.isAssignableFrom(arrayValueType)){
+				} else if(Boolean.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(boolean.class)){
 					arrayBuilder.add(Boolean.parseBoolean(arrayValue));
-				} else if(Integer.class.isAssignableFrom(arrayValueType)){
+				} else if(Integer.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(int.class)){
 					arrayBuilder.add(Integer.parseInt(arrayValue));
-				} else if(Long.class.isAssignableFrom(arrayValueType)){
+				} else if(Long.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(long.class)){
 					arrayBuilder.add(Long.parseLong(arrayValue));
-				} else if(Double.class.isAssignableFrom(arrayValueType)){
+				} else if(Double.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(double.class)){
 					arrayBuilder.add(Double.parseDouble(arrayValue));
 				} else if(BigInteger.class.isAssignableFrom(arrayValueType)){
 					arrayBuilder.add(BigInteger.valueOf(Long.parseLong(arrayValue)));
@@ -72,14 +100,33 @@ public class JsonInputConverter {
 		}
 	}
 
+	private static Class<?> resolveGenericTypeForCollection(Type type, String jsonName) {
+		Class<?> arrayValueType;
+		if (!(type instanceof ParameterizedType)) {
+			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+		}
+
+		Type[] collectionGenerics = ((ParameterizedType) type).getActualTypeArguments();
+		if (collectionGenerics.length != 1) {
+			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+		}
+
+		Type genericType = collectionGenerics[0];
+		if (!(genericType instanceof Class)) {
+			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+		}
+		arrayValueType = (Class<?>) genericType;
+		return arrayValueType;
+	}
+
 	public static String resolveJsonPropertyType(Class<?> type) {
 		if (String.class.isAssignableFrom(type)) {
 			return "string";
-		} else if (Boolean.class.isAssignableFrom(type)) {
+		} else if (Boolean.class.isAssignableFrom(type) || type.equals(boolean.class)) {
 			return "boolean";
-		} else if (Number.class.isAssignableFrom(type)) {
+		} else if (Number.class.isAssignableFrom(type) || type.equals(int.class) || type.equals(long.class) || type.equals(double.class)) {
 			return "number";
-		} else if (type.isArray()){
+		} else if (type.isArray() || Collection.class.isAssignableFrom(type)){
 			return "array";
 		} else {
 			return "object";

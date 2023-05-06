@@ -33,6 +33,7 @@ import step.handlers.javahandler.Keyword;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class KeywordJsonSchemaCreatorTest {
@@ -113,6 +114,8 @@ public class KeywordJsonSchemaCreatorTest {
 		@Keyword
 		public void MyKeywordWithInputAnnotation(@Input(name = "numberField", defaultValue = "1", required = true) Integer numberField,
 												 @Input(name = "booleanField", defaultValue = "true", required = true) Boolean booleanField,
+												 @Input(name = "intPrimitiveField", defaultValue = "2", required = true) int intPrimitive,
+												 @Input(name = "booleanPrimitiveField", defaultValue = "true", required = true) boolean booleanPrimitive,
 												 @Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
 												 @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField) {
 			output.add("test", "test");
@@ -127,16 +130,16 @@ public class KeywordJsonSchemaCreatorTest {
 
 		@Keyword
 		public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
-											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray) {
+											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
+											 @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList) {
 			output.add("test", "test");
 		}
 	}
 
-	public static class ClassWithNestedFields {
+	public static class ClassWithNestedFields extends TestParent {
 		@Input(defaultValue = "nestedValue1", required = true)
 		private String nestedStringProperty;
 
-		@Input(name="numberProperty", defaultValue = "2")
 		private Integer nestedNumberProperty;
 
 		public ClassWithNestedFields() {
@@ -159,4 +162,15 @@ public class KeywordJsonSchemaCreatorTest {
 		}
 	}
 
+	private static class TestParent {
+		private String parentProperty;
+
+		public String getParentProperty() {
+			return parentProperty;
+		}
+
+		public void setParentProperty(String parentProperty) {
+			this.parentProperty = parentProperty;
+		}
+	}
 }

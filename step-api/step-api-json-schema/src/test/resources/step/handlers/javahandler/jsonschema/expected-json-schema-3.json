@@ -8,6 +8,10 @@
     "integerArray": {
       "type": "array",
       "default": [1, 2, 3]
+    },
+    "stringList": {
+      "type": "array",
+      "default": ["c", "d", "e"]
     }
   },
   "required": [
