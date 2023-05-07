@@ -141,27 +141,30 @@ public class KeywordJsonSchemaCreator {
 		for (Field field : fields) {
 			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
+			String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
+			nestedPropertyParamsBuilder.add("type", type);
+
+			String parameterName;
 			if (field.isAnnotationPresent(Input.class)) {
 				Input input = field.getAnnotation(Input.class);
-				String parameterName = input.name() == null || input.name().isEmpty() ? field.getName() : input.name();
+				parameterName = input.name() == null || input.name().isEmpty() ? field.getName() : input.name();
 
 				if (input.required()) {
 					requiredProperties.add(parameterName);
 				}
 
-				String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
-				nestedPropertyParamsBuilder.add("type", type);
-
 				if (input.defaultValue() != null && !input.defaultValue().isEmpty()) {
 					addDefaultValue(input.defaultValue(), nestedPropertyParamsBuilder, field.getType(), parameterName);
 				}
-
-				if (Objects.equals("object", type)) {
-					processNestedFields(nestedPropertyParamsBuilder, field.getType());
-				}
-
-				nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
+			} else {
+				parameterName = field.getName();
 			}
+
+			if (Objects.equals("object", type)) {
+				processNestedFields(nestedPropertyParamsBuilder, field.getType());
+			}
+
+			nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
 
 		}
 		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);

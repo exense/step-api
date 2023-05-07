@@ -138,27 +138,27 @@ public class KeywordJsonSchemaCreatorTest {
 
 	public static class ClassWithNestedFields extends TestParent {
 		@Input(defaultValue = "nestedValue1", required = true)
-		private String nestedStringProperty;
+		private String nestedString;
 
-		private Integer nestedNumberProperty;
+		private List<Integer> nestedNumberList;
 
 		public ClassWithNestedFields() {
 		}
 
-		public String getNestedStringProperty() {
-			return nestedStringProperty;
+		public String getNestedString() {
+			return nestedString;
 		}
 
-		public void setNestedStringProperty(String nestedStringProperty) {
-			this.nestedStringProperty = nestedStringProperty;
+		public void setNestedString(String nestedString) {
+			this.nestedString = nestedString;
 		}
 
-		public Integer getNestedNumberProperty() {
-			return nestedNumberProperty;
+		public List<Integer> getNestedNumberList() {
+			return nestedNumberList;
 		}
 
-		public void setNestedNumberProperty(Integer nestedNumberProperty) {
-			this.nestedNumberProperty = nestedNumberProperty;
+		public void setNestedNumberList(List<Integer> nestedNumberList) {
+			this.nestedNumberList = nestedNumberList;
 		}
 	}
 

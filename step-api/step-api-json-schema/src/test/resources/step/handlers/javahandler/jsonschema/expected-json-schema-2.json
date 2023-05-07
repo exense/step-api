@@ -12,13 +12,19 @@
     "propertyWithNestedFields": {
       "type": "object",
       "properties": {
-        "nestedStringProperty": {
+        "nestedString": {
           "type": "string",
           "default": "nestedValue1"
+        },
+        "nestedNumberList": {
+          "type": "array"
+        },
+        "parentProperty": {
+          "type": "string"
         }
       },
       "required": [
-        "nestedStringProperty"
+        "nestedString"
       ]
     }
   },
