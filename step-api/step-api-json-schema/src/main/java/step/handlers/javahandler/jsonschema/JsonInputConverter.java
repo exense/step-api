@@ -28,6 +28,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 
+import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection;
+
 public class JsonInputConverter {
 
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
@@ -100,24 +102,7 @@ public class JsonInputConverter {
 		}
 	}
 
-	private static Class<?> resolveGenericTypeForCollection(Type type, String jsonName) {
-		Class<?> arrayValueType;
-		if (!(type instanceof ParameterizedType)) {
-			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
-		}
 
-		Type[] collectionGenerics = ((ParameterizedType) type).getActualTypeArguments();
-		if (collectionGenerics.length != 1) {
-			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
-		}
-
-		Type genericType = collectionGenerics[0];
-		if (!(genericType instanceof Class)) {
-			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
-		}
-		arrayValueType = (Class<?>) genericType;
-		return arrayValueType;
-	}
 
 	public static String resolveJsonPropertyType(Class<?> type) {
 		if (String.class.isAssignableFrom(type)) {

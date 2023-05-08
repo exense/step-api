@@ -355,6 +355,7 @@ public class KeywordRunnerTest {
 		log.info("Execution result: {}", result.toString());
 
 		Assert.assertEquals(77, result.getInt("numberFieldOut"));
+		Assert.assertEquals(88, result.getInt("primitiveIntOut"));
 		Assert.assertTrue(result.getBoolean("booleanFieldOut"));
 		Assert.assertEquals("myValue1", result.getString("stringField1Out"));
 		Assert.assertEquals("myValue2", result.getString("stringField2Out"));
@@ -411,6 +412,7 @@ public class KeywordRunnerTest {
 
 		Assert.assertEquals("d+e+f", result.getString("stringArrayOut"));
 		Assert.assertEquals("4+5+6", result.getString("integerArrayOut"));
+		Assert.assertEquals("d+e+f", result.getString("stringListOut"));
 	}
 
 	private static JsonNode readJsonFromFile(String path) throws IOException {

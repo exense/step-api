@@ -1,4 +1,5 @@
 {
   "numberField": null,
-  "stringField": null
+  "stringField": null,
+  "primitiveInt": 1
 }
