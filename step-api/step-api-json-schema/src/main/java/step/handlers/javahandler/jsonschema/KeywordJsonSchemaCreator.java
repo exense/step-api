@@ -40,18 +40,19 @@ import java.util.Objects;
 public class KeywordJsonSchemaCreator {
 
 	private final JsonProvider jsonProvider = JsonProvider.provider();
+	private final FieldPropertyProcessor defaultFieldProcessor = new FieldPropertyProcessor() {};
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
 	 *
 	 * @throws JsonSchemaPreparationException
 	 */
-	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException{
+	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException {
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
 		if (keywordAnnotation == null) {
 			throw new JsonSchemaPreparationException("Method is not annotated with Keyword annotation");
 		}
-		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
+		String functionName = keywordAnnotation.name().length() > 0 ? keywordAnnotation.name() : method.getName();
 
 		// use explicit (plain text) schema specified in annotation
 		boolean useTextJsonSchema = keywordAnnotation.schema() != null && !keywordAnnotation.schema().isEmpty();
@@ -59,7 +60,7 @@ public class KeywordJsonSchemaCreator {
 		// build json schema via @Input annotations taken from method parameters
 		boolean useAnnotatedJsonInputs = method.getParameters() != null && Arrays.stream(method.getParameters()).anyMatch(p -> p.isAnnotationPresent(Input.class));
 		if (useTextJsonSchema && useAnnotatedJsonInputs) {
-			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword '" + functionName +"'. You should use either '@Input' annotation or define the 'schema' element of the @Keyword annotation");
+			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword '" + functionName + "'. You should use either '@Input' annotation or define the 'schema' element of the @Keyword annotation");
 		}
 
 		if (useTextJsonSchema) {
@@ -73,7 +74,7 @@ public class KeywordJsonSchemaCreator {
 
 	private JsonObject readJsonSchemaFromInputAnnotations(Method method) throws JsonSchemaPreparationException {
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
-		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
+		String functionName = keywordAnnotation.name().length() > 0 ? keywordAnnotation.name() : method.getName();
 		JsonObjectBuilder topLevelBuilder = jsonProvider.createObjectBuilder();
 		// top-level type is always 'object'
 		topLevelBuilder.add("type", "object");
@@ -90,7 +91,7 @@ public class KeywordJsonSchemaCreator {
 			Input inputAnnotation = p.getAnnotation(Input.class);
 
 			String parameterName = inputAnnotation.name();
-			if(parameterName == null || parameterName.isEmpty()){
+			if (parameterName == null || parameterName.isEmpty()) {
 				throw new JsonSchemaPreparationException("The mandatory 'name' element of the Input annotation is missing for parameter " + p.getName() + " in keyword " + functionName);
 			}
 
@@ -111,7 +112,7 @@ public class KeywordJsonSchemaCreator {
 				requiredProperties.add(parameterName);
 			}
 
-			if(Objects.equals("object", type)){
+			if (Objects.equals("object", type)) {
 				try {
 					processNestedFields(propertyParamsBuilder, p.getType());
 				} catch (JsonSchemaPreparationException e) {
@@ -133,17 +134,38 @@ public class KeywordJsonSchemaCreator {
 		return topLevelBuilder.build();
 	}
 
-	private void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
-		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-		List<String> requiredProperties = new ArrayList<>();
+	public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
+		processNestedFields(propertyParamsBuilder, clazz, defaultFieldProcessor);
+	}
 
+	public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz,
+									FieldPropertyProcessor customFieldProcessor) throws JsonSchemaPreparationException {
+		List<String> requiredProperties = new ArrayList<>();
 		List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
+
+		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
+		processFields(customFieldProcessor, nestedPropertiesBuilder, requiredProperties, fields);
+		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
+
+		if (!requiredProperties.isEmpty()) {
+			JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
+			for (String requiredProperty : requiredProperties) {
+				requiredBuilder.add(requiredProperty);
+			}
+			propertyParamsBuilder.add("required", requiredBuilder);
+		}
+	}
+
+	public void processFields(FieldPropertyProcessor customFieldProcessor, JsonObjectBuilder nestedPropertiesBuilder, List<String> requiredProperties, List<Field> fields) throws JsonSchemaPreparationException {
 		for (Field field : fields) {
+			// to avoid processing technical fields like $jacoco
+			if (customFieldProcessor.skipField(field)) {
+				continue;
+			}
+
 			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
 			String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
-			nestedPropertyParamsBuilder.add("type", type);
-
 			String parameterName;
 			if (field.isAnnotationPresent(Input.class)) {
 				Input input = field.getAnnotation(Input.class);
@@ -161,19 +183,20 @@ public class KeywordJsonSchemaCreator {
 			}
 
 			if (Objects.equals("object", type)) {
-				processNestedFields(nestedPropertyParamsBuilder, field.getType());
+				// for object type apply some logic to resolve nested fields
+				if (!customFieldProcessor.applyCustomProcessing(field, nestedPropertyParamsBuilder)) {
+					nestedPropertyParamsBuilder.add("type", type);
+
+					// apply some custom logic for field or use the default behavior - process nested fields recursively
+					processNestedFields(nestedPropertyParamsBuilder, field.getType(), customFieldProcessor);
+				}
+			} else {
+				// for simple types just add a "type" to json schema
+				nestedPropertyParamsBuilder.add("type", type);
 			}
 
 			nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
-
 		}
-		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
-
-		JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
-		for (String requiredProperty : requiredProperties) {
-			requiredBuilder.add(requiredProperty);
-		}
-		propertyParamsBuilder.add("required", requiredBuilder);
 	}
 
 	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
@@ -199,5 +222,21 @@ public class KeywordJsonSchemaCreator {
 		} catch (Exception e) {
 			throw new JsonSchemaPreparationException("Unknown error in the schema for keyword '" + method.getName() + "'. The error was: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * The logic of json schema generation for some field in java object
+	 */
+	public interface FieldPropertyProcessor {
+
+		/**
+		 * @return true - custom processing is applied, false - custom processing is not required
+		 */
+		default boolean applyCustomProcessing(Field field, JsonObjectBuilder propertiesBuilder) {return false;}
+
+		/**
+		 * @return true if the field should NOT be included in json schema
+		 */
+		default boolean skipField(Field field) {return false;}
 	}
 }
