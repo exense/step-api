@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JsonInputConverter {
 
@@ -120,7 +121,7 @@ public class JsonInputConverter {
 			Collections.addAll(allFields, declaredFields);
 			currentClass = currentClass.getSuperclass();
 		}
-		return allFields;
+		return allFields.stream().filter(f -> !f.isSynthetic()).collect(Collectors.toList());
 	}
 
 	public static void writeField(final Field field, final Object target, final Object value) throws IllegalAccessException {
