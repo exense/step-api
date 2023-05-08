@@ -1,0 +1,7 @@
+{
+  "numberField": 77,
+  "primitiveInt": 88,
+  "booleanField": true,
+  "stringField": "myValue1",
+  "stringField2": "myValue2"
+}

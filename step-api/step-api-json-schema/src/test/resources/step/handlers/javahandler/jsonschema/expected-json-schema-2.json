@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "properties": {
+    "stringField": {
+      "type": "string",
+      "default": "myValue"
+    },
+    "stringField2": {
+      "type": "string",
+      "default": "myValue2"
+    },
+    "propertyWithNestedFields": {
+      "type": "object",
+      "properties": {
+        "nestedString": {
+          "type": "string",
+          "default": "nestedValue1"
+        },
+        "nestedNumberList": {
+          "type": "array"
+        },
+        "parentProperty": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nestedString"
+      ]
+    }
+  },
+  "required": [
+    "stringField"
+  ]
+}

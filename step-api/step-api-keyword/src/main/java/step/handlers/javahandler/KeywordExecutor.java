@@ -18,8 +18,12 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -189,7 +193,7 @@ public class KeywordExecutor {
 			String keywordName = input.getFunction();
 			try {
 				script.beforeKeyword(keywordName,annotation);
-				m.invoke(instance);
+				m.invoke(instance, resolveMethodArguments(script.getInput(), m));
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {
@@ -221,4 +225,19 @@ public class KeywordExecutor {
 			return output;
 		}
 	}
+
+	private Object[] resolveMethodArguments(JsonObject input, Method m) throws Exception {
+		List<Object> res = new ArrayList<>();
+		for (Parameter p : m.getParameters()) {
+			if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
+				step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
+				String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
+				res.add(JsonInputConverter.getValueFromJsonInput(input, name, p.getParameterizedType()));
+			} else {
+				res.add(null);
+			}
+		}
+		return res.toArray();
+	}
+
 }

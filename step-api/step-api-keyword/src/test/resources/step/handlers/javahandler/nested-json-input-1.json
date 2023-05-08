@@ -1,0 +1,8 @@
+{
+  "stringField": "myValue1",
+  "stringField2": "myValue2",
+  "propertyWithNestedFields": {
+    "nestedStringProperty": "myValue3",
+    "nestedNumberProperty": 77
+  }
+}

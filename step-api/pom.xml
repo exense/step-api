@@ -66,7 +66,18 @@
 		<module>step-api-function</module>
 		<module>step-api-keyword</module>
 		<module>step-api-reporting</module>
-	</modules>
+        <module>step-api-json-schema</module>
+    </modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>

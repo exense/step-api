@@ -18,18 +18,27 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.json.JsonObject;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
 public class KeywordRunnerTest {
+
+	private static final Logger log = LoggerFactory.getLogger(KeywordRunnerTest.class);
 
 	@Test
 	public void test() throws Exception {
@@ -331,5 +340,87 @@ public class KeywordRunnerTest {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibraryThatDoesntExtendAbstractKeyword.class);
 		Output<JsonObject> output = runner.run("MyKeyword");
 		Assert.assertEquals("The class '"+MyKeywordLibraryThatDoesntExtendAbstractKeyword.class.getName()+"' doesn't extend '"+AbstractKeyword.class.getName()+"'. Extend this class to get input parameters from STEP and return output.", output.getPayload().getString("Info"));
+	}
+
+	@Test
+	public void testKeywordWithSimpleAttributes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputAnnotation",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/simple-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals(77, result.getInt("numberFieldOut"));
+		Assert.assertEquals(88, result.getInt("primitiveIntOut"));
+		Assert.assertTrue(result.getBoolean("booleanFieldOut"));
+		Assert.assertEquals("myValue1", result.getString("stringField1Out"));
+		Assert.assertEquals("myValue2", result.getString("stringField2Out"));
+	}
+
+	@Test
+	public void testKeywordWithNestedAttributes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputNested",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/nested-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals("myValue1", result.getString("stringField1Out"));
+		Assert.assertEquals("myValue2", result.getString("stringField2Out"));
+		Assert.assertEquals("true", result.getString("classWithNestedFieldsNotNull"));
+		Assert.assertEquals(77, result.getInt("classWithNestedFieldsOut.nestedNumberProperty"));
+		Assert.assertEquals("myValue3", result.getString("classWithNestedFieldsOut.nestedStringProperty"));
+	}
+
+	@Test
+	public void testKeywordWithNullAttributes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputAnnotation",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/null-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertFalse(result.containsKey("numberFieldOut"));
+		Assert.assertFalse(result.containsKey("booleanFieldOut"));
+		Assert.assertFalse(result.containsKey("stringField1Out"));
+		Assert.assertFalse(result.containsKey("stringField2Out"));
+	}
+
+	@Test
+	public void testKeywordWithArrays() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputArrays",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/array-json-input-1.json").toString()
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals("d+e+f", result.getString("stringArrayOut"));
+		Assert.assertEquals("4+5+6", result.getString("integerArrayOut"));
+		Assert.assertEquals("d+e+f", result.getString("stringListOut"));
+	}
+
+	private static JsonNode readJsonFromFile(String path) throws IOException {
+		File inputFile = new File(path);
+
+		JsonFactory factory = new JsonFactory();
+		ObjectMapper mapper = new ObjectMapper(factory);
+
+		return mapper.readTree(inputFile);
 	}
 }
