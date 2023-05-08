@@ -1,12 +1,13 @@
 package step.handlers.javahandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.BinaryOperator;
 
 public class MyKeywordWithInputFields extends AbstractKeyword {
 
 	@Keyword
 	public void MyKeywordWithInputAnnotation(@Input(name = "numberField", defaultValue = "1", required = true) Integer numberField,
+											 @Input(name = "primitiveInt", defaultValue = "1", required = true) int primitiveInt,
 											 @Input(name = "booleanField", defaultValue = "true", required = true) Boolean booleanField,
 											 @Input(name = "stringField", defaultValue = "myDefaultValue", required = true) String stringField,
 											 @Input(name = "stringField2") String secondStringField) {
@@ -14,6 +15,7 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 		if (numberField != null) {
 			output.add("numberFieldOut", numberField);
 		}
+		output.add("primitiveIntOut", primitiveInt);
 		if (booleanField != null) {
 			output.add("booleanFieldOut", booleanField);
 		}
@@ -47,7 +49,8 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 
 	@Keyword
 	public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
-										 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray) {
+										 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
+										 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList) {
 		// fill output to check execution result in tests
 		if (stringArray != null) {
 			output.add("stringArrayOut", Arrays.stream(stringArray).reduce((s, s2) -> s + "+" + s2).orElse(""));
@@ -55,6 +58,10 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 
 		if (integerArray != null) {
 			output.add("integerArrayOut", Arrays.stream(integerArray).map(Object::toString).reduce((integer, integer2) -> integer + "+" + integer2).orElse(""));
+		}
+
+		if (stringList != null) {
+			output.add("stringListOut", stringList.stream().reduce((s, s2) -> s + "+" + s2).orElse(""));
 		}
 	}
 
