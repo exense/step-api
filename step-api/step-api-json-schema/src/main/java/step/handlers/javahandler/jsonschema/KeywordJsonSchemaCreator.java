@@ -44,8 +44,10 @@ public class KeywordJsonSchemaCreator {
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
+	 *
+	 * @throws JsonSchemaPreparationException
 	 */
-	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException {
+	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException{
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
 		if (keywordAnnotation == null) {
 			throw new JsonSchemaPreparationException("Method is not annotated with Keyword annotation");
@@ -89,7 +91,7 @@ public class KeywordJsonSchemaCreator {
 			Input inputAnnotation = p.getAnnotation(Input.class);
 
 			String parameterName = inputAnnotation.name();
-			if (parameterName == null || parameterName.isEmpty()) {
+			if(parameterName == null || parameterName.isEmpty()){
 				throw new JsonSchemaPreparationException("The mandatory 'name' element of the Input annotation is missing for parameter " + p.getName() + " in keyword " + functionName);
 			}
 
@@ -110,7 +112,7 @@ public class KeywordJsonSchemaCreator {
 				requiredProperties.add(parameterName);
 			}
 
-			if (Objects.equals("object", type)) {
+			if(Objects.equals("object", type)){
 				try {
 					processNestedFields(propertyParamsBuilder, p.getType());
 				} catch (JsonSchemaPreparationException e) {
