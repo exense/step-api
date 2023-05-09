@@ -44,8 +44,6 @@ public class KeywordJsonSchemaCreator {
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
-	 *
-	 * @throws JsonSchemaPreparationException
 	 */
 	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException {
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
