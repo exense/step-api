@@ -40,7 +40,7 @@ import java.util.Objects;
 public class KeywordJsonSchemaCreator {
 
 	private final JsonProvider jsonProvider = JsonProvider.provider();
-	private final FieldPropertyProcessor defaultFieldProcessor = new FieldPropertyProcessor() {};
+	private final JsonSchemaFieldProcessor defaultFieldProcessor = new JsonSchemaFieldProcessor() {};
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
@@ -139,7 +139,7 @@ public class KeywordJsonSchemaCreator {
 	}
 
 	public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz,
-									FieldPropertyProcessor customFieldProcessor) throws JsonSchemaPreparationException {
+									JsonSchemaFieldProcessor customFieldProcessor) throws JsonSchemaPreparationException {
 		List<String> requiredProperties = new ArrayList<>();
 		List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
 
@@ -156,7 +156,7 @@ public class KeywordJsonSchemaCreator {
 		}
 	}
 
-	public void processFields(FieldPropertyProcessor customFieldProcessor, JsonObjectBuilder nestedPropertiesBuilder, List<String> requiredProperties, List<Field> fields) throws JsonSchemaPreparationException {
+	public void processFields(JsonSchemaFieldProcessor customFieldProcessor, JsonObjectBuilder nestedPropertiesBuilder, List<String> requiredProperties, List<Field> fields) throws JsonSchemaPreparationException {
 		for (Field field : fields) {
 			// to avoid processing technical fields like $jacoco
 			if (customFieldProcessor.skipField(field)) {
@@ -224,19 +224,4 @@ public class KeywordJsonSchemaCreator {
 		}
 	}
 
-	/**
-	 * The logic of json schema generation for some field in java object
-	 */
-	public interface FieldPropertyProcessor {
-
-		/**
-		 * @return true - custom processing is applied, false - custom processing is not required
-		 */
-		default boolean applyCustomProcessing(Field field, JsonObjectBuilder propertiesBuilder) {return false;}
-
-		/**
-		 * @return true if the field should NOT be included in json schema
-		 */
-		default boolean skipField(Field field) {return false;}
-	}
 }
