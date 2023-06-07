@@ -40,7 +40,8 @@ import java.util.Objects;
 public class KeywordJsonSchemaCreator {
 
 	private final JsonProvider jsonProvider = JsonProvider.provider();
-	private final JsonSchemaFieldProcessor defaultFieldProcessor = new JsonSchemaFieldProcessor() {};
+
+	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(jsonProvider, new JsonSchemaFieldProcessor() {}, new KeywordInputMetadataExtractor());
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
@@ -101,7 +102,7 @@ public class KeywordJsonSchemaCreator {
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {
-					addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
+					jsonSchemaCreator.addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
@@ -114,7 +115,7 @@ public class KeywordJsonSchemaCreator {
 
 			if(Objects.equals("object", type)){
 				try {
-					processNestedFields(propertyParamsBuilder, p.getType());
+					jsonSchemaCreator.processNestedFields(propertyParamsBuilder, p.getType());
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
@@ -132,80 +133,6 @@ public class KeywordJsonSchemaCreator {
 		}
 		topLevelBuilder.add("required", requiredBuilder);
 		return topLevelBuilder.build();
-	}
-
-	public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
-		processNestedFields(propertyParamsBuilder, clazz, defaultFieldProcessor);
-	}
-
-	public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz,
-									JsonSchemaFieldProcessor customFieldProcessor) throws JsonSchemaPreparationException {
-		List<String> requiredProperties = new ArrayList<>();
-		List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
-
-		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-		processFields(customFieldProcessor, nestedPropertiesBuilder, requiredProperties, fields);
-		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
-
-		if (!requiredProperties.isEmpty()) {
-			JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
-			for (String requiredProperty : requiredProperties) {
-				requiredBuilder.add(requiredProperty);
-			}
-			propertyParamsBuilder.add("required", requiredBuilder);
-		}
-	}
-
-	public void processFields(JsonSchemaFieldProcessor customFieldProcessor, JsonObjectBuilder nestedPropertiesBuilder, List<String> requiredProperties, List<Field> fields) throws JsonSchemaPreparationException {
-		for (Field field : fields) {
-			// to avoid processing technical fields like $jacoco
-			if (customFieldProcessor.skipField(field)) {
-				continue;
-			}
-
-			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
-
-			String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
-			String parameterName;
-			if (field.isAnnotationPresent(Input.class)) {
-				Input input = field.getAnnotation(Input.class);
-				parameterName = input.name() == null || input.name().isEmpty() ? field.getName() : input.name();
-
-				if (input.required()) {
-					requiredProperties.add(parameterName);
-				}
-
-				if (input.defaultValue() != null && !input.defaultValue().isEmpty()) {
-					addDefaultValue(input.defaultValue(), nestedPropertyParamsBuilder, field.getType(), parameterName);
-				}
-			} else {
-				parameterName = field.getName();
-			}
-
-			if (Objects.equals("object", type)) {
-				// for object type apply some logic to resolve nested fields
-				if (!customFieldProcessor.applyCustomProcessing(field, nestedPropertyParamsBuilder)) {
-					nestedPropertyParamsBuilder.add("type", type);
-
-					// apply some custom logic for field or use the default behavior - process nested fields recursively
-					processNestedFields(nestedPropertyParamsBuilder, field.getType(), customFieldProcessor);
-				}
-			} else {
-				// for simple types just add a "type" to json schema
-				nestedPropertyParamsBuilder.add("type", type);
-			}
-
-			nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
-		}
-	}
-
-	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
-		try {
-			JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
-		} catch (IllegalArgumentException ex) {
-			throw new JsonSchemaPreparationException("Unable to resolve default value for input " + paramName +
-					". Caused by : " + ex.getMessage());
-		}
 	}
 
 	protected JsonObject createEmptyJsonSchema() {
