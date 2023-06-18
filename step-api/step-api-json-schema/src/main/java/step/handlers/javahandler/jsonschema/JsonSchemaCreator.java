@@ -45,7 +45,7 @@ public class JsonSchemaCreator {
         List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
 
         JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-        processFields(nestedPropertiesBuilder, fields, requiredProperties);
+        processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
         propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
 
         if (!requiredProperties.isEmpty()) {
@@ -57,12 +57,13 @@ public class JsonSchemaCreator {
         }
     }
 
-    public void processFields(JsonObjectBuilder nestedPropertiesBuilder,
+    public void processFields(Class<?> objectClass,
+                              JsonObjectBuilder nestedPropertiesBuilder,
                               List<Field> fields,
                               List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
         for (Field field : fields) {
             // to avoid processing technical fields like $jacoco
-            if (customFieldProcessor.skipField(field)) {
+            if (customFieldProcessor.skipField(objectClass, field)) {
                 continue;
             }
 
@@ -81,7 +82,7 @@ public class JsonSchemaCreator {
 
             if (Objects.equals("object", type)) {
                 // for object type apply some logic to resolve nested fields
-                if (!customFieldProcessor.applyCustomProcessing(field, nestedPropertyParamsBuilder)) {
+                if (!customFieldProcessor.applyCustomProcessing(objectClass, field, nestedPropertyParamsBuilder)) {
                     // if there is no custom logic for this field - just process nested fields recursively by default
                     nestedPropertyParamsBuilder.add("type", type);
 

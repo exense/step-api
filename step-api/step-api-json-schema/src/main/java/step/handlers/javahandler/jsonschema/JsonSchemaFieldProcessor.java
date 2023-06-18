@@ -30,14 +30,14 @@ public interface JsonSchemaFieldProcessor {
 	/**
 	 * @return true - custom processing is applied, false - custom processing is not required
 	 */
-	default boolean applyCustomProcessing(Field field, JsonObjectBuilder propertiesBuilder) {
+	default boolean applyCustomProcessing(Class<?> objectClass, Field field, JsonObjectBuilder propertiesBuilder) {
 		return false;
 	}
 
 	/**
 	 * @return true if the field should NOT be included in json schema
 	 */
-	default boolean skipField(Field field) {
+	default boolean skipField(Class<?> objectClass, Field field) {
 		return false;
 	}
 }
