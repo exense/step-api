@@ -21,6 +21,7 @@ package step.handlers.javahandler.jsonschema;
 import jakarta.json.JsonObjectBuilder;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * The logic of json schema generation for some field in java object
@@ -28,16 +29,17 @@ import java.lang.reflect.Field;
 public interface JsonSchemaFieldProcessor {
 
 	/**
+	 * Applies non-default JSON schema preparation logic for the field
+	 *
+	 * @param objectClass the field owner class
+	 * @param field the target field
+	 * @param fieldMetadata field metadata containing the information about field name, default value etc
+	 * @param propertiesBuilder json object builder to be filled with field data
+	 * @param requiredPropertiesOutput for required fields the field name should be added
 	 * @return true - custom processing is applied, false - custom processing is not required
 	 */
-	default boolean applyCustomProcessing(Class<?> objectClass, Field field, JsonObjectBuilder propertiesBuilder) {
+	default boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
 		return false;
 	}
 
-	/**
-	 * @return true if the field should NOT be included in json schema
-	 */
-	default boolean skipField(Class<?> objectClass, Field field) {
-		return false;
-	}
 }

@@ -26,18 +26,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class JsonSchemaCreator {
 
     private final JsonProvider jsonProvider;
     private final JsonSchemaFieldProcessor customFieldProcessor;
+    private final JsonSchemaFieldProcessor defaultFieldProcessor;
     private final FieldMetadataExtractor metadataExtractor;
 
     public JsonSchemaCreator(JsonProvider jsonProvider, JsonSchemaFieldProcessor customFieldProcessor, FieldMetadataExtractor metadataExtractor) {
         this.jsonProvider = jsonProvider;
         this.customFieldProcessor = customFieldProcessor;
         this.metadataExtractor = metadataExtractor;
+        this.defaultFieldProcessor = new DefaultJsonSchemaFieldProcessor(this, this.jsonProvider);
     }
 
     public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
@@ -62,39 +63,12 @@ public class JsonSchemaCreator {
                               List<Field> fields,
                               List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
         for (Field field : fields) {
-            // to avoid processing technical fields like $jacoco
-            if (customFieldProcessor.skipField(objectClass, field)) {
-                continue;
-            }
-
-            JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
-
-            // extract field parameters (name, required, default value etc)
             FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(field);
-            String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
-            String parameterName = fieldMetadata.getFieldName();
-            if (fieldMetadata.isRequired()) {
-                requiredPropertiesOutput.add(parameterName);
-            }
-            if (fieldMetadata.getDefaultValue() != null) {
-                addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
-            }
 
-            if (Objects.equals("object", type)) {
-                // for object type apply some logic to resolve nested fields
-                if (!customFieldProcessor.applyCustomProcessing(objectClass, field, nestedPropertyParamsBuilder)) {
-                    // if there is no custom logic for this field - just process nested fields recursively by default
-                    nestedPropertyParamsBuilder.add("type", type);
-
-                    // apply some custom logic for field or use the default behavior - process nested fields recursively
-                    processNestedFields(nestedPropertyParamsBuilder, field.getType());
-                }
-            } else {
-                // for simple types just add a "type" to json schema
-                nestedPropertyParamsBuilder.add("type", type);
+            // try to apply custom logic for field
+            if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertiesBuilder, requiredPropertiesOutput)) {
+                defaultFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertiesBuilder, requiredPropertiesOutput);
             }
-
-            nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
         }
     }
 
@@ -106,6 +80,5 @@ public class JsonSchemaCreator {
                     ". Caused by : " + ex.getMessage());
         }
     }
-
 
 }
