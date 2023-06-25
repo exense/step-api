@@ -41,7 +41,11 @@ public class KeywordJsonSchemaCreator {
 
 	private final JsonProvider jsonProvider = JsonProvider.provider();
 
-	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(jsonProvider, new JsonSchemaFieldProcessor() {}, new KeywordInputMetadataExtractor());
+	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(
+			jsonProvider,
+			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput) -> false,
+			new KeywordInputMetadataExtractor()
+	);
 
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
