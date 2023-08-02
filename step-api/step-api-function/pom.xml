@@ -34,58 +34,9 @@
 		    <version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.json</artifactId>
-			<version>1.0</version>
+			<groupId>ch.exense.step</groupId>
+			<artifactId>step-api-javax-json</artifactId>
+			<version>2023.8.2-64ca378793d73c44e09e6146</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.2.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<artifactSet>
-								<includes>
-									<include>org.glassfish:javax.json</include>
-								</includes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>org.glassfish:javax.json</artifact>
-									<includes>
-										<include>org/glassfish/json/**</include>
-									</includes>
-								</filter>
-							</filters>
-							<transformers>
-								<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<manifestEntries>
-										<!-- See http://www.ibm.com/developerworks/forums/thread.jspa?messageID=14798074 -->
-										<Can-Retransform-Classes>true</Can-Retransform-Classes>
-									</manifestEntries>
-								</transformer>
-							</transformers>
-							<relocations>
-								<!-- Relocating org.glassfish.json package to be able to use both javax and jakarta implementation -->
-								<relocation>
-									<pattern>org.glassfish.json</pattern>
-									<shadedPattern>javax.org.glassfish.json</shadedPattern>
-								</relocation>
-							</relocations>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 </project>
