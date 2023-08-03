@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>ch.exense.step</groupId>
 			<artifactId>step-api-javax-json</artifactId>
-			<version>2023.8.2-64ca378793d73c44e09e6146</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 </project>
