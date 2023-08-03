@@ -62,6 +62,19 @@
 		<jackson.version>2.13.3</jackson.version>
 	</properties>
 
+	<repositories>
+		<!-- staging nexus -->
+		<repository>
+			<id>nexus-staging</id>
+			<url>https://nexus-enterprise.exense.ch/repository/staging-maven/</url>
+		</repository>
+		<!-- private nexus -->
+		<repository>
+			<id>nexus-exense</id>
+			<url>https://nexus-enterprise.exense.ch/repository/exense/</url>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>step-api-function</module>
 		<module>step-api-keyword</module>
