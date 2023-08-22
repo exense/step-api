@@ -24,7 +24,7 @@
 			"PARAMETERS": [
 				{
 					"NAME": "DEVELOPMENT",
-					"URL": "https://nexus-enterprise.exense-staging.ch/repository/staging-nuget/",
+					"URL": "https://nexus-enterprise-staging.exense.ch/repository/staging-nuget/",
 					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
 					"FRAMEWORK": "net6.0"
 				},
@@ -42,7 +42,7 @@
 			"PARAMETERS": [
 				{
 					"NAME": "DEVELOPMENT",
-					"URL": "https://nexus-enterprise.exense-staging.ch/repository/staging-nuget/",
+					"URL": "https://nexus-enterprise-staging.exense.ch/repository/staging-nuget/",
 					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
 					"FRAMEWORK": "net5.0"
 				},
@@ -60,7 +60,7 @@
 			"PARAMETERS": [
 				{
 					"NAME": "DEVELOPMENT",
-					"URL": "https://nexus-enterprise.exense-staging.ch/repository/staging-nuget/",
+					"URL": "https://nexus-enterprise-staging.exense.ch/repository/staging-nuget/",
 					"CONFIG": "-p:Configuration=Debug -p:RuntimeIdentifier=any",
 					"FRAMEWORK": "net4.8"
 				},
