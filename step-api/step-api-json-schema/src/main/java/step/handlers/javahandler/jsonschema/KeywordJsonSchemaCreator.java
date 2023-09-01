@@ -41,17 +41,21 @@ public class KeywordJsonSchemaCreator {
 
 	private final JsonProvider jsonProvider = JsonProvider.provider();
 
+	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(
+			jsonProvider,
+			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput) -> false,
+			new KeywordInputMetadataExtractor()
+	);
+
 	/**
 	 * Creates a json schema for java method annotated with {@link Keyword} annotation
-	 *
-	 * @throws JsonSchemaPreparationException
 	 */
 	public JsonObject createJsonSchemaForKeyword(Method method) throws JsonSchemaPreparationException{
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
 		if (keywordAnnotation == null) {
 			throw new JsonSchemaPreparationException("Method is not annotated with Keyword annotation");
 		}
-		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
+		String functionName = keywordAnnotation.name().length() > 0 ? keywordAnnotation.name() : method.getName();
 
 		// use explicit (plain text) schema specified in annotation
 		boolean useTextJsonSchema = keywordAnnotation.schema() != null && !keywordAnnotation.schema().isEmpty();
@@ -59,7 +63,7 @@ public class KeywordJsonSchemaCreator {
 		// build json schema via @Input annotations taken from method parameters
 		boolean useAnnotatedJsonInputs = method.getParameters() != null && Arrays.stream(method.getParameters()).anyMatch(p -> p.isAnnotationPresent(Input.class));
 		if (useTextJsonSchema && useAnnotatedJsonInputs) {
-			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword '" + functionName +"'. You should use either '@Input' annotation or define the 'schema' element of the @Keyword annotation");
+			throw new IllegalArgumentException("Ambiguous definition of json schema for keyword '" + functionName + "'. You should use either '@Input' annotation or define the 'schema' element of the @Keyword annotation");
 		}
 
 		if (useTextJsonSchema) {
@@ -73,7 +77,7 @@ public class KeywordJsonSchemaCreator {
 
 	private JsonObject readJsonSchemaFromInputAnnotations(Method method) throws JsonSchemaPreparationException {
 		Keyword keywordAnnotation = method.getAnnotation(Keyword.class);
-		String functionName = keywordAnnotation.name().length()>0?keywordAnnotation.name():method.getName();
+		String functionName = keywordAnnotation.name().length() > 0 ? keywordAnnotation.name() : method.getName();
 		JsonObjectBuilder topLevelBuilder = jsonProvider.createObjectBuilder();
 		// top-level type is always 'object'
 		topLevelBuilder.add("type", "object");
@@ -100,7 +104,7 @@ public class KeywordJsonSchemaCreator {
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {
-					addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
+					jsonSchemaCreator.addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
@@ -113,7 +117,7 @@ public class KeywordJsonSchemaCreator {
 
 			if(Objects.equals("object", type)){
 				try {
-					processNestedFields(propertyParamsBuilder, p.getType());
+					jsonSchemaCreator.processNestedFields(propertyParamsBuilder, p.getType());
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
@@ -133,58 +137,6 @@ public class KeywordJsonSchemaCreator {
 		return topLevelBuilder.build();
 	}
 
-	private void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
-		JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-		List<String> requiredProperties = new ArrayList<>();
-
-		List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
-		for (Field field : fields) {
-			JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
-
-			String type = JsonInputConverter.resolveJsonPropertyType(field.getType());
-			nestedPropertyParamsBuilder.add("type", type);
-
-			String parameterName;
-			if (field.isAnnotationPresent(Input.class)) {
-				Input input = field.getAnnotation(Input.class);
-				parameterName = input.name() == null || input.name().isEmpty() ? field.getName() : input.name();
-
-				if (input.required()) {
-					requiredProperties.add(parameterName);
-				}
-
-				if (input.defaultValue() != null && !input.defaultValue().isEmpty()) {
-					addDefaultValue(input.defaultValue(), nestedPropertyParamsBuilder, field.getType(), parameterName);
-				}
-			} else {
-				parameterName = field.getName();
-			}
-
-			if (Objects.equals("object", type)) {
-				processNestedFields(nestedPropertyParamsBuilder, field.getType());
-			}
-
-			nestedPropertiesBuilder.add(parameterName, nestedPropertyParamsBuilder);
-
-		}
-		propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
-
-		JsonArrayBuilder requiredBuilder = jsonProvider.createArrayBuilder();
-		for (String requiredProperty : requiredProperties) {
-			requiredBuilder.add(requiredProperty);
-		}
-		propertyParamsBuilder.add("required", requiredBuilder);
-	}
-
-	private void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
-		try {
-			JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
-		} catch (IllegalArgumentException ex) {
-			throw new JsonSchemaPreparationException("Unable to resolve default value for input " + paramName +
-					". Caused by : " + ex.getMessage());
-		}
-	}
-
 	protected JsonObject createEmptyJsonSchema() {
 		return jsonProvider.createObjectBuilder().build();
 	}
@@ -200,4 +152,5 @@ public class KeywordJsonSchemaCreator {
 			throw new JsonSchemaPreparationException("Unknown error in the schema for keyword '" + method.getName() + "'. The error was: " + e.getMessage());
 		}
 	}
+
 }

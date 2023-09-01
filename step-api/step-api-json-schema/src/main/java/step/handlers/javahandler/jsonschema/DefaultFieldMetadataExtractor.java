@@ -18,13 +18,11 @@
  ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
-public class JsonSchemaPreparationException extends Exception {
+import java.lang.reflect.Field;
 
-	public JsonSchemaPreparationException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public JsonSchemaPreparationException(String message) {
-		super(message);
-	}
+public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
+    @Override
+    public FieldMetadata extractMetadata(Field field) {
+        return new FieldMetadata(field.getName(), null, field.getType(), false);
+    }
 }
