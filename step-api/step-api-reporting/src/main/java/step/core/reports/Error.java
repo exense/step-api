@@ -115,4 +115,14 @@ public class Error {
 		this.layer = layer;
 	}
 
+	@Override
+	public String toString() {
+		return "Error{" +
+				"type=" + type +
+				", layer='" + layer + '\'' +
+				", msg='" + msg + '\'' +
+				", code=" + code +
+				", root=" + root +
+				'}';
+	}
 }
