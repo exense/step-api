@@ -266,6 +266,17 @@ public class OutputBuilder {
 	public void addMeasure(String measureName, long durationMillis) {
 		measureHelper.addMeasure(measureName, durationMillis);
 	}
+
+	/**
+	 * Adds a performance measurement
+	 *
+	 * @param measureName a unique identifier of the measurement
+	 * @param durationMillis the duration of the measurement in ms
+	 * @param begin the start timestamp of the measurement in ms
+	 */
+	public void addMeasure(String measureName, long durationMillis, long begin) {
+		measureHelper.addMeasure(measureName, durationMillis, begin);
+	}
 	
 	/**
 	 * Adds a performance measurement with custom data
@@ -276,6 +287,18 @@ public class OutputBuilder {
 	 */
 	public void addMeasure(String measureName, long aDurationMillis, Map<String, Object> data) {
 		measureHelper.addMeasure(measureName, aDurationMillis, data);
+	}
+
+	/**
+	 * Adds a performance measurement with custom data
+	 *
+	 * @param measureName a unique identifier of the measurement
+	 * @param aDurationMillis the duration of the measurement in ms
+	 * @param begin the start timestamp of the measurement in ms
+	 * @param data the custom data of the measurement
+	 */
+	public void addMeasure(String measureName, long aDurationMillis, long begin, Map<String, Object> data) {
+		measureHelper.addMeasure(measureName, aDurationMillis, begin, data);
 	}
 
 	/**
