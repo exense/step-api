@@ -215,6 +215,7 @@ public class KeywordRunnerTest {
 		Output<JsonObject> output = runner.run("MyExceptionKeyword");
 		// Assert that the error has been handled properly
 		Assert.assertEquals("My exception", output.getError().getMsg());
+		Assert.assertEquals("Error{type=TECHNICAL, layer='keyword', msg='My exception', code=0, root=true}", output.getError().toString());
 		// Assert that the onError hook has been called and that the output set within it are available
 		Assert.assertEquals("My exception", output.getPayload().getString(MyKeywordLibrary.ON_ERROR_MARKER));
 		// Assert that the afterKeyword hook has been called
