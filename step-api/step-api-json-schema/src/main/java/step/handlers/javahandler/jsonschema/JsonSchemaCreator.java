@@ -59,20 +59,26 @@ public class JsonSchemaCreator {
     }
 
     public void processFields(Class<?> objectClass,
-                              JsonObjectBuilder nestedPropertiesBuilder,
+                              JsonObjectBuilder propertiesBuilder,
                               List<Field> fields,
                               List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
         for (Field field : fields) {
             FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(field);
 
             // try to apply custom logic for field
-            if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertiesBuilder, requiredPropertiesOutput)) {
-                defaultFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertiesBuilder, requiredPropertiesOutput);
+            if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput)) {
+                defaultFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput);
             }
+
+            // apply "required" fields to json schema
+            if (fieldMetadata.isRequired()) {
+                requiredPropertiesOutput.add(fieldMetadata.getFieldName());
+            }
+
         }
     }
 
-    public void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
+    public static void addDefaultValue(String defaultValue, JsonObjectBuilder builder, Type type, String paramName) throws JsonSchemaPreparationException {
         try {
             JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
         } catch (IllegalArgumentException ex) {
