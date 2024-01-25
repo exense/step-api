@@ -45,9 +45,13 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
         // 1. extract field parameters (name, required, default value etc)
         String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
         String parameterName = fieldMetadata.getFieldName();
-        if (fieldMetadata.isRequired()) {
-            requiredPropertiesOutput.add(parameterName);
-        }
+
+        // moved to JsonSchemaCreator to be always applied (also for custom field processors)
+//        if (fieldMetadata.isRequired()) {
+//            requiredPropertiesOutput.add(parameterName);
+//        }
+
+        // TODO: default values should also be applied in all processors, but no in DefaultJsonSchemaFieldProcessor only
         if (fieldMetadata.getDefaultValue() != null) {
             jsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
         }

@@ -104,7 +104,7 @@ public class KeywordJsonSchemaCreator {
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {
-					jsonSchemaCreator.addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
+					JsonSchemaCreator.addDefaultValue(inputAnnotation.defaultValue(), propertyParamsBuilder, p.getParameterizedType(), parameterName);
 				} catch (JsonSchemaPreparationException e) {
 					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
 							+ functionName + "': " + e.getMessage());
