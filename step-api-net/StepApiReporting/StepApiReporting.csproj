@@ -5,7 +5,9 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" >
+	  <PrivateAssets>all</PrivateAssets>
+	</PackageReference>
   </ItemGroup>
   <Target Name="UpdateVersion">
     <Message Text="Updating AssemblyInfo to Version $(VersionNumber)"></Message>
