@@ -23,6 +23,6 @@ import java.lang.reflect.Field;
 public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
     @Override
     public FieldMetadata extractMetadata(Field field) {
-        return new FieldMetadata(field.getName(), null, field.getType(), false);
+        return new FieldMetadata(field.getName(), null, field.getType(), field.getGenericType(), false);
     }
 }

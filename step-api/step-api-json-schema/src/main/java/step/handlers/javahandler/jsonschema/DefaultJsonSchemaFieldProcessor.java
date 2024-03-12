@@ -23,6 +23,8 @@ import jakarta.json.JsonObjectBuilder;
 import jakarta.json.spi.JsonProvider;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +65,13 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
 
             // apply some custom logic for field or use the default behavior - process nested fields recursively
             processNestedFields(nestedPropertyParamsBuilder, field.getType());
+        } else if (Objects.equals("array", type)) {
+            nestedPropertyParamsBuilder.add("type", "array");
+            Class<?> elementType = resolveElementClassOfParameterizedType(fieldMetadata.getGenericType());
+            if (elementType != null) {
+                String itemType = JsonInputConverter.resolveJsonPropertyType(elementType);
+                nestedPropertyParamsBuilder.add("items", jsonProvider.createObjectBuilder().add("type", itemType));
+            }
         } else {
             // 3. for simple types just add a "type" to json schema
             nestedPropertyParamsBuilder.add("type", type);
@@ -89,6 +98,17 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
             }
             propertyParamsBuilder.add("required", requiredBuilder);
         }
+    }
+
+    public Class<?> resolveElementClassOfParameterizedType(Type genericType) {
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType aType = (ParameterizedType) genericType;
+            Type[] fieldArgTypes = aType.getActualTypeArguments();
+            for (Type fieldArgType : fieldArgTypes) {
+                return (Class<?>) fieldArgType;
+            }
+        }
+        return null;
     }
 
 }
