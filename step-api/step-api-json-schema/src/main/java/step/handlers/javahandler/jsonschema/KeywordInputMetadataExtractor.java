@@ -43,6 +43,6 @@ public class KeywordInputMetadataExtractor implements FieldMetadataExtractor {
             parameterName = field.getName();
         }
 
-        return new FieldMetadata(parameterName, defaultValue, field.getType(), field.getGenericType(), required);
+        return new FieldMetadata(parameterName, defaultValue, field.getType(), field.getGenericType(), null, required);
     }
 }

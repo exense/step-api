@@ -25,6 +25,7 @@ public class FieldMetadata {
     private String defaultValue;
     private Class<?> type;
     private Type genericType;
+    private String subSchemaReference;
     private boolean required = false;
 
     public FieldMetadata(String fieldName, String defaultValue, Class<?> type, boolean required) {
@@ -34,10 +35,11 @@ public class FieldMetadata {
         this.required = required;
     }
 
-    public FieldMetadata(String fieldName, String defaultValue, Class<?> type, Type genericType, boolean required) {
+    public FieldMetadata(String fieldName, String defaultValue, Class<?> type, Type genericType, String subSchemaReference, boolean required) {
         this.fieldName = fieldName;
         this.defaultValue = defaultValue;
         this.type = type;
+        this.subSchemaReference = subSchemaReference;
         this.required = required;
         this.genericType = genericType;
     }
@@ -80,5 +82,13 @@ public class FieldMetadata {
 
     public void setGenericType(Type genericType) {
         this.genericType = genericType;
+    }
+
+    public String getSubSchemaReference() {
+        return subSchemaReference;
+    }
+
+    public void setSubSchemaReference(String subSchemaReference) {
+        this.subSchemaReference = subSchemaReference;
     }
 }

@@ -18,16 +18,13 @@
  ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
-    @Override
-    public FieldMetadata extractMetadata(Field field) {
-        JsonSchema schemaAnnotation = field.getAnnotation(JsonSchema.class);
-        String ref = null;
-        if(schemaAnnotation != null){
-            ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();;
-        }
-        return new FieldMetadata(field.getName(), null, field.getType(), field.getGenericType(), ref, false);
-    }
+@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JsonSchema {
+    String ref() default "";
 }
