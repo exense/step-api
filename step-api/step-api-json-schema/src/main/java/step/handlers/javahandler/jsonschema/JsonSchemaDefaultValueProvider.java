@@ -18,21 +18,12 @@
  ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 
-@Target({ElementType.PARAMETER, ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface JsonSchema {
-    /**
-     * Explicit reference to another element in json schema
-     */
-    String ref() default "";
+public interface JsonSchemaDefaultValueProvider {
 
     /**
-     * The special provider for default value in json schema
+     * @return the default value to be used in json schema for current field
      */
-    Class<? extends JsonSchemaDefaultValueProvider> defaultProvider();
+    String getDefaultValue(Class<?> objectClass, Field field);
 }

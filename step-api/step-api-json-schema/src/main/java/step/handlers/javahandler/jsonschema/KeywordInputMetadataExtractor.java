@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 
 public class KeywordInputMetadataExtractor implements FieldMetadataExtractor {
     @Override
-    public FieldMetadata extractMetadata(Field field) {
+    public FieldMetadata extractMetadata(Class<?> objectClass, Field field) {
         String parameterName;
         boolean required = false;
         String defaultValue = null;

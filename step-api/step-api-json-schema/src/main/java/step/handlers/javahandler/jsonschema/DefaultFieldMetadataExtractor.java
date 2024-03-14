@@ -22,12 +22,21 @@ import java.lang.reflect.Field;
 
 public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
     @Override
-    public FieldMetadata extractMetadata(Field field) {
+    public FieldMetadata extractMetadata(Class<?> objectClass, Field field) {
         JsonSchema schemaAnnotation = field.getAnnotation(JsonSchema.class);
         String ref = null;
-        if(schemaAnnotation != null){
-            ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();;
+        String defaultValue = null;
+        if (schemaAnnotation != null) {
+            ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();
+            if (schemaAnnotation.defaultProvider() != null) {
+                try {
+                    defaultValue = schemaAnnotation.defaultProvider().getDeclaredConstructor().newInstance().getDefaultValue(objectClass, field);
+                } catch (Exception e) {
+                    throw new RuntimeException("Unable to prepare default value", e);
+                }
+            }
         }
-        return new FieldMetadata(field.getName(), null, field.getType(), field.getGenericType(), ref, false);
+
+        return new FieldMetadata(field.getName(), defaultValue, field.getType(), field.getGenericType(), ref, false);
     }
 }

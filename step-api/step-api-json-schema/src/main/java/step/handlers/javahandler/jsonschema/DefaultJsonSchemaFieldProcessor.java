@@ -71,7 +71,12 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 processNestedFields(nestedPropertyParamsBuilder, field.getType());
             } else if (Objects.equals("array", type)) {
                 nestedPropertyParamsBuilder.add("type", "array");
-                Class<?> elementType = resolveElementClassOfParameterizedType(fieldMetadata.getGenericType());
+                Class<?> elementType = null;
+                try {
+                    elementType = step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection(fieldMetadata.getGenericType(), fieldMetadata.getFieldName());
+                } catch (Exception ex) {
+                    // unresolvable generic type
+                }
                 if (elementType != null) {
                     String itemType = JsonInputConverter.resolveJsonPropertyType(elementType);
                     nestedPropertyParamsBuilder.add("items", jsonProvider.createObjectBuilder().add("type", itemType));
@@ -103,17 +108,6 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
             }
             propertyParamsBuilder.add("required", requiredBuilder);
         }
-    }
-
-    public Class<?> resolveElementClassOfParameterizedType(Type genericType) {
-        if (genericType instanceof ParameterizedType) {
-            ParameterizedType aType = (ParameterizedType) genericType;
-            Type[] fieldArgTypes = aType.getActualTypeArguments();
-            for (Type fieldArgType : fieldArgTypes) {
-                return (Class<?>) fieldArgType;
-            }
-        }
-        return null;
     }
 
 }
