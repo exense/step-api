@@ -26,13 +26,18 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonSchema {
+
     /**
      * Explicit reference to another element in json schema
      */
     String ref() default "";
 
+    String defaultConstant() default "";
+
     /**
      * The special provider for default value in json schema
      */
-    Class<? extends JsonSchemaDefaultValueProvider> defaultProvider();
+    Class<? extends JsonSchemaDefaultValueProvider> defaultProvider() default JsonSchemaDefaultValueProvider.None.class;
+
+    boolean required() default false;
 }

@@ -21,22 +21,28 @@ package step.handlers.javahandler.jsonschema;
 import java.lang.reflect.Field;
 
 public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
+
     @Override
     public FieldMetadata extractMetadata(Class<?> objectClass, Field field) {
         JsonSchema schemaAnnotation = field.getAnnotation(JsonSchema.class);
         String ref = null;
         String defaultValue = null;
+        boolean required = false;
         if (schemaAnnotation != null) {
             ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();
-            if (schemaAnnotation.defaultProvider() != null) {
+
+            if (schemaAnnotation.defaultProvider() != null && !schemaAnnotation.defaultProvider().equals(JsonSchemaDefaultValueProvider.None.class)) {
                 try {
                     defaultValue = schemaAnnotation.defaultProvider().getDeclaredConstructor().newInstance().getDefaultValue(objectClass, field);
                 } catch (Exception e) {
                     throw new RuntimeException("Unable to prepare default value", e);
                 }
+            } else if (schemaAnnotation.defaultConstant() != null && !schemaAnnotation.defaultConstant().isEmpty()) {
+                defaultValue = schemaAnnotation.defaultConstant();
             }
+            required = schemaAnnotation.required();
         }
 
-        return new FieldMetadata(field.getName(), defaultValue, field.getType(), field.getGenericType(), ref, false);
+        return new FieldMetadata(field.getName(), defaultValue, field.getType(), field.getGenericType(), ref, required);
     }
 }

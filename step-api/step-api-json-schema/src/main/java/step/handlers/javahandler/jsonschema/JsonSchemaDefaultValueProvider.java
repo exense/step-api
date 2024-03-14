@@ -26,4 +26,8 @@ public interface JsonSchemaDefaultValueProvider {
      * @return the default value to be used in json schema for current field
      */
     String getDefaultValue(Class<?> objectClass, Field field);
+
+    abstract class None implements JsonSchemaDefaultValueProvider {
+        private None() { } // not to be instantiated
+    }
 }
