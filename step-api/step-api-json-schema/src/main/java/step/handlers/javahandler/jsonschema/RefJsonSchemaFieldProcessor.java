@@ -23,24 +23,17 @@ import jakarta.json.JsonObjectBuilder;
 import java.lang.reflect.Field;
 import java.util.List;
 
-/**
- * The logic of json schema generation for some field in java object
- */
-public interface JsonSchemaFieldProcessor {
+public class RefJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
 
-	/**
-	 * Applies non-default JSON schema preparation logic for the field
-	 *
-	 * @param objectClass the field owner class
-	 * @param field the target field
-	 * @param fieldMetadata field metadata containing the information about field name, default value etc
-	 * @param propertiesBuilder json object builder to be filled with field data
-	 * @param requiredPropertiesOutput for required fields the field name should be added
-	 * @return true - custom processing is applied, false - custom processing is not required
-	 */
-	boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException;
+    private final String ref;
 
-	abstract class None implements JsonSchemaFieldProcessor {
-		private None() { } // not to be instantiated
-	}
+    public RefJsonSchemaFieldProcessor(String ref) {
+        this.ref = ref;
+    }
+
+    @Override
+    public boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
+        propertiesBuilder.add("$ref", ref);
+        return true;
+    }
 }

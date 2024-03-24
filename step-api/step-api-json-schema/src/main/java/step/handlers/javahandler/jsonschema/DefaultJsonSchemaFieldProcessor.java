@@ -23,8 +23,6 @@ import jakarta.json.JsonObjectBuilder;
 import jakarta.json.spi.JsonProvider;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,19 +45,14 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
         // 1. extract field parameters (name, required, default value etc)
         String parameterName = fieldMetadata.getFieldName();
 
-        // moved to JsonSchemaCreator to be always applied (also for custom field processors)
-//        if (fieldMetadata.isRequired()) {
-//            requiredPropertiesOutput.add(parameterName);
-//        }
-
         // TODO: default values should also be applied in all processors, but no in DefaultJsonSchemaFieldProcessor only
         if (fieldMetadata.getDefaultValue() != null) {
             jsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
         }
 
-        if(fieldMetadata.getSubSchemaReference() != null){
-            // explicit reference is used
-            nestedPropertyParamsBuilder.add("$ref", fieldMetadata.getSubSchemaReference());
+        if (fieldMetadata.getCustomProcessor() != null) {
+            // custom processor is used
+            fieldMetadata.getCustomProcessor().applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertyParamsBuilder, requiredPropertiesOutput);
         } else {
             String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
             // 2. for complex objects iterate through the nested fields

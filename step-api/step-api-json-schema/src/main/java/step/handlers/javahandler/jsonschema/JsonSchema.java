@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.PARAMETER, ElementType.FIELD})
+@Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonSchema {
 
@@ -32,7 +32,11 @@ public @interface JsonSchema {
      */
     String ref() default "";
 
+    Class<? extends JsonSchemaFieldProcessor> customJsonSchemaProcessor() default JsonSchemaFieldProcessor.None.class;
+
     String defaultConstant() default "";
+
+    String fieldName() default "";
 
     /**
      * The special provider for default value in json schema

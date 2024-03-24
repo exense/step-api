@@ -25,11 +25,12 @@ public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
     @Override
     public FieldMetadata extractMetadata(Class<?> objectClass, Field field) {
         JsonSchema schemaAnnotation = field.getAnnotation(JsonSchema.class);
-        String ref = null;
+        JsonSchemaFieldProcessor customProcessor = null;
         String defaultValue = null;
         boolean required = false;
+        String fieldName = field.getName();
         if (schemaAnnotation != null) {
-            ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();
+            customProcessor = getJsonSchemaFieldProcessorFromAnnotation(schemaAnnotation);
 
             if (schemaAnnotation.defaultProvider() != null && !schemaAnnotation.defaultProvider().equals(JsonSchemaDefaultValueProvider.None.class)) {
                 try {
@@ -41,8 +42,35 @@ public class DefaultFieldMetadataExtractor implements FieldMetadataExtractor {
                 defaultValue = schemaAnnotation.defaultConstant();
             }
             required = schemaAnnotation.required();
+
+            if (schemaAnnotation.fieldName() != null && !schemaAnnotation.fieldName().isEmpty()) {
+                fieldName = schemaAnnotation.fieldName();
+            }
         }
 
-        return new FieldMetadata(field.getName(), defaultValue, field.getType(), field.getGenericType(), ref, required);
+        if (customProcessor == null) {
+            // lookup special json schema processor defined on class level
+            JsonSchema classLevelAnnotation = field.getType().getAnnotation(JsonSchema.class);
+            if (classLevelAnnotation != null) {
+                customProcessor = getJsonSchemaFieldProcessorFromAnnotation(classLevelAnnotation);
+            }
+        }
+
+        return new FieldMetadata(fieldName, defaultValue, field.getType(), field.getGenericType(), customProcessor, required);
+    }
+
+    protected JsonSchemaFieldProcessor getJsonSchemaFieldProcessorFromAnnotation(JsonSchema schemaAnnotation) {
+        JsonSchemaFieldProcessor customProcessor = null;
+        String ref = schemaAnnotation.ref() == null || schemaAnnotation.ref().isEmpty() ? null : schemaAnnotation.ref();
+        if (ref != null) {
+            customProcessor = new RefJsonSchemaFieldProcessor(ref);
+        } else if (schemaAnnotation.customJsonSchemaProcessor() != null && !schemaAnnotation.customJsonSchemaProcessor().equals(JsonSchemaFieldProcessor.None.class)) {
+            try {
+                customProcessor = schemaAnnotation.customJsonSchemaProcessor().getConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to instantiate custom json schema processor");
+            }
+        }
+        return customProcessor;
     }
 }

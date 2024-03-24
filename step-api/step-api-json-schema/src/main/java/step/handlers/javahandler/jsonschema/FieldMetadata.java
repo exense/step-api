@@ -25,7 +25,7 @@ public class FieldMetadata {
     private String defaultValue;
     private Class<?> type;
     private Type genericType;
-    private String subSchemaReference;
+    private JsonSchemaFieldProcessor customProcessor;
     private boolean required = false;
 
     public FieldMetadata(String fieldName, String defaultValue, Class<?> type, boolean required) {
@@ -35,11 +35,11 @@ public class FieldMetadata {
         this.required = required;
     }
 
-    public FieldMetadata(String fieldName, String defaultValue, Class<?> type, Type genericType, String subSchemaReference, boolean required) {
+    public FieldMetadata(String fieldName, String defaultValue, Class<?> type, Type genericType, JsonSchemaFieldProcessor customProcessor, boolean required) {
         this.fieldName = fieldName;
         this.defaultValue = defaultValue;
         this.type = type;
-        this.subSchemaReference = subSchemaReference;
+        this.customProcessor = customProcessor;
         this.required = required;
         this.genericType = genericType;
     }
@@ -84,11 +84,12 @@ public class FieldMetadata {
         this.genericType = genericType;
     }
 
-    public String getSubSchemaReference() {
-        return subSchemaReference;
+    public JsonSchemaFieldProcessor getCustomProcessor() {
+        return customProcessor;
     }
 
-    public void setSubSchemaReference(String subSchemaReference) {
-        this.subSchemaReference = subSchemaReference;
+    public void setCustomProcessor(JsonSchemaFieldProcessor customProcessor) {
+        this.customProcessor = customProcessor;
     }
+
 }
