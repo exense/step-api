@@ -21,5 +21,5 @@ package step.handlers.javahandler.jsonschema;
 import java.lang.reflect.Field;
 
 public interface FieldMetadataExtractor {
-    FieldMetadata extractMetadata(Field field);
+    FieldMetadata extractMetadata(Class<?> objectClass, Field field);
 }

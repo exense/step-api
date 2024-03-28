@@ -40,4 +40,7 @@ public interface JsonSchemaFieldProcessor {
 	 */
 	boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException;
 
+	abstract class None implements JsonSchemaFieldProcessor {
+		private None() { } // not to be instantiated
+	}
 }

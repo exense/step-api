@@ -63,7 +63,7 @@ public class JsonSchemaCreator {
                               List<Field> fields,
                               List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
         for (Field field : fields) {
-            FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(field);
+            FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(objectClass, field);
 
             // try to apply custom logic for field
             if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput)) {
