@@ -41,7 +41,7 @@ public class KeywordJsonSchemaCreator {
 
 	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(
 			jsonProvider,
-			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput) -> false,
+			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput, schemaCreator) -> false,
 			new KeywordInputMetadataExtractor()
 	);
 

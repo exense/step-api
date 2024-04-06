@@ -29,17 +29,13 @@ import java.util.Objects;
 
 public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
 
-    private final JsonSchemaCreator jsonSchemaCreator;
-    private final JsonProvider jsonProvider;
-
-    public DefaultJsonSchemaFieldProcessor(JsonSchemaCreator jsonSchemaCreator, JsonProvider jsonProvider) {
-        this.jsonSchemaCreator = jsonSchemaCreator;
-        this.jsonProvider = jsonProvider;
+    public DefaultJsonSchemaFieldProcessor() {
     }
 
     @Override
-    public boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
+    public boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException {
         // DEFAULT field processing
+        JsonProvider jsonProvider = schemaCreator.getJsonProvider();
         JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
         // 1. extract field parameters (name, required, default value etc)
@@ -47,12 +43,12 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
 
         // TODO: default values should also be applied in all processors, but no in DefaultJsonSchemaFieldProcessor only
         if (fieldMetadata.getDefaultValue() != null) {
-            jsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
+            JsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
         }
 
         if (fieldMetadata.getCustomProcessor() != null) {
             // custom processor is used
-            fieldMetadata.getCustomProcessor().applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertyParamsBuilder, requiredPropertiesOutput);
+            fieldMetadata.getCustomProcessor().applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertyParamsBuilder, requiredPropertiesOutput, schemaCreator);
         } else {
             String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
             // 2. for complex objects iterate through the nested fields
@@ -61,7 +57,7 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 nestedPropertyParamsBuilder.add("type", type);
 
                 // apply some custom logic for field or use the default behavior - process nested fields recursively
-                processNestedFields(nestedPropertyParamsBuilder, field.getType());
+                processNestedFields(nestedPropertyParamsBuilder, field.getType(), schemaCreator);
             } else if (Objects.equals("array", type)) {
                 nestedPropertyParamsBuilder.add("type", "array");
                 Class<?> elementType = null;
@@ -86,12 +82,13 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
         return true;
     }
 
-    public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
+    public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException {
+        JsonProvider jsonProvider = schemaCreator.getJsonProvider();
         List<String> requiredProperties = new ArrayList<>();
         List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
 
         JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-        jsonSchemaCreator.processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
+        schemaCreator.processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
         propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
 
         if (!requiredProperties.isEmpty()) {
