@@ -232,7 +232,9 @@ public class KeywordExecutor {
 			if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 				step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
 				String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
-				res.add(JsonInputConverter.getValueFromJsonInput(input, name, p.getParameterizedType()));
+				//default value is only used for inputs which are not required
+				String defaultValue = annotation.required() ? null : annotation.defaultValue();
+				res.add(JsonInputConverter.getValueFromJsonInput(input, name, defaultValue, p.getParameterizedType()));
 			} else {
 				res.add(null);
 			}

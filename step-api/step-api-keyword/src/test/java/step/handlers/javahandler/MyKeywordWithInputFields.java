@@ -65,6 +65,49 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 		}
 	}
 
+	@Keyword
+	public void MyKeywordWithInputAnnotationDefaultValues(@Input(name = "numberField", defaultValue = "1") Integer numberField,
+											 @Input(name = "primitiveInt", defaultValue = "1") int primitiveInt,
+											 @Input(name = "booleanField", defaultValue = "true") Boolean booleanField,
+											 @Input(name = "stringField", defaultValue = "myDefaultValue", required = true) String stringField,
+											 @Input(name = "stringField2", defaultValue = "myDefaultValue2") String secondStringField,
+											 @Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields,
+											 @Input(name = "stringArray", defaultValue = "a;b;c") String[] stringArray,
+											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
+											 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList) {
+		// fill output to check execution result in tests
+		if (numberField != null) {
+			output.add("numberFieldOut", numberField);
+		}
+		output.add("primitiveIntOut", primitiveInt);
+		if (booleanField != null) {
+			output.add("booleanFieldOut", booleanField);
+		}
+		if (stringField != null) {
+			output.add("stringField1Out", stringField);
+		}
+		if (secondStringField != null) {
+			output.add("stringField2Out", secondStringField);
+		}
+		output.add("classWithNestedFieldsNotNull", classWithNestedFields == null ? "false" : "true");
+		if (classWithNestedFields != null && classWithNestedFields.getNestedStringProperty() != null) {
+			output.add("classWithNestedFieldsOut.nestedStringProperty", classWithNestedFields.getNestedStringProperty());
+		}
+		if (classWithNestedFields != null && classWithNestedFields.getNestedNumberProperty() != null) {
+			output.add("classWithNestedFieldsOut.nestedNumberProperty", classWithNestedFields.getNestedNumberProperty());
+		}
+		// fill output to check execution result in tests
+		if (stringArray != null) {
+			output.add("stringArrayOut", Arrays.stream(stringArray).reduce((s, s2) -> s + "+" + s2).orElse(""));
+		}
+		if (integerArray != null) {
+			output.add("integerArrayOut", Arrays.stream(integerArray).map(Object::toString).reduce((integer, integer2) -> integer + "+" + integer2).orElse(""));
+		}
+		if (stringList != null) {
+			output.add("stringListOut", stringList.stream().reduce((s, s2) -> s + "+" + s2).orElse(""));
+		}
+	}
+
 	public static class ClassWithNestedFields {
 		private String nestedStringProperty;
 
