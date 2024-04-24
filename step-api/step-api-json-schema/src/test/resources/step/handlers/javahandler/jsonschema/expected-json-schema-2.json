@@ -17,7 +17,10 @@
           "default": "nestedValue1"
         },
         "nestedNumberList": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
         },
         "parentProperty": {
           "type": "string"

@@ -29,43 +29,51 @@ import java.util.Objects;
 
 public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
 
-    private final JsonSchemaCreator jsonSchemaCreator;
-    private final JsonProvider jsonProvider;
-
-    public DefaultJsonSchemaFieldProcessor(JsonSchemaCreator jsonSchemaCreator, JsonProvider jsonProvider) {
-        this.jsonSchemaCreator = jsonSchemaCreator;
-        this.jsonProvider = jsonProvider;
+    public DefaultJsonSchemaFieldProcessor() {
     }
 
     @Override
-    public boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
+    public boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException {
         // DEFAULT field processing
+        JsonProvider jsonProvider = schemaCreator.getJsonProvider();
         JsonObjectBuilder nestedPropertyParamsBuilder = jsonProvider.createObjectBuilder();
 
         // 1. extract field parameters (name, required, default value etc)
-        String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
         String parameterName = fieldMetadata.getFieldName();
-
-        // moved to JsonSchemaCreator to be always applied (also for custom field processors)
-//        if (fieldMetadata.isRequired()) {
-//            requiredPropertiesOutput.add(parameterName);
-//        }
 
         // TODO: default values should also be applied in all processors, but no in DefaultJsonSchemaFieldProcessor only
         if (fieldMetadata.getDefaultValue() != null) {
-            jsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
+            JsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
         }
 
-        // 2. for complex objects iterate through the nested fields
-        if (Objects.equals("object", type)) {
-            // if there is no custom logic for this field - just process nested fields recursively by default
-            nestedPropertyParamsBuilder.add("type", type);
-
-            // apply some custom logic for field or use the default behavior - process nested fields recursively
-            processNestedFields(nestedPropertyParamsBuilder, field.getType());
+        if (fieldMetadata.getCustomProcessor() != null) {
+            // custom processor is used
+            fieldMetadata.getCustomProcessor().applyCustomProcessing(objectClass, field, fieldMetadata, nestedPropertyParamsBuilder, requiredPropertiesOutput, schemaCreator);
         } else {
-            // 3. for simple types just add a "type" to json schema
-            nestedPropertyParamsBuilder.add("type", type);
+            String type = JsonInputConverter.resolveJsonPropertyType(fieldMetadata.getType());
+            // 2. for complex objects iterate through the nested fields
+            if (Objects.equals("object", type)) {
+                // if there is no custom logic for this field - just process nested fields recursively by default
+                nestedPropertyParamsBuilder.add("type", type);
+
+                // apply some custom logic for field or use the default behavior - process nested fields recursively
+                processNestedFields(nestedPropertyParamsBuilder, field.getType(), schemaCreator);
+            } else if (Objects.equals("array", type)) {
+                nestedPropertyParamsBuilder.add("type", "array");
+                Class<?> elementType = null;
+                try {
+                    elementType = step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection(fieldMetadata.getGenericType(), fieldMetadata.getFieldName());
+                } catch (Exception ex) {
+                    // unresolvable generic type
+                }
+                if (elementType != null) {
+                    String itemType = JsonInputConverter.resolveJsonPropertyType(elementType);
+                    nestedPropertyParamsBuilder.add("items", jsonProvider.createObjectBuilder().add("type", itemType));
+                }
+            } else {
+                // 3. for simple types just add a "type" to json schema
+                nestedPropertyParamsBuilder.add("type", type);
+            }
         }
 
         // 4. add resolved properties to the schema
@@ -74,12 +82,13 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
         return true;
     }
 
-    public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
+    public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException {
+        JsonProvider jsonProvider = schemaCreator.getJsonProvider();
         List<String> requiredProperties = new ArrayList<>();
         List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
 
         JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
-        jsonSchemaCreator.processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
+        schemaCreator.processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
         propertyParamsBuilder.add("properties", nestedPropertiesBuilder);
 
         if (!requiredProperties.isEmpty()) {

@@ -38,7 +38,7 @@ public class JsonSchemaCreator {
         this.jsonProvider = jsonProvider;
         this.customFieldProcessor = customFieldProcessor;
         this.metadataExtractor = metadataExtractor;
-        this.defaultFieldProcessor = new DefaultJsonSchemaFieldProcessor(this, this.jsonProvider);
+        this.defaultFieldProcessor = new DefaultJsonSchemaFieldProcessor();
     }
 
     public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
@@ -63,11 +63,11 @@ public class JsonSchemaCreator {
                               List<Field> fields,
                               List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException {
         for (Field field : fields) {
-            FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(field);
+            FieldMetadata fieldMetadata = metadataExtractor.extractMetadata(objectClass, field);
 
             // try to apply custom logic for field
-            if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput)) {
-                defaultFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput);
+            if (!customFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput, this)) {
+                defaultFieldProcessor.applyCustomProcessing(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput, this);
             }
 
             // apply "required" fields to json schema
@@ -87,4 +87,7 @@ public class JsonSchemaCreator {
         }
     }
 
+    public JsonProvider getJsonProvider() {
+        return jsonProvider;
+    }
 }

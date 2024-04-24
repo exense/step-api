@@ -102,8 +102,6 @@ public class JsonInputConverter {
 		}
 	}
 
-
-
 	public static String resolveJsonPropertyType(Class<?> type) {
 		if (String.class.isAssignableFrom(type)) {
 			return "string";

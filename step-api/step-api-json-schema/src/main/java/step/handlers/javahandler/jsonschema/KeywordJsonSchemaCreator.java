@@ -28,10 +28,8 @@ import step.handlers.javahandler.Input;
 import step.handlers.javahandler.Keyword;
 
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +41,7 @@ public class KeywordJsonSchemaCreator {
 
 	private final JsonSchemaCreator jsonSchemaCreator = new JsonSchemaCreator(
 			jsonProvider,
-			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput) -> false,
+			(objectClass, field, fieldMetadata, propertiesBuilder, requiredPropertiesOutput, schemaCreator) -> false,
 			new KeywordInputMetadataExtractor()
 	);
 
