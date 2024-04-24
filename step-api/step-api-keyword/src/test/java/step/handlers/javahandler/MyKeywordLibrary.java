@@ -118,6 +118,19 @@ public class MyKeywordLibrary extends AbstractKeyword {
 			}
 		});
 	}
+
+	@Keyword
+	public void MyKeywordUsingSessionWithAutocloseable() {
+		session.put("object1","Test String");
+		System.setProperty("testProperty2", "test2");
+		session.put(new AutoCloseable() {
+
+			@Override
+			public void close() throws IOException {
+				System.clearProperty("testProperty2");
+			}
+		});
+	}
 	
 	@Keyword
 	public void MyKeywordUsingSession2() {
