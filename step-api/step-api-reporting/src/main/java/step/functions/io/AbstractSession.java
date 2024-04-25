@@ -99,10 +99,10 @@ public class AbstractSession implements Closeable {
 	}
 
 	private void closeIfCloseable(String arg0, Object previous) {
-		if(previous!=null && previous instanceof Closeable) {
+		if(previous!=null && previous instanceof AutoCloseable) {
 			logger.debug("Attempted to replace session object with key '"+arg0+"'. Closing previous object.");
 			try {
-				((Closeable)previous).close();
+				((AutoCloseable)previous).close();
 			} catch (Exception e) {
 				logger.error("Error while closing '"+arg0+"' from session.",e);
 			}

@@ -38,6 +38,9 @@ public interface JsonSchemaFieldProcessor {
 	 * @param requiredPropertiesOutput for required fields the field name should be added
 	 * @return true - custom processing is applied, false - custom processing is not required
 	 */
-	boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput) throws JsonSchemaPreparationException;
+	boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException;
 
+	abstract class None implements JsonSchemaFieldProcessor {
+		private None() { } // not to be instantiated
+	}
 }

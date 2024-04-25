@@ -176,6 +176,14 @@ public class KeywordRunnerTest {
 		runner.close();
 		// Asserts that the close method of the session object created in MyKeywordUsingSession2 has been called
 		Assert.assertNull(System.getProperty("testProperty"));
+
+		output = runner.run("MyKeywordUsingSessionWithAutocloseable");
+		Assert.assertEquals("test2", System.getProperty("testProperty2"));
+		output = runner.run("MyKeywordUsingSession2");
+		Assert.assertEquals("Test String",output.getPayload().getString("sessionObject"));
+		runner.close();
+		// Asserts that the close method of the session object created in MyKeywordUsingSession2 has been called
+		Assert.assertNull(System.getProperty("testProperty2"));
 	}
 	
 	@Test

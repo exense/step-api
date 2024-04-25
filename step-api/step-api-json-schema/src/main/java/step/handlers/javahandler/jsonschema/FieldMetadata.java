@@ -18,10 +18,14 @@
  ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
+import java.lang.reflect.Type;
+
 public class FieldMetadata {
     private String fieldName;
     private String defaultValue;
     private Class<?> type;
+    private Type genericType;
+    private JsonSchemaFieldProcessor customProcessor;
     private boolean required = false;
 
     public FieldMetadata(String fieldName, String defaultValue, Class<?> type, boolean required) {
@@ -29,6 +33,15 @@ public class FieldMetadata {
         this.defaultValue = defaultValue;
         this.type = type;
         this.required = required;
+    }
+
+    public FieldMetadata(String fieldName, String defaultValue, Class<?> type, Type genericType, JsonSchemaFieldProcessor customProcessor, boolean required) {
+        this.fieldName = fieldName;
+        this.defaultValue = defaultValue;
+        this.type = type;
+        this.customProcessor = customProcessor;
+        this.required = required;
+        this.genericType = genericType;
     }
 
     public String getFieldName() {
@@ -62,4 +75,21 @@ public class FieldMetadata {
     public void setRequired(boolean required) {
         this.required = required;
     }
+
+    public Type getGenericType() {
+        return genericType;
+    }
+
+    public void setGenericType(Type genericType) {
+        this.genericType = genericType;
+    }
+
+    public JsonSchemaFieldProcessor getCustomProcessor() {
+        return customProcessor;
+    }
+
+    public void setCustomProcessor(JsonSchemaFieldProcessor customProcessor) {
+        this.customProcessor = customProcessor;
+    }
+
 }
