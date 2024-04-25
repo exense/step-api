@@ -424,6 +424,32 @@ public class KeywordRunnerTest {
 		Assert.assertEquals("d+e+f", result.getString("stringListOut"));
 	}
 
+	@Test
+	public void testKeywordOptionalInputsWithDefaultValues() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputAnnotationDefaultValues",
+				"{\"propertyWithNestedFields\": {\"nestedStringProperty\": \"myValue3\"}}"
+		);
+
+		JsonObject result = output.getPayload();
+		log.info("Execution result: {}", result.toString());
+
+		Assert.assertEquals(1, result.getInt("numberFieldOut"));
+		Assert.assertEquals(1, result.getInt("primitiveIntOut"));
+		Assert.assertTrue(result.getBoolean("booleanFieldOut"));
+		Assert.assertFalse(result.containsKey("stringField1Out"));
+		Assert.assertEquals("myDefaultValue2", result.getString("stringField2Out"));
+		Assert.assertEquals("true", result.getString("classWithNestedFieldsNotNull"));
+		Assert.assertEquals(2, result.getInt("classWithNestedFieldsOut.nestedNumberProperty"));
+		Assert.assertEquals("myValue3", result.getString("classWithNestedFieldsOut.nestedStringProperty"));
+		Assert.assertEquals("a+b+c", result.getString("stringArrayOut"));
+		Assert.assertEquals("1+2+3", result.getString("integerArrayOut"));
+		Assert.assertEquals("1+2+3", result.getString("stringListOut"));
+	}
+
+
 	private static JsonNode readJsonFromFile(String path) throws IOException {
 		File inputFile = new File(path);
 

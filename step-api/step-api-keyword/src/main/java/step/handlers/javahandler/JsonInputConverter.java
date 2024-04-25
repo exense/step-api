@@ -18,8 +18,8 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import javax.json.*;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,7 +34,9 @@ import java.util.stream.Collectors;
 
 public class JsonInputConverter {
 
-	public static Object getValueFromJsonInput(JsonObject input, String name, Type type) throws Exception {
+	public static final String ARRAY_VALUE_SEPARATOR = ";";
+
+	public static Object getValueFromJsonInput(JsonObject input, String name, String defaultValue, Type type) throws Exception {
 		Class<?> valueType = null;
 
 		try {
@@ -51,23 +53,26 @@ public class JsonInputConverter {
 		}
 
 		Object value = null;
-		if (input.containsKey(name) && !input.isNull(name)) {
+		boolean validInputValue = (input.containsKey(name) && !input.isNull(name));
+		boolean validDefaultValue = defaultValue != null && !defaultValue.isEmpty();
+		if (validInputValue || validDefaultValue) {
 			if (String.class.isAssignableFrom(valueType)) {
-				value = input.getString(name);
+				value = (validInputValue) ? input.getString(name) : defaultValue;
 			} else if (Boolean.class.isAssignableFrom(valueType) || valueType.equals(boolean.class)) {
-				value = input.getBoolean(name);
+				value = (validInputValue) ? input.getBoolean(name) : Boolean.parseBoolean(defaultValue);
 			} else if (Integer.class.isAssignableFrom(valueType) || valueType.equals(int.class)) {
-				value = input.getInt(name);
+				value = (validInputValue) ? input.getInt(name) : Integer.parseInt(defaultValue);
 			} else if (Double.class.isAssignableFrom(valueType) || valueType.equals(double.class)) {
-				value = input.getJsonNumber(name).doubleValue();
+				value = (validInputValue) ? input.getJsonNumber(name).doubleValue() : Double.parseDouble(defaultValue);
 			} else if (Long.class.isAssignableFrom(valueType) || valueType.equals(long.class)) {
-				value = input.getJsonNumber(name).longValue();
+				value = (validInputValue) ? input.getJsonNumber(name).longValue() : Long.parseLong(defaultValue);
 			} else if (BigDecimal.class.isAssignableFrom(valueType)) {
-				value = input.getJsonNumber(name).bigDecimalValue();
+				value = (validInputValue) ? input.getJsonNumber(name).bigDecimalValue() : new BigDecimal(defaultValue);
 			} else if (BigInteger.class.isAssignableFrom(valueType)) {
-				value = input.getJsonNumber(name).bigIntegerValue();
+				value = (validInputValue) ? input.getJsonNumber(name).bigIntegerValue() : new BigInteger(defaultValue);
 			} else if (valueType.isArray() || Collection.class.isAssignableFrom(valueType)) {
-				JsonArray jsonArray = input.getJsonArray(name);
+				JsonArray jsonArray = (validInputValue) ? input.getJsonArray(name) :
+						convertStringToJsonArrayBuilder(name, defaultValue, valueType, type).build();
 				Class<?> arrayValueType = valueType.getComponentType();
 				if (valueType.isArray()) {
 					arrayValueType = valueType.getComponentType();
@@ -122,26 +127,62 @@ public class JsonInputConverter {
 				}
 			} else {
 				// complex object with nested fields
-				if(input.containsKey(name) && !input.isNull(name)){
-					value = valueType.getConstructor().newInstance();
+				value = valueType.getConstructor().newInstance();
 
-					JsonObject nestedObjectFromInput = input.getJsonObject(name);
+				JsonObject nestedObjectFromInput = (validInputValue) ? input.getJsonObject(name) :
+						Json.createReader(new StringReader(defaultValue)).readObject();
 
-					List<Field> fields = getAllFields(value.getClass());
-					for (Field field : fields) {
-						String jsonNameForField = field.getName();
-						if (field.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
-							step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
-							jsonNameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
-						}
-						writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, field.getType()));
+				List<Field> fields = getAllFields(value.getClass());
+				for (Field field : fields) {
+					String jsonNameForField = field.getName();
+					String nestedDefaultValue = null;
+					if (field.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
+						step.handlers.javahandler.Input fieldAnnotation = field.getAnnotation(step.handlers.javahandler.Input.class);
+						jsonNameForField = fieldAnnotation.name() == null || fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
+						nestedDefaultValue = fieldAnnotation.required() ? null : fieldAnnotation.defaultValue();
 					}
+					writeField(field, value, getValueFromJsonInput(nestedObjectFromInput, jsonNameForField, nestedDefaultValue, field.getType()));
 				}
 
 			}
 		}
 
 		return value;
+	}
+
+	private static JsonArrayBuilder convertStringToJsonArrayBuilder(String jsonName, String value, Class<?> clazz, Type type) {
+		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+
+		Class<?> arrayValueType;
+		if (clazz.isArray()) {
+			arrayValueType = clazz.getComponentType();
+		} else if (Collection.class.isAssignableFrom(clazz)) {
+			// we need to check the generic parameter type for collection
+			arrayValueType = resolveGenericTypeForCollection(type, jsonName);
+		} else {
+			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+		}
+
+		for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
+			if(String.class.isAssignableFrom(arrayValueType)){
+				arrayBuilder.add(arrayValue);
+			} else if(Boolean.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(boolean.class)){
+				arrayBuilder.add(Boolean.parseBoolean(arrayValue));
+			} else if(Integer.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(int.class)){
+				arrayBuilder.add(Integer.parseInt(arrayValue));
+			} else if(Long.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(long.class)){
+				arrayBuilder.add(Long.parseLong(arrayValue));
+			} else if(Double.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(double.class)){
+				arrayBuilder.add(Double.parseDouble(arrayValue));
+			} else if(BigInteger.class.isAssignableFrom(arrayValueType)){
+				arrayBuilder.add(BigInteger.valueOf(Long.parseLong(arrayValue)));
+			} else if(BigDecimal.class.isAssignableFrom(arrayValueType)) {
+				arrayBuilder.add(BigDecimal.valueOf(Double.parseDouble(arrayValue)));
+			} else {
+				throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + arrayValueType);
+			}
+		}
+		return arrayBuilder;
 	}
 
 	public static Class<?> resolveGenericTypeForCollection(Type type, String jsonName) {
