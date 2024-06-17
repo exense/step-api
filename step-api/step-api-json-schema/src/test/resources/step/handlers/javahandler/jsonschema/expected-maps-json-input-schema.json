@@ -1,0 +1,1 @@
+{"type":"object","properties":{"stringMap":{"type":"object","properties": {}},"stringLinkedHashMap":{"type":"object","properties": {}},"integerMap":{"type":"object","properties": {}},"mapMapString":{"type":"object","properties": {}}},"required":["stringMap","stringLinkedHashMap"]}

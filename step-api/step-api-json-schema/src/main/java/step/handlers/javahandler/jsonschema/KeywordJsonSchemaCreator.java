@@ -30,10 +30,7 @@ import step.handlers.javahandler.Keyword;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class KeywordJsonSchemaCreator {
 
@@ -96,9 +93,9 @@ public class KeywordJsonSchemaCreator {
 				throw new JsonSchemaPreparationException("The mandatory 'name' element of the Input annotation is missing for parameter " + p.getName() + " in keyword " + functionName);
 			}
 
-			Class<?> type1 = p.getType();
-			String type = JsonInputConverter.resolveJsonPropertyType(type1);
-			propertyParamsBuilder.add("type", type);
+			Class<?> type = p.getType();
+			String propertyType = JsonInputConverter.resolveJsonPropertyType(type);
+			propertyParamsBuilder.add("type", propertyType);
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {
@@ -113,14 +110,18 @@ public class KeywordJsonSchemaCreator {
 				requiredProperties.add(parameterName);
 			}
 
-			if(Objects.equals("object", type)){
-				try {
-					jsonSchemaCreator.processNestedFields(propertyParamsBuilder, p.getType());
-				} catch (JsonSchemaPreparationException e) {
-					throw new JsonSchemaPreparationException("Schema creation error for keyword '"
-							+ functionName + "': " + e.getMessage());
+			if(Objects.equals("object", propertyType)) {
+				//do not process nested fields for Maps, but add an empty property object
+				if (Map.class.isAssignableFrom(type)) {
+					propertyParamsBuilder.add("properties", jsonProvider.createObjectBuilder());
+				} else {
+					try {
+						jsonSchemaCreator.processNestedFields(propertyParamsBuilder, p.getType());
+					} catch (JsonSchemaPreparationException e) {
+						throw new JsonSchemaPreparationException("Schema creation error for keyword '"
+								+ functionName + "': " + e.getMessage());
+					}
 				}
-
 			}
 
 			propertiesBuilder.add(parameterName, propertyParamsBuilder);

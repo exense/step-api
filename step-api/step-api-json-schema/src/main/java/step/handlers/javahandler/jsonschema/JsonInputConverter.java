@@ -35,7 +35,7 @@ public class JsonInputConverter {
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
 
 	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
-		Class<?> clazz = null;
+		Class<?> clazz;
 
 		try {
 			if (type instanceof Class) {
