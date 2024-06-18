@@ -18,10 +18,9 @@
  ******************************************************************************/
 package step.handlers.javahandler.jsonschema;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObjectBuilder;
+import jakarta.json.*;
 
+import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -98,7 +97,13 @@ public class JsonInputConverter {
 			}
 			builder.add(jsonName, arrayBuilder);
 		} else {
-			throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
+			//assuming json object as json string
+			try (JsonReader jsonReader = Json.createReader(new StringReader(value))) {
+				JsonObject jsonObject = jsonReader.readObject();
+				builder.add(jsonName, jsonObject);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
+			}
 		}
 	}
 

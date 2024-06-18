@@ -160,7 +160,8 @@ public class KeywordJsonSchemaCreatorTest {
 		public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) HashMap<String,String> stringMap,
 										   @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
 											 @Input(name = "integerMap") HashMap<String,Integer> integerMap,
-											 @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString) {
+											 @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString,
+										   @Input(name = "mapWithDefault", defaultValue = "{\"key\":\"value\"}") HashMap<String, HashMap<String, String>> mapWithDefault) {
 			output.add("test", "test");
 		}
 	}
