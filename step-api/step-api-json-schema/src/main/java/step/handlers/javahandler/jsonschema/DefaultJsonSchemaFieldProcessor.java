@@ -25,6 +25,7 @@ import jakarta.json.spi.JsonProvider;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
@@ -57,7 +58,12 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 nestedPropertyParamsBuilder.add("type", type);
 
                 // apply some custom logic for field or use the default behavior - process nested fields recursively
-                processNestedFields(nestedPropertyParamsBuilder, field.getType(), schemaCreator);
+                // but do not process nested fields for Maps
+                if (!Map.class.isAssignableFrom(fieldMetadata.getType())) {
+                    processNestedFields(nestedPropertyParamsBuilder, field.getType(), schemaCreator);
+                } else {
+                    nestedPropertyParamsBuilder.add("properties", jsonProvider.createObjectBuilder());
+                }
             } else if (Objects.equals("array", type)) {
                 nestedPropertyParamsBuilder.add("type", "array");
                 Class<?> elementType = null;

@@ -32,8 +32,7 @@ import step.handlers.javahandler.Keyword;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class KeywordJsonSchemaCreatorTest {
@@ -109,6 +108,28 @@ public class KeywordJsonSchemaCreatorTest {
 		Assert.assertEquals(expectedJsonNode, actualJsonNode);
 	}
 
+	@Test
+	public void jsonInputParamsReaderMapFieldsTest() throws Throwable {
+		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+
+		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputMaps")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+
+		log.info("Check json schema for method " + method.getName());
+		JsonObject schema = reader.createJsonSchemaForKeyword(method);
+		String jsonString = schema.toString();
+		log.info(jsonString);
+
+		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-maps-json-input-schema.json");
+
+		JsonFactory factory = new JsonFactory();
+		ObjectMapper mapper = new ObjectMapper(factory);
+
+		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+		JsonNode actualJsonNode = mapper.readTree(jsonString);
+
+		Assert.assertEquals(expectedJsonNode, actualJsonNode);
+	}
 
 	public static class KeywordTestClass extends AbstractKeyword {
 		@Keyword
@@ -132,6 +153,15 @@ public class KeywordJsonSchemaCreatorTest {
 		public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
 											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
 											 @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList) {
+			output.add("test", "test");
+		}
+
+		@Keyword
+		public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) HashMap<String,String> stringMap,
+										   @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
+											 @Input(name = "integerMap") HashMap<String,Integer> integerMap,
+											 @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString,
+										   @Input(name = "mapWithDefault", defaultValue = "{\"key\":\"value\"}") HashMap<String, HashMap<String, String>> mapWithDefault) {
 			output.add("test", "test");
 		}
 	}
