@@ -106,7 +106,11 @@ public class JsonInputConverter {
 					}
 				}
 				if (Collection.class.isAssignableFrom(valueType)) {
-					value = valueType.getConstructor().newInstance();
+					if (valueType.isInterface()) {
+						value = new ArrayList<>();
+					} else {
+						value = valueType.getConstructor().newInstance();
+					}
 					((Collection) value).addAll(Arrays.asList(arrayValue));
 				} else {
 					value = arrayValue;
