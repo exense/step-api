@@ -27,27 +27,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 
-import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection;
+import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForArrayAndCollection;
 
 public class JsonInputConverter {
 
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
 
 	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
-		Class<?> clazz;
-
-		try {
-			if (type instanceof Class) {
-				clazz = (Class<?>) type;
-			} else if (type instanceof ParameterizedType) {
-				// we expect the parameterized collection here
-				clazz = (Class<?>) ((ParameterizedType) type).getRawType();
-			} else {
-				throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
-			}
-		} catch (Exception ex) {
-			throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
-		}
+		Class<?> clazz = resolveClass(type, jsonName);
 
 		if(String.class.isAssignableFrom(clazz)){
 			builder.add(jsonName, value);
@@ -66,15 +53,7 @@ public class JsonInputConverter {
 		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)){
 			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-			Class<?> arrayValueType;
-			if (clazz.isArray()) {
-				arrayValueType = clazz.getComponentType();
-			} else if (Collection.class.isAssignableFrom(clazz)) {
-				// we need to check the generic parameter type for collection
-				arrayValueType = resolveGenericTypeForCollection(type, jsonName);
-			} else {
-				throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
-			}
+			Class<?> arrayValueType = resolveGenericTypeForArrayAndCollection(clazz, type, jsonName);
 
 			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
 				if(String.class.isAssignableFrom(arrayValueType)){
@@ -105,6 +84,23 @@ public class JsonInputConverter {
 				throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
 			}
 		}
+	}
+
+	public static Class resolveClass(Type type, String jsonName) {
+		Class<?> clazz;
+		try {
+			if (type instanceof Class) {
+				clazz = (Class<?>) type;
+			} else if (type instanceof ParameterizedType) {
+				// we expect the parameterized collection here
+				clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+			} else {
+				throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+			}
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+		}
+		return clazz;
 	}
 
 	public static String resolveJsonPropertyType(Class<?> type) {

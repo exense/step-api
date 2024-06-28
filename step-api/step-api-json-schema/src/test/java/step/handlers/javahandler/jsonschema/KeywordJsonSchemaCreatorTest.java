@@ -152,7 +152,8 @@ public class KeywordJsonSchemaCreatorTest {
 		@Keyword
 		public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
 											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
-											 @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList) {
+											 @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList,
+											 @Input(name = "booleanList", defaultValue = "true;false;true") ArrayList<Boolean> booleanList) {
 			output.add("test", "test");
 		}
 

@@ -50,7 +50,8 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 	@Keyword
 	public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
 										 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
-										 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList) {
+										 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList,
+										 @Input(name = "booleanList", defaultValue = "true;false;true") ArrayList<Boolean> booleanList) {
 		// fill output to check execution result in tests
 		if (stringArray != null) {
 			output.add("stringArrayOut", Arrays.stream(stringArray).reduce((s, s2) -> s + "+" + s2).orElse(""));
@@ -62,6 +63,10 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 
 		if (stringList != null) {
 			output.add("stringListOut", stringList.stream().reduce((s, s2) -> s + "+" + s2).orElse(""));
+		}
+
+		if (booleanList != null) {
+			output.add("booleanListOut", booleanList.stream().map(Object::toString).reduce((s, s2) -> s + "+" + s2).orElse(""));
 		}
 	}
 
