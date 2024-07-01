@@ -30,7 +30,10 @@ import step.handlers.javahandler.Keyword;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.*;
+
+import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForArrayAndCollection;
 
 public class KeywordJsonSchemaCreator {
 
@@ -96,6 +99,15 @@ public class KeywordJsonSchemaCreator {
 			Class<?> type = p.getType();
 			String propertyType = JsonInputConverter.resolveJsonPropertyType(type);
 			propertyParamsBuilder.add("type", propertyType);
+
+			if (propertyType.equals("array")) {
+				//add items type
+				Type parameterizedType = p.getParameterizedType();
+				Class<?> aClass = resolveGenericTypeForArrayAndCollection(JsonInputConverter.resolveClass(parameterizedType, parameterName), parameterizedType, parameterName);
+				String arrayElementType = JsonInputConverter.resolveJsonPropertyType(aClass);
+				JsonObject arrayType = jsonProvider.createObjectBuilder().add("type", arrayElementType).build();
+				propertyParamsBuilder.add("items", arrayType);
+			}
 
 			if (inputAnnotation.defaultValue() != null && !inputAnnotation.defaultValue().isEmpty()) {
 				try {

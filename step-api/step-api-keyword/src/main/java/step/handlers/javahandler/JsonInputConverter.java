@@ -59,15 +59,7 @@ public class JsonInputConverter {
 			} else if (valueType.isArray() || Collection.class.isAssignableFrom(valueType)) {
 				JsonArray jsonArray = (validInputValue) ? input.getJsonArray(name) :
 						convertStringToJsonArrayBuilder(name, defaultValue, valueType, type).build();
-				Class<?> arrayValueType;
-				if (valueType.isArray()) {
-					arrayValueType = valueType.getComponentType();
-				} else if (Collection.class.isAssignableFrom(valueType)) {
-					// we need to check the generic parameter type for collection
-					arrayValueType = resolveGenericTypeForCollection(type, name);
-				} else {
-					throw new IllegalArgumentException("Unsupported type found for array input " + name + ": " + type);
-				}
+				Class<?> arrayValueType = resolveGenericTypeForArrayAndCollection(valueType, type, name);;
 				Object[] arrayValue = null;
 				if (String.class.isAssignableFrom(arrayValueType)) {
 					arrayValue = new String[jsonArray.size()];
@@ -106,7 +98,11 @@ public class JsonInputConverter {
 					}
 				}
 				if (Collection.class.isAssignableFrom(valueType)) {
-					value = valueType.getConstructor().newInstance();
+					if (valueType.isInterface()) {
+						value = new ArrayList<>();
+					} else {
+						value = valueType.getConstructor().newInstance();
+					}
 					((Collection) value).addAll(Arrays.asList(arrayValue));
 				} else {
 					value = arrayValue;
@@ -176,15 +172,7 @@ public class JsonInputConverter {
 	private static JsonArrayBuilder convertStringToJsonArrayBuilder(String jsonName, String value, Class<?> clazz, Type type) {
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-		Class<?> arrayValueType;
-		if (clazz.isArray()) {
-			arrayValueType = clazz.getComponentType();
-		} else if (Collection.class.isAssignableFrom(clazz)) {
-			// we need to check the generic parameter type for collection
-			arrayValueType = resolveGenericTypeForCollection(type, jsonName);
-		} else {
-			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
-		}
+		Class<?> arrayValueType = resolveGenericTypeForArrayAndCollection(clazz, type, jsonName);;
 
 		for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
 			if(String.class.isAssignableFrom(arrayValueType)){
@@ -206,6 +194,19 @@ public class JsonInputConverter {
 			}
 		}
 		return arrayBuilder;
+	}
+
+	public static Class<?> resolveGenericTypeForArrayAndCollection(Class<?> clazz, Type type, String jsonName) {
+		Class<?> arrayValueType;
+		if (clazz.isArray()) {
+			arrayValueType = clazz.getComponentType();
+		} else if (Collection.class.isAssignableFrom(clazz)) {
+			// we need to check the generic parameter type for collection
+			arrayValueType = resolveGenericTypeForCollection(type, jsonName);
+		} else {
+			throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + type);
+		}
+		return arrayValueType;
 	}
 
 	public static Class<?> resolveGenericTypeForCollection(Type type, String jsonName) {
