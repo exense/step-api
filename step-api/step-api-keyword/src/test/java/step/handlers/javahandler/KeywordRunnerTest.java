@@ -20,6 +20,7 @@ package step.handlers.javahandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -449,6 +450,54 @@ public class KeywordRunnerTest {
 		Assert.assertEquals("1+2+3", result.getString("stringListOut"));
 	}
 
+	@Test
+	public void testKeywordWithNumberTypes() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+		long value = 111111111111111111L;
+		BigDecimal bigDecimal = new BigDecimal(value);
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputNumberTypes",
+				"{\"longValue\":" + value + ",\"bigDecimal\":" + bigDecimal + "}"
+		);
+	}
+
+	@Test
+	public void testKeywordWithInputMapDefaultValues() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputMapDefaultValues",
+				"{}"
+		);
+
+		Assert.assertEquals("myValue", output.getPayload().getString("myKey"));
+		Assert.assertEquals("myValue2", output.getPayload().getString("myKey2"));
+	}
+
+	@Test
+	public void testKeywordWithInputMaps() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithInputMaps",
+				"{"+
+						"\"stringMap\":{\"myKey\":\"myValue\",\"myKey2\":\"myValue2\"},"+
+						"\"stringLinkedHashMap\":{\"myKey\":\"myValue\",\"myKey2\":\"myValue2\"},"+
+						"\"integerMap\":{\"myKey\":2,\"myKey2\":3}," +
+						"\"mapMapString\":{\"myKey\":{\"mySubKey\":\"myValue\"},\"myKey2\":{\"mySubKey2\":\"myValue2\"}}" +// ," +
+					//	"\"arrayOfMaps\":[{\"myKey\":\"myValue\",\"myKey2\":\"myValue2\"}]" +
+				"}"
+		);
+
+		JsonObject payload = output.getPayload();
+		Assert.assertTrue(payload.getString("valueStringHashMap1").contains("myValue"));
+		Assert.assertTrue(payload.getString("valueLinkedHashMap1").contains("myValue"));
+		int valueIntegerHashMap1 = payload.getInt("valueIntegerHashMap1");
+		Assert.assertTrue(valueIntegerHashMap1 == 2 ||valueIntegerHashMap1 == 3);
+		Assert.assertTrue(payload.getString("valueStringMapMap1").contains("myValue"));
+		//Assert.assertEquals("myValue", payload.getString("arrayOfMapsValue1"));
+
+	}
 
 	private static JsonNode readJsonFromFile(String path) throws IOException {
 		File inputFile = new File(path);

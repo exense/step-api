@@ -1,7 +1,7 @@
 package step.handlers.javahandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class MyKeywordWithInputFields extends AbstractKeyword {
 
@@ -50,7 +50,8 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 	@Keyword
 	public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
 										 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
-										 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList) {
+										 @Input(name = "stringList", defaultValue = "1;2;3") ArrayList<String> stringList,
+										 @Input(name = "booleanList", defaultValue = "true;false;true") ArrayList<Boolean> booleanList) {
 		// fill output to check execution result in tests
 		if (stringArray != null) {
 			output.add("stringArrayOut", Arrays.stream(stringArray).reduce((s, s2) -> s + "+" + s2).orElse(""));
@@ -63,6 +64,56 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 		if (stringList != null) {
 			output.add("stringListOut", stringList.stream().reduce((s, s2) -> s + "+" + s2).orElse(""));
 		}
+
+		if (booleanList != null) {
+			output.add("booleanListOut", booleanList.stream().map(Object::toString).reduce((s, s2) -> s + "+" + s2).orElse(""));
+		}
+	}
+
+	@Keyword
+	public void MyKeywordWithInputNumberTypes(@Input(name = "longValue") long longValue,
+											  @Input(name = "bigDecimal")BigDecimal bigDecimal) {
+		if (! (bigDecimal instanceof BigDecimal)) {
+			throw new RuntimeException("Not a big decimal");
+		}
+		long expected = 111111111111111111L;
+		if (expected != longValue) {
+			throw new RuntimeException("Incorrect long received as input");
+		}
+	}
+
+	@Keyword
+	public void MyKeywordWithInputMapDefaultValues(@Input(name = "stringMap", defaultValue = "{\"myKey\":\"myValue\",\"myKey2\":\"myValue2\"}") HashMap<String,String> map) {
+		map.forEach((k,v) -> output.add(k,v));
+	}
+
+	@Keyword
+	public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) Map<String,String> stringMap,
+									   @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
+									   @Input(name = "integerMap", required = true) HashMap<String,Integer> integerMap,
+									   @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString,
+									   @Input(name = "arrayOfMaps") List<Map<String,String>> arrayOfMaps) {
+		if (!(stringMap instanceof HashMap)) {
+			throw new RuntimeException("stringMap is not a Hashmap");
+		}
+		if (!(stringLinkedHashMap instanceof LinkedHashMap)) {
+			throw new RuntimeException("stringLinkedHashMap is not a LinkedHashMap");
+		}
+		if (!(stringLinkedHashMap.get("myKey") instanceof String)) {
+			throw new RuntimeException("stringLinkedHashMap values are not of type String");
+		}
+		if (!(integerMap.get("myKey") instanceof Integer)) {
+			throw new RuntimeException("integerMap values are not of type Integer");
+		}
+		if (!(mapMapString.get("myKey") instanceof Map)) {
+			throw new RuntimeException("mapMapString values are not a map");
+		}
+		output.add("valueStringHashMap1", stringMap.get("myKey"));
+		output.add("valueLinkedHashMap1", stringLinkedHashMap.get("myKey"));
+		output.add("valueIntegerHashMap1", integerMap.get("myKey"));
+		output.add("valueStringMapMap1", mapMapString.get("myKey").get("mySubKey"));
+	//	output.add("arrayOfMapsValue1", arrayOfMaps.get(0).get("myKey"));
+
 	}
 
 	@Keyword
