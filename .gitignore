@@ -14,3 +14,4 @@ bower_components/
 .DS_Store
 *.nupkg
 *.iml
+.idea/
