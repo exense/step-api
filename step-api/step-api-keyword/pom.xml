@@ -27,5 +27,13 @@
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- This is required for the KeywordProxy. If we want to merge this feature we should repackage this to avoid conflicts with Keywords importing it -->
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.27.0-GA</version>
+        </dependency>
+
     </dependencies>
 </project>
