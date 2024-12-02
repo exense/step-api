@@ -28,11 +28,14 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForArrayAndCollection;
+import static step.handlers.javahandler.JsonObjectMapper.getTypeClass;
+import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForCollection;
 
 public class JsonInputConverter {
 
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
 
+	// TODO this method duplicates a lot of the code of JsonObjectMapper. It should be refactored
 	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
 		Class<?> clazz = resolveClass(type, jsonName);
 

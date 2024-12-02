@@ -3,6 +3,7 @@ package step.handlers.javahandler;
 import org.junit.Test;
 import step.functions.io.Output;
 
+import javax.json.Json;
 import javax.json.JsonObject;
 
 import static org.junit.Assert.assertEquals;
@@ -17,6 +18,18 @@ public class KeywordProxyTest {
     public static final String MY_OUTPUT_AFTER_KEYWORD = "myOutputAfterKeyword";
     public static final String MY_DUMMY_OUTPUT = "test";
     public static final String MY_MEASURE = "myMeasure";
+
+    @Test
+    public void testInput() {
+        KeywordProxy keywordProxy = new KeywordProxy();
+        MyKeywordWithInputFields proxy = keywordProxy.getProxy(MyKeywordWithInputFields.class);
+        proxy.MyKeywordWithInputAnnotation(10, 100, true, "str", "str2");
+        JsonObject outputPayload = keywordProxy.getLastOutput().getPayload();
+        JsonObject expectedJson = Json.createObjectBuilder().add("numberFieldOut", 10)
+                .add("primitiveIntOut", 100).add("booleanFieldOut", true)
+                .add("stringField1Out", "str").add("stringField2Out", "str2").build();
+        assertEquals(expectedJson, outputPayload);
+    }
 
     @Test
     public void getProxy() {

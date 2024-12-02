@@ -7,44 +7,58 @@ import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
 
 import javax.json.JsonObject;
-import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KeywordProxy {
 
-    private AbstractSession session = new AbstractSession();
+    private final AbstractSession session;
     private Output<JsonObject> lastOutput;
+    private final Map<String, String> properties;
+    private OutputBuilder parentOutputBuilder;
+    private final boolean mergeOutputsToParentOutput;
+
+    public KeywordProxy() {
+        this(new AbstractSession(), new HashMap<>());
+    }
+
+    public KeywordProxy(AbstractSession session, Map<String, String> properties) {
+        this.session = session;
+        this.properties = properties;
+        this.mergeOutputsToParentOutput = false;
+    }
+
+    public KeywordProxy(AbstractKeyword parentKeyword, boolean mergeOutputsToParentOutput) {
+        this.session = parentKeyword.session;
+        this.properties = parentKeyword.properties;
+        this.parentOutputBuilder = parentKeyword.output;
+        this.mergeOutputsToParentOutput = mergeOutputsToParentOutput;
+    }
 
     public <T extends AbstractKeyword> T getProxy(Class<T> keywordClass) {
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(keywordClass);
         factory.setFilter(method -> method.getAnnotation(Keyword.class) != null);
 
-        MethodHandler handler = (self, thisMethod, proceed, args) -> {
-            Keyword annotation = thisMethod.getAnnotation(Keyword.class);
-            AbstractKeyword abstractKeyword = (AbstractKeyword) self;
-            abstractKeyword.setSession(session);
-            abstractKeyword.setOutputBuilder(new OutputBuilder());
-            String keywordName = annotation.name();
-            abstractKeyword.beforeKeyword(keywordName, annotation);
-
-            try {
-                return proceed.invoke(self, args);
-            } finally {
-                abstractKeyword.afterKeyword(keywordName, annotation);
-                lastOutput = abstractKeyword.getOutputBuilder().build();
+        MethodHandler handler = (self, keywordMethod, proceed, args) -> {
+            Keyword keywordAnnotation = keywordMethod.getAnnotation(Keyword.class);
+            KeywordExecutor keywordExecutor = new KeywordExecutor(true);
+            long start = System.currentTimeMillis();
+            lastOutput = keywordExecutor.executeKeyword(session, session, properties, keywordMethod, args, keywordAnnotation);
+            long duration = System.currentTimeMillis() - start;
+            if (parentOutputBuilder != null) {
+                parentOutputBuilder.addMeasure(KeywordExecutor.getKeywordName(keywordMethod, keywordAnnotation), duration);
+                if (mergeOutputsToParentOutput) {
+                    parentOutputBuilder.mergeOutput(lastOutput);
+                }
             }
+            return null;
         };
 
         try {
             return (T) factory.create(new Class<?>[0], new Object[0], handler);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error while creating proxy for class " + keywordClass.getName(), e);
         }
     }
 

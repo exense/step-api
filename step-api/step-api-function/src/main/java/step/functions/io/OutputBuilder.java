@@ -25,10 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
+import javax.json.*;
 import javax.json.spi.JsonProvider;
 
 import step.core.reports.Error;
@@ -47,7 +44,8 @@ public class OutputBuilder {
 	private JsonObjectBuilder payloadBuilder;
 	
 	private String payloadJson;
-	
+	private JsonObject payload;
+
 	private MeasurementsBuilder measureHelper;
 	
 	private Error error;
@@ -139,6 +137,11 @@ public class OutputBuilder {
 		return this;
 	}
 
+	private OutputBuilder add(String name, JsonValue jsonValue) {
+		payloadBuilder.add(name, jsonValue);
+		return this;
+	}
+
 	/**
 	 * Reports a technical error. This will be reported as ERROR in STEP
 	 * 
@@ -212,6 +215,14 @@ public class OutputBuilder {
 		this.payloadJson = payloadJson;
 	}
 
+	public JsonObject getPayload() {
+		return payload;
+	}
+
+	public void setPayload(JsonObject payload) {
+		this.payload = payload;
+	}
+
 	/**
 	 * Adds attachments to the output
 	 * 
@@ -277,7 +288,7 @@ public class OutputBuilder {
 	public void addMeasure(String measureName, long durationMillis, long begin) {
 		measureHelper.addMeasure(measureName, durationMillis, begin);
 	}
-	
+
 	/**
 	 * Adds a performance measurement with custom data
 	 * 
@@ -290,16 +301,25 @@ public class OutputBuilder {
 	}
 
 	/**
-	 * Adds a performance measurement with custom data
+	 * Adds a performance measurement
 	 *
-	 * @param measureName a unique identifier of the measurement
-	 * @param aDurationMillis the duration of the measurement in ms
-	 * @param begin the start timestamp of the measurement in ms
-	 * @param data the custom data of the measurement
+	 * @param measure the performance measurement to be added
 	 */
-	public void addMeasure(String measureName, long aDurationMillis, long begin, Map<String, Object> data) {
-		measureHelper.addMeasure(measureName, aDurationMillis, begin, data);
+	public void addMeasure(Measure measure) {
+		measureHelper.addMeasure(measure);
 	}
+
+    /**
+     * Adds a performance measurement with custom data
+     *
+     * @param measureName a unique identifier of the measurement
+     * @param aDurationMillis the duration of the measurement in ms
+     * @param begin the start timestamp of the measurement in ms
+     * @param data the custom data of the measurement
+     */
+    public void addMeasure(String measureName, long aDurationMillis, long begin, Map<String, Object> data) {
+        measureHelper.addMeasure(measureName, aDurationMillis, begin, data);
+    }
 
 	/**
 	 * Stops the current performance measurement and adds it to the output
@@ -334,14 +354,18 @@ public class OutputBuilder {
 	public Output<JsonObject> build() {
 		Output<JsonObject> message = new Output<>();
 		JsonObject payload;
-		if(payloadJson==null) {
-			payload = payloadBuilder.build();			
+		if (this.payload != null) {
+			payload = this.payload;
 		} else {
-			JsonReader reader = Json.createReader(new StringReader(payloadJson));
-			try {
-				payload = reader.readObject();				
-			} finally {
-				reader.close();
+			if (payloadJson == null) {
+				payload = payloadBuilder.build();
+			} else {
+				JsonReader reader = Json.createReader(new StringReader(payloadJson));
+				try {
+					payload = reader.readObject();
+				} finally {
+					reader.close();
+				}
 			}
 		}
 		message.setPayload(payload);
@@ -358,5 +382,14 @@ public class OutputBuilder {
 		e.printStackTrace(new PrintWriter(w));
 		attachment.setHexContent(AttachmentHelper.getHex(w.toString().getBytes()));
 		return attachment;
+	}
+
+	public void mergeOutput(Output<JsonObject> output) {
+		output.getPayload().forEach(this::add);
+		output.getMeasures().forEach(this::addMeasure);
+		output.getAttachments().forEach(this::addAttachment);
+		if(output.getError() != null) {
+			this.appendError(output.getError().getMsg());
+		}
 	}
 }

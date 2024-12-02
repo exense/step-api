@@ -1,9 +1,30 @@
+<!--
+  Copyright (C) 2020, exense GmbH
+   
+  This file is part of STEP
+   
+  STEP is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+   
+  STEP is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+   
+  You should have received a copy of the GNU Affero General Public License
+  along with STEP.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>step-api-keyword</artifactId>
-	
-	<parent>
+    <properties>
+        <javassist.version>3.27.0-GA</javassist.version>
+    </properties>
+
+    <parent>
 		<groupId>ch.exense.step</groupId>
 		<artifactId>step-api</artifactId>
 		<version>0.0.0-SNAPSHOT</version>
@@ -28,12 +49,58 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- This is required for the KeywordProxy. If we want to merge this feature we should repackage this to avoid conflicts with Keywords importing it -->
+        <!-- The classes of following dependency are relocated by the shade plugin to avoid conflicts with Keywords
+        that might also import javassist. The dependency scope is provided to avoid transitive dependencies to javassist in downstream dependencies -->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.27.0-GA</version>
+            <version>${javassist.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- We're using the maven-shade-plugin to relocate the classes of the javassist dependency -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <!-- Include javassist only and not the other dependencies -->
+                                    <include>org.javassist:javassist</include>
+                                </includes>
+                                <excludes>
+                                </excludes>
+                            </artifactSet>
+                            <extraArtifacts>
+                                <!-- As javassist is declared as provided, we need to add it as extra artefact here,
+                                although it is included above -->
+                                <extraArtifact>org.javassist:javassist:${javassist.version}</extraArtifact>
+                            </extraArtifacts>
+
+                            <!-- Replace the normal JAR with the shaded one -->
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <relocations>
+                                <!-- Relocating javassist to avoid conflict with Keywords -->
+                                <relocation>
+                                    <pattern>javassist</pattern>
+                                    <shadedPattern>step.javassist</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

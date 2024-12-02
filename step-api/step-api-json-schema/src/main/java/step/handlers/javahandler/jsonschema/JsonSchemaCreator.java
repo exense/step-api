@@ -27,6 +27,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import static step.handlers.javahandler.JsonObjectMapper.getAllFields;
+
 public class JsonSchemaCreator {
 
     private final JsonProvider jsonProvider;
@@ -43,7 +45,7 @@ public class JsonSchemaCreator {
 
     public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz) throws JsonSchemaPreparationException {
         List<String> requiredProperties = new ArrayList<>();
-        List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
+        List<Field> fields = getAllFields(clazz);
 
         JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
         processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);
