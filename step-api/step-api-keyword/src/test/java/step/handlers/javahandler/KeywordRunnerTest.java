@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class KeywordRunnerTest {
 
@@ -212,7 +212,7 @@ public class KeywordRunnerTest {
 		// Assert that the onError hook has been called and that the output set within it are available
 		assertEquals(MyKeywordLibrary.THROW_EXCEPTION_IN_BEFORE, output.getPayload().getString(MyKeywordLibrary.ON_ERROR_MARKER));
 		// Assert that the keyword hasn't been called
-		Assert.assertFalse(output.getPayload().containsKey("test"));
+		assertFalse(output.getPayload().containsKey("test"));
 		// Assert that the afterKeyword hook has been called
 		assertEquals("MyKeyword",output.getPayload().getString("afterKeyword"));
 	}
@@ -260,7 +260,7 @@ public class KeywordRunnerTest {
 			exception = e;
 		}
 		assertEquals("My exception",exception.getMessage());
-		Assert.assertTrue(exception instanceof KeywordException);
+		assertTrue(exception instanceof KeywordException);
 		// the exception thrown by the keyword is attached as cause
 		Assert.assertNotNull(exception.getCause());
 	}
@@ -369,7 +369,7 @@ public class KeywordRunnerTest {
 
 		assertEquals(77, result.getInt("numberFieldOut"));
 		assertEquals(88, result.getInt("primitiveIntOut"));
-		Assert.assertTrue(result.getBoolean("booleanFieldOut"));
+		assertTrue(result.getBoolean("booleanFieldOut"));
 		assertEquals("myValue1", result.getString("stringField1Out"));
 		assertEquals("myValue2", result.getString("stringField2Out"));
 	}
@@ -405,10 +405,10 @@ public class KeywordRunnerTest {
 		JsonObject result = output.getPayload();
 		log.info("Execution result: {}", result.toString());
 
-		Assert.assertFalse(result.containsKey("numberFieldOut"));
-		Assert.assertFalse(result.containsKey("booleanFieldOut"));
-		Assert.assertFalse(result.containsKey("stringField1Out"));
-		Assert.assertFalse(result.containsKey("stringField2Out"));
+		assertFalse(result.containsKey("numberFieldOut"));
+		assertFalse(result.containsKey("booleanFieldOut"));
+		assertFalse(result.containsKey("stringField1Out"));
+		assertFalse(result.containsKey("stringField2Out"));
 	}
 
 	@Test
@@ -504,11 +504,11 @@ public class KeywordRunnerTest {
 		);
 
 		JsonObject payload = output.getPayload();
-		Assert.assertTrue(payload.getString("valueStringHashMap1").contains("myValue"));
-		Assert.assertTrue(payload.getString("valueLinkedHashMap1").contains("myValue"));
+		assertTrue(payload.getString("valueStringHashMap1").contains("myValue"));
+		assertTrue(payload.getString("valueLinkedHashMap1").contains("myValue"));
 		int valueIntegerHashMap1 = payload.getInt("valueIntegerHashMap1");
-		Assert.assertTrue(valueIntegerHashMap1 == 2 ||valueIntegerHashMap1 == 3);
-		Assert.assertTrue(payload.getString("valueStringMapMap1").contains("myValue"));
+		assertTrue(valueIntegerHashMap1 == 2 ||valueIntegerHashMap1 == 3);
+		assertTrue(payload.getString("valueStringMapMap1").contains("myValue"));
 		//Assert.assertEquals("myValue", payload.getString("arrayOfMapsValue1"));
 
 	}

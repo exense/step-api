@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static step.handlers.javahandler.JsonObjectMapper.getAllFields;
+import static step.handlers.javahandler.JsonObjectMapper.*;
 
 public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
 
@@ -70,7 +70,7 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 nestedPropertyParamsBuilder.add("type", "array");
                 Class<?> elementType = null;
                 try {
-                    elementType = step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection(fieldMetadata.getGenericType(), fieldMetadata.getFieldName());
+                    elementType = getTypeClass(resolveGenericTypeForCollection(fieldMetadata.getGenericType()));
                 } catch (Exception ex) {
                     // unresolvable generic type
                 }

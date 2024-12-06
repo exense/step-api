@@ -256,8 +256,9 @@ public class KeywordExecutor {
 				if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 					step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
 					String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
+					//TODO Add back support for input default values
                     String defaultValue = annotation.required() ? null : annotation.defaultValue();
-					res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, defaultValue), p.getParameterizedType()));
+					res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, null), p.getParameterizedType()));
 				} else {
 					res.add(null);
 				}
