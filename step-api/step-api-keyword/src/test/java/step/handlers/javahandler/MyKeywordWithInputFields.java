@@ -167,7 +167,6 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 	public static class ClassWithNestedFields {
 		public String nestedStringProperty;
 
-		@Input(defaultValue = "2")
 		public Integer nestedNumberProperty;
 
 		public ClassWithNestedFields() {

@@ -260,7 +260,7 @@ public class KeywordExecutor {
 						res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, null), p.getParameterizedType()));
 					} else {
 						if(annotation.required()) {
-							throw new RuntimeException("Missing required input " + name);
+							throw new RuntimeException("Missing required input '" + name + "'");
 						} else {
 							String defaultValue = annotation.defaultValue();
 							if(!input.containsKey(name) && annotation.defaultValue() != null && !defaultValue.isEmpty()) {

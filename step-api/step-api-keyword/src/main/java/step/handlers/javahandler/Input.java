@@ -20,7 +20,10 @@ package step.handlers.javahandler;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.PARAMETER, ElementType.FIELD})
+// In the past, it was possible to use this annotation to define default values in the members of nested classes
+// This feature has been removed to simplify the implementation and @Input annotations can only be used to annotate
+// method parameters now
+@Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Input {

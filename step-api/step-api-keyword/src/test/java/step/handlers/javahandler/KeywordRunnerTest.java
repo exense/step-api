@@ -412,6 +412,17 @@ public class KeywordRunnerTest {
 	}
 
 	@Test
+	public void testKeywordWithMissingInput() {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+
+		// An exception is thrown as one of the required inputs is missing
+		assertThrows(KeywordException.class, () -> runner.run(
+				"MyKeywordWithInputAnnotation",
+				readJsonFromFile("src/test/resources/step/handlers/javahandler/missing-json-input-1.json").toString()
+		));
+	}
+
+	@Test
 	public void testKeywordWithArrays() throws Exception {
 		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
 
@@ -445,7 +456,7 @@ public class KeywordRunnerTest {
 
 		Output<JsonObject> output = runner.run(
 				"MyKeywordWithInputAnnotationDefaultValues",
-				"{\"propertyWithNestedFields\": {\"nestedStringProperty\": \"myValue3\"}}"
+				"{\"stringField\": null,\"propertyWithNestedFields\": {\"nestedStringProperty\": \"myValue3\"}}"
 		);
 
 		JsonObject result = output.getPayload();
@@ -457,7 +468,7 @@ public class KeywordRunnerTest {
 		assertFalse(result.containsKey("stringField1Out"));
 		assertEquals("myDefaultValue2", result.getString("stringField2Out"));
 		assertEquals("true", result.getString("classWithNestedFieldsNotNull"));
-		assertEquals(2, result.getInt("classWithNestedFieldsOut.nestedNumberProperty"));
+		assertFalse(result.containsKey("classWithNestedFieldsOut.nestedNumberProperty"));
 		assertEquals("myValue3", result.getString("classWithNestedFieldsOut.nestedStringProperty"));
 		assertEquals("a+b+c", result.getString("stringArrayOut"));
 		assertEquals("1+2+3", result.getString("integerArrayOut"));
