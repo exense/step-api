@@ -256,9 +256,20 @@ public class KeywordExecutor {
 				if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
 					step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
 					String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
-					//TODO Add back support for input default values
-                    String defaultValue = annotation.required() ? null : annotation.defaultValue();
-					res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, null), p.getParameterizedType()));
+					if(input.containsKey(name)) {
+						res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, null), p.getParameterizedType()));
+					} else {
+						if(annotation.required()) {
+							throw new RuntimeException("Missing required input " + name);
+						} else {
+							String defaultValue = annotation.defaultValue();
+							if(!input.containsKey(name) && annotation.defaultValue() != null && !defaultValue.isEmpty()) {
+								res.add(SimplifiedObjectDeserializer.parse(defaultValue, p.getParameterizedType()));
+							} else {
+								res.add(null);
+							}
+						}
+					}
 				} else {
 					res.add(null);
 				}

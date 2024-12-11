@@ -33,7 +33,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForArrayAndCollection;
+import static step.handlers.javahandler.JsonObjectMapper.getTypeClass;
+import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForArrayOrCollection;
 
 public class KeywordJsonSchemaCreator {
 
@@ -103,7 +104,7 @@ public class KeywordJsonSchemaCreator {
 			if (propertyType.equals("array")) {
 				//add items type
 				Type parameterizedType = p.getParameterizedType();
-				Class<?> aClass = resolveGenericTypeForArrayAndCollection(JsonInputConverter.resolveClass(parameterizedType, parameterName), parameterizedType, parameterName);
+				Class<?> aClass = getTypeClass(resolveGenericTypeForArrayOrCollection(parameterizedType));
 				String arrayElementType = JsonInputConverter.resolveJsonPropertyType(aClass);
 				JsonObject arrayType = jsonProvider.createObjectBuilder().add("type", arrayElementType).build();
 				propertyParamsBuilder.add("items", arrayType);

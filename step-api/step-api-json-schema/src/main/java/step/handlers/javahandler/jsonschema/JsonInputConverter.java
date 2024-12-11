@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import static step.handlers.javahandler.JsonObjectMapper.getTypeClass;
-import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForCollection;
+import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForArrayOrCollection;
 
 public class JsonInputConverter {
 
@@ -55,7 +55,7 @@ public class JsonInputConverter {
 		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)){
 			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-			Class<?> arrayValueType = getTypeClass(resolveGenericTypeForCollection(type));
+			Class<?> arrayValueType = getTypeClass(resolveGenericTypeForArrayOrCollection(type));
 
 			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
 				if(String.class.isAssignableFrom(arrayValueType)){

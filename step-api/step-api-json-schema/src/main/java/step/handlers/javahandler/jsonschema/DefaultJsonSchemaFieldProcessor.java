@@ -70,7 +70,7 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 nestedPropertyParamsBuilder.add("type", "array");
                 Class<?> elementType = null;
                 try {
-                    elementType = getTypeClass(resolveGenericTypeForCollection(fieldMetadata.getGenericType()));
+                    elementType = getTypeClass(resolveGenericTypeForArrayOrCollection(fieldMetadata.getGenericType()));
                 } catch (Exception ex) {
                     // unresolvable generic type
                 }

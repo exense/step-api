@@ -4,10 +4,7 @@ import javax.json.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JsonObjectMapper {
@@ -22,7 +19,12 @@ public class JsonObjectMapper {
             if (jsonValue instanceof JsonArray) {
                 value = jsonArrayToObject((JsonArray) jsonValue, type);
             } else if (jsonValue instanceof JsonObject) {
-                value = jsonObjectToObject((JsonObject) jsonValue, type);
+                if(Map.class.isAssignableFrom(valueClass)) {
+                    Map map = jsonObjectToMap((JsonObject) jsonValue, (ParameterizedType) type, valueClass);
+                    value = map;
+                } else {
+                    value = jsonObjectToObject((JsonObject) jsonValue, type);
+                }
             } else if (jsonValue instanceof JsonString) {
                 if (String.class.isAssignableFrom(valueClass)) {
                     value = ((JsonString) jsonValue).getString();
@@ -57,6 +59,25 @@ public class JsonObjectMapper {
         return value;
     }
 
+    private static Map jsonObjectToMap(JsonObject jsonValue, ParameterizedType type, Class<?> valueClass) {
+        Map map;
+        //If it is declared with a Map interface, default to HashMap
+        if (valueClass.isInterface()) {
+            map = new HashMap<>();
+        } else {
+            try {
+                map = (Map) valueClass.getConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Type actualTypeArgument = type.getActualTypeArguments()[1];
+        jsonValue.forEach((k, v) -> {
+            map.put(k, jsonValueToJavaObject(v, actualTypeArgument));
+        });
+        return map;
+    }
+
     public static JsonObject javaObjectToJsonObject(Object value) {
         if(value != null) {
             return valueToJsonObject(value, value.getClass()).build();
@@ -88,28 +109,37 @@ public class JsonObjectMapper {
         if(valueClass.isArray()) {
             arrayValueType = valueClass.getComponentType();
         } else {
-            arrayValueType = resolveGenericTypeForCollection(type);
+            arrayValueType = resolveGenericTypeForArrayOrCollection(type);
         }
         List<Object> list = jsonValue.stream().map(e -> jsonValueToJavaObject(e, arrayValueType)).collect(Collectors.toList());
         if (valueClass.isArray()) {
-            value = list.toArray((Object[])Array.newInstance(getTypeClass(arrayValueType), list.size()));
+            value = toArray(arrayValueType, list);
         } else {
             value = list;
         }
         return value;
     }
 
-    public static Type resolveGenericTypeForCollection(Type type) {
-        if (!(type instanceof ParameterizedType)) {
-            throw unsupportedType(type);
-        }
+    public static Object[] toArray(Type arrayValueType, List<Object> list) {
+        return list.toArray((Object[]) Array.newInstance(getTypeClass(arrayValueType), list.size()));
+    }
 
-        Type[] collectionGenerics = ((ParameterizedType) type).getActualTypeArguments();
-        if (collectionGenerics.length != 1) {
-            throw unsupportedType(type);
-        }
+    public static Type resolveGenericTypeForArrayOrCollection(Type type) {
+        Class<?> typeClass = getTypeClass(type);
+        if(typeClass.isArray()) {
+            return typeClass.getComponentType();
+        } else {
+            if (!(type instanceof ParameterizedType)) {
+                throw unsupportedType(type);
+            }
 
-        return collectionGenerics[0];
+            Type[] collectionGenerics = ((ParameterizedType) type).getActualTypeArguments();
+            if (collectionGenerics.length != 1) {
+                throw unsupportedType(type);
+            }
+
+            return collectionGenerics[0];
+        }
     }
 
     private static IllegalArgumentException unsupportedType(Type type) {
