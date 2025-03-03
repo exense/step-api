@@ -32,6 +32,7 @@ public class JsonObjectMapperTest {
     public static final Pojo POJO = new Pojo();
     public static final List<Pojo> LIST = Arrays.asList(POJO);
     public static final String MY_NULL_OBJECT = "myNullObject";
+    public static final String MY_OBJECT = "myObject";
 
     @Test
     public void addValueToJsonObject() {
@@ -43,6 +44,43 @@ public class JsonObjectMapperTest {
     public void jsonValueToObject() {
         Object pojo = JsonObjectMapper.jsonValueToJavaObject(pojoAsJson().build(), Pojo.class);
         assertEquals(POJO, pojo);
+    }
+
+    @Test
+    public void testAddValueToJsonObject() {
+        JsonObjectBuilder inputBuilder = Json.createObjectBuilder();
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_STRING, STRING);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_INTEGER, INT);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_LONG, LONG);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_DOUBLE, DOUBLE);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_BIG_DECIMAL, BIG_DECIMAL);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_BIG_INTEGER, BIG_INTEGER);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_BOOLEAN, BOOLEAN);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_NULL_OBJECT, null);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_OBJECT, new myPojo());
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myStringList", List.of(STRING, "value2"));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myIntegerList", List.of(INT, 2));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myLongList", List.of(LONG, 2L));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myDoubleList", List.of(DOUBLE, 2.03));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBigDecimalList", List.of(BIG_DECIMAL, new BigDecimal(2)));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBigIntegerList", List.of(BIG_INTEGER));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBooleanList", List.of(BOOLEAN, false));
+        List<String> listOfNull = new ArrayList<>();
+        listOfNull.add(null);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myListWithNullValues", listOfNull);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myListOfList", List.of( List.of(STRING, "value2"),  List.of(STRING, "value2")));
+
+        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myMapOfString", new HashMap<>(Map.of("key1", "value1", "key2", "value2" )));
+
+        JsonObject jsonObject = inputBuilder.build();
+        assertEquals("{\"myString\":\"test\",\"myInteger\":1,\"myLong\":1,\"myDouble\":0.1,\"myBigDecimal\":10,\"myBigInteger\":100,\"myBoolean\":true,\"myNullObject\":null,\"myObject\":{\"test\":\"test\"},\"myStringList\":[\"test\",\"value2\"],\"myIntegerList\":[1,2],\"myLongList\":[1,2],\"myDoubleList\":[0.1,2.03],\"myBigDecimalList\":[10,2],\"myBigIntegerList\":[100],\"myBooleanList\":[true,false],\"myListWithNullValues\":[null],\"myListOfList\":[[\"test\",\"value2\"],[\"test\",\"value2\"]],\"myMapOfString\":{\"key1\":\"value1\",\"key2\":\"value2\"}}",
+                jsonObject.toString());
+
+    }
+
+
+    public static class myPojo {
+        public String test = "test";
     }
 
     protected static JsonObjectBuilder pojoAsJson() {

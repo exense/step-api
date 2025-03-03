@@ -6,10 +6,11 @@ import step.functions.io.Output;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import java.util.HashMap;
 
-public class KeywordProxyTest {
+import static org.junit.Assert.*;
+
+public class KeywordProxyTest{
 
     public static final String MY_SESSION_OBJECT = "mySessionObject";
     public static final String MY_OUTPUT_1 = "myOutput1";
@@ -32,8 +33,31 @@ public class KeywordProxyTest {
     }
 
     @Test
-    public void getProxy() {
-        KeywordProxy keywordProxy = new KeywordProxy();
+    public void testProxyWithoutParent() {
+        getProxy(new KeywordProxy());
+    }
+
+    @Test
+    public void testProxyWithParent() throws Exception {
+        KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
+        Output<JsonObject> output = runner.run("testParent","{\"merge\":false}");
+        assertNull(output.getError());
+        assertEquals("{\"parent_output\":\"test\"}", output.getPayload().toString());
+        assertEquals(3, output.getMeasures().size());
+        assertNull(output.getAttachments());
+    }
+
+    @Test
+    public void testProxyWithParentAndMerge() throws Exception {
+        KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
+        Output<JsonObject> output = runner.run("testParent", "{\"merge\":true}");
+        assertNull(output.getError());
+        assertEquals("{\"myOutputBeforeKeyword\":\"test\",\"myOutput1\":\"my other input\",\"myOutputAfterKeyword\":\"test\",\"myOutputFromSessionObject\":\"blabla\",\"parent_output\":\"test\"}", output.getPayload().toString());
+        assertEquals(5, output.getMeasures().size());
+        assertNull(output.getAttachments());
+    }
+
+    public static void getProxy(KeywordProxy keywordProxy) {
         TestKeywords proxy = keywordProxy.getProxy(TestKeywords.class);
 
         // Call myKeyword with an input
@@ -87,6 +111,15 @@ public class KeywordProxyTest {
         @Keyword
         public void myKeyword2() {
             output.add(MY_OUTPUT_1, (String) session.get(MY_SESSION_OBJECT));
+        }
+    }
+
+    public  static class ParentKeyword extends AbstractKeyword {
+
+        @Keyword
+        public void testParent() {
+            getProxy(new KeywordProxy(this, input.getBoolean("merge")));
+            output.add("parent_output", "test");
         }
     }
 }

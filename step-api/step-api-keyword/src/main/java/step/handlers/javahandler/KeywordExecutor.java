@@ -75,7 +75,7 @@ public class KeywordExecutor {
 						Keyword annotation = m.getAnnotation(Keyword.class);
 						String keywordName = getKeywordName(m, annotation);
 						if (keywordName.equals(input.getFunction())) {
-							return executeKeyword(input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation);
+							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation);
 						}
 					}
 				}
@@ -88,11 +88,11 @@ public class KeywordExecutor {
 	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation) throws Exception {
 		Parameter[] parameters = method.getParameters();
 		JsonObject inputPayload = getJsonInputFromMethodParameters(args, parameters);
-		return executeKeyword(inputPayload, tokenSession, tokenReservationSession, properties, method, annotation);
+		String keywordName = getKeywordName(method, annotation);
+		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation);
 	}
 
-	protected Output<JsonObject> executeKeyword(JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation) throws Exception {
-		String keywordName = getKeywordName(method, annotation);
+	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation) throws Exception {
 
 		Map<String, String> keywordProperties;
 		if(properties.containsKey(VALIDATE_PROPERTIES)) {
@@ -263,7 +263,7 @@ public class KeywordExecutor {
 							throw new RuntimeException("Missing required input '" + name + "'");
 						} else {
 							String defaultValue = annotation.defaultValue();
-							if(!input.containsKey(name) && annotation.defaultValue() != null && !defaultValue.isEmpty()) {
+							if(defaultValue != null && !defaultValue.isEmpty()) {
 								res.add(SimplifiedObjectDeserializer.parse(defaultValue, p.getParameterizedType()));
 							} else {
 								res.add(null);

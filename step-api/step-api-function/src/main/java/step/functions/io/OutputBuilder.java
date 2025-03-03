@@ -385,9 +385,15 @@ public class OutputBuilder {
 	}
 
 	public void mergeOutput(Output<JsonObject> output) {
-		output.getPayload().forEach(this::add);
-		output.getMeasures().forEach(this::addMeasure);
-		output.getAttachments().forEach(this::addAttachment);
+		if (output.getPayload() != null) {
+			output.getPayload().forEach(this::add);
+		}
+		if (output.getMeasures() != null) {
+			output.getMeasures().forEach(this::addMeasure);
+		}
+		if (output.getAttachments() != null) {
+			output.getAttachments().forEach(this::addAttachment);
+		}
 		if(output.getError() != null) {
 			this.appendError(output.getError().getMsg());
 		}

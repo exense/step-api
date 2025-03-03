@@ -174,7 +174,7 @@ public class JsonObjectMapper {
         if (superclass != null) {
             getAllFieldsRecursive(allFields, currentClass.getSuperclass());
         }
-        Arrays.stream(currentClass.getDeclaredFields()).filter(f -> !f.isSynthetic()).forEach(allFields::add);
+        Arrays.stream(currentClass.getDeclaredFields()).filter(f -> !f.isSynthetic() && !Modifier.isStatic(f.getModifiers())).forEach(allFields::add);
     }
 
     private static void writeField(final Field field, final Object target, final Object value) throws IllegalAccessException {
@@ -222,14 +222,18 @@ public class JsonObjectMapper {
 
     private static JsonObjectBuilder valueToJsonObject(Object value, Class<?> valueType) {
         JsonObjectBuilder objectBuilder2 = Json.createObjectBuilder();
-        List<Field> fields = getAllFields(valueType);
-        fields.forEach(field -> {
-            try {
-                addValueToJsonObject(objectBuilder2, field.getName(), field.get(value));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        if (Map.class.isAssignableFrom(value.getClass())) {
+            ((Map<String,Object>) value).forEach((k,v) -> addValueToJsonObject(objectBuilder2, k, v));
+        } else {
+            List<Field> fields = getAllFields(valueType);
+            fields.forEach(field -> {
+                try {
+                    addValueToJsonObject(objectBuilder2, field.getName(), field.get(value));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
         return objectBuilder2;
     }
 
