@@ -27,12 +27,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 
-import static step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForArrayAndCollection;
+import static step.handlers.javahandler.JsonObjectMapper.getTypeClass;
+import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForArrayOrCollection;
 
 public class JsonInputConverter {
 
 	public static final String ARRAY_VALUE_SEPARATOR = ";";
 
+	// TODO this method duplicates a lot of the code of JsonObjectMapper. It should be refactored
 	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
 		Class<?> clazz = resolveClass(type, jsonName);
 
@@ -53,7 +55,7 @@ public class JsonInputConverter {
 		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)){
 			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-			Class<?> arrayValueType = resolveGenericTypeForArrayAndCollection(clazz, type, jsonName);
+			Class<?> arrayValueType = getTypeClass(resolveGenericTypeForArrayOrCollection(type));
 
 			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
 				if(String.class.isAssignableFrom(arrayValueType)){

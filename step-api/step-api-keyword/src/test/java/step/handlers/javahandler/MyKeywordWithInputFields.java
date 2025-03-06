@@ -159,11 +159,15 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 		}
 	}
 
-	public static class ClassWithNestedFields {
-		private String nestedStringProperty;
+	@Keyword
+	public ClassWithNestedFields MyKeywordWithPojoAsInputAndOutput(ClassWithNestedFields input) {
+		return input;
+	}
 
-		@Input(defaultValue = "2")
-		private Integer nestedNumberProperty;
+	public static class ClassWithNestedFields {
+		public String nestedStringProperty;
+
+		public Integer nestedNumberProperty;
 
 		public ClassWithNestedFields() {
 		}

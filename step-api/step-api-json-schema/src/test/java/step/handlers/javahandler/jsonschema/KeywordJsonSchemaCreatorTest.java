@@ -168,7 +168,7 @@ public class KeywordJsonSchemaCreatorTest {
 	}
 
 	public static class ClassWithNestedFields extends TestParent {
-		@Input(defaultValue = "nestedValue1", required = true)
+
 		private String nestedString;
 
 		private List<Integer> nestedNumberList;

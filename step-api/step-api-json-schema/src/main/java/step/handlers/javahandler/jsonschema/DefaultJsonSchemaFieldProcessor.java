@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static step.handlers.javahandler.JsonObjectMapper.*;
+
 public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor {
 
     public DefaultJsonSchemaFieldProcessor() {
@@ -42,7 +44,6 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
         // 1. extract field parameters (name, required, default value etc)
         String parameterName = fieldMetadata.getFieldName();
 
-        // TODO: default values should also be applied in all processors, but no in DefaultJsonSchemaFieldProcessor only
         if (fieldMetadata.getDefaultValue() != null) {
             JsonSchemaCreator.addDefaultValue(fieldMetadata.getDefaultValue(), nestedPropertyParamsBuilder, fieldMetadata.getType(), parameterName);
         }
@@ -68,7 +69,7 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
                 nestedPropertyParamsBuilder.add("type", "array");
                 Class<?> elementType = null;
                 try {
-                    elementType = step.handlers.javahandler.JsonInputConverter.resolveGenericTypeForCollection(fieldMetadata.getGenericType(), fieldMetadata.getFieldName());
+                    elementType = getTypeClass(resolveGenericTypeForArrayOrCollection(fieldMetadata.getGenericType()));
                 } catch (Exception ex) {
                     // unresolvable generic type
                 }
@@ -91,7 +92,7 @@ public class DefaultJsonSchemaFieldProcessor implements JsonSchemaFieldProcessor
     public void processNestedFields(JsonObjectBuilder propertyParamsBuilder, Class<?> clazz, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException {
         JsonProvider jsonProvider = schemaCreator.getJsonProvider();
         List<String> requiredProperties = new ArrayList<>();
-        List<Field> fields = step.handlers.javahandler.JsonInputConverter.getAllFields(clazz);
+        List<Field> fields = getAllFields(clazz);
 
         JsonObjectBuilder nestedPropertiesBuilder = jsonProvider.createObjectBuilder();
         schemaCreator.processFields(clazz, nestedPropertiesBuilder, fields, requiredProperties);

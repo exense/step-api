@@ -13,8 +13,7 @@
       "type": "object",
       "properties": {
         "nestedString": {
-          "type": "string",
-          "default": "nestedValue1"
+          "type": "string"
         },
         "nestedNumberList": {
           "type": "array",
@@ -25,10 +24,7 @@
         "parentProperty": {
           "type": "string"
         }
-      },
-      "required": [
-        "nestedString"
-      ]
+      }
     }
   },
   "required": [

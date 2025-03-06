@@ -18,28 +18,25 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
-import java.lang.reflect.Field;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import step.functions.io.AbstractSession;
+import step.functions.io.Input;
+import step.functions.io.Output;
+import step.functions.io.OutputBuilder;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.json.JsonObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import step.functions.io.AbstractSession;
-import step.functions.io.Input;
-import step.functions.io.Output;
-import step.functions.io.OutputBuilder;
 
 public class KeywordExecutor {
 	
@@ -76,38 +73,9 @@ public class KeywordExecutor {
 				for (Method m : kwClass.getDeclaredMethods()) {
 					if(m.isAnnotationPresent(Keyword.class)) {
 						Keyword annotation = m.getAnnotation(Keyword.class);
-						String annotatedFunctionName = annotation.name();
-						if (((annotatedFunctionName == null || annotatedFunctionName.length() == 0)
-								&& m.getName().equals(input.getFunction()))
-								|| annotatedFunctionName.equals(input.getFunction())) {
-							
-							Map<String, String> keywordProperties;
-							if(properties.containsKey(VALIDATE_PROPERTIES)) {
-								String[] requiredPropertyKeys = annotation.properties();
-								String[] optionalPropertyKeys = annotation.optionalProperties();
-								List<String> missingProperties = new ArrayList<>();
-								Map<String, String> reducedProperties = new HashMap<>();
-								try {
-									processPropertyKeys(properties, input, requiredPropertyKeys, missingProperties, reducedProperties, true);
-									processPropertyKeys(properties, input, optionalPropertyKeys, missingProperties, reducedProperties, false);
-									
-									if(missingProperties.size()>0) {
-										OutputBuilder outputBuilder = new OutputBuilder();
-										outputBuilder.setBusinessError("The Keyword is missing the following properties "+missingProperties.toString());
-										return outputBuilder.build();
-									} else {
-										keywordProperties = reducedProperties;
-									}
-								} catch (MissingPlaceholderException e) {
-									OutputBuilder outputBuilder = new OutputBuilder();
-									outputBuilder.setBusinessError("The Keyword is missing the following property or input '"+e.placeholder+"'");
-									return outputBuilder.build();
-								}
-							} else {
-								keywordProperties = properties;
-							}
-							
-							return invokeMethod(m, input, tokenSession, tokenReservationSession, keywordProperties);
+						String keywordName = getKeywordName(m, annotation);
+						if (keywordName.equals(input.getFunction())) {
+							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation);
 						}
 					}
 				}
@@ -117,12 +85,61 @@ public class KeywordExecutor {
 		throw new Exception("Unable to find method annotated by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
-	private void processPropertyKeys(Map<String, String> properties, Input<JsonObject> input, String[] requiredPropertyKeys, List<String> missingProperties,
+	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation) throws Exception {
+		Parameter[] parameters = method.getParameters();
+		JsonObject inputPayload = getJsonInputFromMethodParameters(args, parameters);
+		String keywordName = getKeywordName(method, annotation);
+		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation);
+	}
+
+	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation) throws Exception {
+
+		Map<String, String> keywordProperties;
+		if(properties.containsKey(VALIDATE_PROPERTIES)) {
+			String[] requiredPropertyKeys = annotation.properties();
+			String[] optionalPropertyKeys = annotation.optionalProperties();
+			List<String> missingProperties = new ArrayList<>();
+			Map<String, String> reducedProperties = new HashMap<>();
+			try {
+				processPropertyKeys(properties, inputPayload, requiredPropertyKeys, missingProperties, reducedProperties, true);
+				processPropertyKeys(properties, inputPayload, optionalPropertyKeys, missingProperties, reducedProperties, false);
+
+				if(missingProperties.size()>0) {
+					OutputBuilder outputBuilder = new OutputBuilder();
+					outputBuilder.setBusinessError("The Keyword is missing the following properties "+missingProperties.toString());
+					return outputBuilder.build();
+				} else {
+					keywordProperties = reducedProperties;
+				}
+			} catch (MissingPlaceholderException e) {
+				OutputBuilder outputBuilder = new OutputBuilder();
+				outputBuilder.setBusinessError("The Keyword is missing the following property or input '"+e.placeholder+"'");
+				return outputBuilder.build();
+			}
+		} else {
+			keywordProperties = properties;
+		}
+
+		return invokeMethod(keywordName, method, inputPayload, tokenSession, tokenReservationSession, keywordProperties);
+	}
+
+	public static String getKeywordName(Method m, Keyword annotation) {
+		String annotatedFunctionName = annotation.name();
+		String keywordName;
+		if ((annotatedFunctionName == null || annotatedFunctionName.length() == 0)) {
+			keywordName = m.getName();
+		} else {
+			keywordName = annotatedFunctionName;
+		}
+		return keywordName;
+	}
+
+	private void processPropertyKeys(Map<String, String> properties, JsonObject inputPayload, String[] requiredPropertyKeys, List<String> missingProperties,
 			Map<String, String> reducedProperties, boolean required) throws MissingPlaceholderException {
 		// First try to resolve the placeholders
 		List<String> resolvedPropertyKeys = new ArrayList<>();
 		for (String key : requiredPropertyKeys) {
-			resolvedPropertyKeys.add(replacePlaceholders(key, properties, input));
+			resolvedPropertyKeys.add(replacePlaceholders(key, properties, inputPayload));
 		}
 		
 		// Then check if all required properties exist
@@ -137,14 +154,14 @@ public class KeywordExecutor {
 		}
 	}
 	
-	private String replacePlaceholders(String string, Map<String, String> properties, Input<JsonObject> input) throws MissingPlaceholderException {
+	private String replacePlaceholders(String string, Map<String, String> properties, JsonObject inputPayload) throws MissingPlaceholderException {
 		StringBuffer sb = new StringBuffer();
 		Matcher m = PLACEHOLDER_PATTERN.matcher(string);
 		while (m.find()) {
             String key = m.group(1);
             String replacement;
-            if(input.getPayload().containsKey(key)) {
-        		replacement = input.getPayload().getString(key);
+            if(inputPayload.containsKey(key)) {
+        		replacement = inputPayload.getString(key);
             } else {
             	if(properties.containsKey(key)) {
                 	replacement = properties.get(key);
@@ -169,7 +186,7 @@ public class KeywordExecutor {
 		}
 	}
 
-	private Output<JsonObject> invokeMethod(Method m, Input<JsonObject> input, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties)
+	private Output<JsonObject> invokeMethod(String keywordName, Method m, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties)
 			throws Exception {
 		Class<?> clazz = m.getDeclaringClass();
 		Object instance = clazz.newInstance();
@@ -185,15 +202,18 @@ public class KeywordExecutor {
 			AbstractKeyword script = (AbstractKeyword) instance;
 			script.setTokenSession(tokenSession);
 			script.setSession(tokenReservationSession);
-			script.setInput(input.getPayload());
+			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
-			String keywordName = input.getFunction();
 			try {
-				script.beforeKeyword(keywordName,annotation);
-				m.invoke(instance, resolveMethodArguments(script.getInput(), m));
+				script.beforeKeyword(keywordName, annotation);
+				Object outputPojo = m.invoke(instance, resolveMethodArguments(script.getInput(), m));
+				if(outputPojo != null) {
+					JsonObject outputPayload = JsonObjectMapper.javaObjectToJsonObject(outputPojo);
+					outputBuilder.setPayload(outputPayload);
+				}
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);
 				if (throwException) {
@@ -226,20 +246,55 @@ public class KeywordExecutor {
 		}
 	}
 
-	private Object[] resolveMethodArguments(JsonObject input, Method m) throws Exception {
+	private Object[] resolveMethodArguments(JsonObject input, Method m) {
 		List<Object> res = new ArrayList<>();
-		for (Parameter p : m.getParameters()) {
-			if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
-				step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
-				String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
-				//default value is only used for inputs which are not required
-				String defaultValue = annotation.required() ? null : annotation.defaultValue();
-				res.add(JsonInputConverter.getValueFromJsonInput(input, name, defaultValue, p.getParameterizedType()));
-			} else {
-				res.add(null);
+		Parameter[] parameters = m.getParameters();
+		if(parameters.length == 1 && parameters[0] != null && !parameters[0].isAnnotationPresent(step.handlers.javahandler.Input.class)) {
+			res.add(JsonObjectMapper.jsonValueToJavaObject(input, parameters[0].getType()));
+		} else {
+			for (Parameter p : parameters) {
+				if (p.isAnnotationPresent(step.handlers.javahandler.Input.class)) {
+					step.handlers.javahandler.Input annotation = p.getAnnotation(step.handlers.javahandler.Input.class);
+					String name = annotation.name() == null || annotation.name().isEmpty() ? p.getName() : annotation.name();
+					if(input.containsKey(name)) {
+						res.add(JsonObjectMapper.jsonValueToJavaObject(input.getOrDefault(name, null), p.getParameterizedType()));
+					} else {
+						if(annotation.required()) {
+							throw new RuntimeException("Missing required input '" + name + "'");
+						} else {
+							String defaultValue = annotation.defaultValue();
+							if(defaultValue != null && !defaultValue.isEmpty()) {
+								res.add(SimplifiedObjectDeserializer.parse(defaultValue, p.getParameterizedType()));
+							} else {
+								res.add(null);
+							}
+						}
+					}
+				} else {
+					res.add(null);
+				}
 			}
 		}
 		return res.toArray();
+	}
+
+	/**
+	 * Builds the Keyword input object as Json based on the method parameters of the Keyword call
+	 * @param args
+	 * @param parameters
+	 * @return
+	 */
+	public static JsonObject getJsonInputFromMethodParameters(Object[] args, Parameter[] parameters) {
+		JsonObjectBuilder inputBuilder = Json.createObjectBuilder();
+		if (parameters.length != args.length) {
+			throw new IllegalStateException(String.format("The number of args %d differs from the number of parameters %d", args.length, parameters.length));
+		}
+		for (int i = 0; i < parameters.length; i++) {
+			Parameter parameter = parameters[i];
+			step.handlers.javahandler.Input input = parameter.getAnnotation(step.handlers.javahandler.Input.class);
+			JsonObjectMapper.addValueToJsonObject(inputBuilder, input.name(), args[i]);
+		}
+		return inputBuilder.build();
 	}
 
 }
