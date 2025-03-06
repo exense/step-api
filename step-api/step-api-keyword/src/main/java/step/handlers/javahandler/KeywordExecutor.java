@@ -286,6 +286,9 @@ public class KeywordExecutor {
 	 */
 	public static JsonObject getJsonInputFromMethodParameters(Object[] args, Parameter[] parameters) {
 		JsonObjectBuilder inputBuilder = Json.createObjectBuilder();
+		if (parameters.length != args.length) {
+			throw new IllegalStateException(String.format("The number of args %d differs from the number of parameters %d", args.length, parameters.length));
+		}
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			step.handlers.javahandler.Input input = parameter.getAnnotation(step.handlers.javahandler.Input.class);
