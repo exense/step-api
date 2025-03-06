@@ -13,7 +13,9 @@ import static org.junit.Assert.*;
 public class KeywordProxyTest{
 
     public static final String MY_SESSION_OBJECT = "mySessionObject";
+    public static final String MY_TOKEN_SESSION_OBJECT = "myTokenSessionObject";
     public static final String MY_OUTPUT_1 = "myOutput1";
+    public static final String MY_OUTPUT_2 = "myOutput2";
     public static final String MY_OUTPUT_FROM_SESSION_OBJECT = "myOutputFromSessionObject";
     public static final String MY_OUTPUT_BEFORE_KEYWORD = "myOutputBeforeKeyword";
     public static final String MY_OUTPUT_AFTER_KEYWORD = "myOutputAfterKeyword";
@@ -52,7 +54,7 @@ public class KeywordProxyTest{
         KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
         Output<JsonObject> output = runner.run("testParent", "{\"merge\":true}");
         assertNull(output.getError());
-        assertEquals("{\"myOutputBeforeKeyword\":\"test\",\"myOutput1\":\"my other input\",\"myOutputAfterKeyword\":\"test\",\"myOutputFromSessionObject\":\"blabla\",\"parent_output\":\"test\"}", output.getPayload().toString());
+        assertEquals("{\"myOutputBeforeKeyword\":\"test\",\"myOutput1\":\"my other input\",\"myOutputAfterKeyword\":\"test\",\"myOutputFromSessionObject\":\"blabla\",\"myOutput2\":\"my other input\",\"parent_output\":\"test\"}", output.getPayload().toString());
         assertEquals(5, output.getMeasures().size());
         assertNull(output.getAttachments());
     }
@@ -80,6 +82,7 @@ public class KeywordProxyTest{
         keywordProxy.getProxy(TestKeywords2.class).myKeyword2();
         // Ensure the session object created by the first keyword is available in this keyword too
         assertEquals(input2, keywordProxy.getLastOutput().getPayload().getString(MY_OUTPUT_1));
+        assertEquals(input2, keywordProxy.getLastOutput().getPayload().getString(MY_OUTPUT_2));
     }
 
     public static class TestKeywords extends AbstractKeyword {
@@ -101,6 +104,7 @@ public class KeywordProxyTest{
                 output.add(MY_OUTPUT_FROM_SESSION_OBJECT, mySessionObject);
             }
             session.put(MY_SESSION_OBJECT, input1);
+            tokenSession.put(MY_TOKEN_SESSION_OBJECT, input1);
             output.add(MY_OUTPUT_1, input1);
             output.addMeasure(MY_MEASURE, 1);
         }
@@ -111,6 +115,13 @@ public class KeywordProxyTest{
         @Keyword
         public void myKeyword2() {
             output.add(MY_OUTPUT_1, (String) session.get(MY_SESSION_OBJECT));
+            output.add(MY_OUTPUT_2, (String) tokenSession.get(MY_TOKEN_SESSION_OBJECT));
+            if (session.get(MY_TOKEN_SESSION_OBJECT) != null) {
+                throw new RuntimeException("The token session object was added to the token reservation session instead of the token session.");
+            }
+            if (tokenSession.get(MY_SESSION_OBJECT) != null) {
+                throw new RuntimeException("The session object was added to the token session instead of the token reservation session.");
+            }
         }
     }
 

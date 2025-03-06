@@ -13,16 +13,18 @@ import java.util.Map;
 public class KeywordProxy {
 
     private final AbstractSession session;
+    private final AbstractSession tokenSession;
     private Output<JsonObject> lastOutput;
     private final Map<String, String> properties;
     private OutputBuilder parentOutputBuilder;
     private final boolean mergeOutputsToParentOutput;
 
     public KeywordProxy() {
-        this(new AbstractSession(), new HashMap<>());
+        this(new AbstractSession(), new AbstractSession(), new HashMap<>());
     }
 
-    public KeywordProxy(AbstractSession session, Map<String, String> properties) {
+    public KeywordProxy(AbstractSession tokenSession, AbstractSession session, Map<String, String> properties) {
+        this.tokenSession = tokenSession;
         this.session = session;
         this.properties = properties;
         this.mergeOutputsToParentOutput = false;
@@ -30,6 +32,7 @@ public class KeywordProxy {
 
     public KeywordProxy(AbstractKeyword parentKeyword, boolean mergeOutputsToParentOutput) {
         this.session = parentKeyword.session;
+        this.tokenSession = parentKeyword.tokenSession;
         this.properties = parentKeyword.properties;
         this.parentOutputBuilder = parentKeyword.output;
         this.mergeOutputsToParentOutput = mergeOutputsToParentOutput;
@@ -44,7 +47,7 @@ public class KeywordProxy {
             Keyword keywordAnnotation = keywordMethod.getAnnotation(Keyword.class);
             KeywordExecutor keywordExecutor = new KeywordExecutor(true);
             long start = System.currentTimeMillis();
-            lastOutput = keywordExecutor.executeKeyword(session, session, properties, keywordMethod, args, keywordAnnotation);
+            lastOutput = keywordExecutor.executeKeyword(tokenSession, session, properties, keywordMethod, args, keywordAnnotation);
             long duration = System.currentTimeMillis() - start;
             if (parentOutputBuilder != null) {
                 parentOutputBuilder.addMeasure(KeywordExecutor.getKeywordName(keywordMethod, keywordAnnotation), duration);
