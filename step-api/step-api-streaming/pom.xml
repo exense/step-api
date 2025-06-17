@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>step-api-streaming</artifactId>
+
+    <parent>
+        <groupId>ch.exense.step</groupId>
+        <artifactId>step-api</artifactId>
+        <version>0.0.0-SNAPSHOT</version>
+    </parent>
+
+<!-- TODO: For now, this has no dependencies at all to avoid pulling in Jackson dependencies at this level.
+     But see the comments in JsonMessage.java about the ugly way to "plug in" the Json (de)serialization. -->
+<!--    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+-->
+</project>

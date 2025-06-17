@@ -74,6 +74,7 @@
 	<!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
 	<modules>
 		<module>step-api-function</module>
+		<module>step-api-streaming</module>
 		<module>step-api-keyword</module>
 		<module>step-api-reporting</module>
 		<module>step-api-json-schema</module>
@@ -108,6 +109,11 @@
 			<dependency>
 				<groupId>ch.exense.step</groupId>
 				<artifactId>step-api-function</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.exense.step</groupId>
+				<artifactId>step-api-streaming</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
