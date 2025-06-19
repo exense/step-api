@@ -1,12 +1,17 @@
 package step.handlers.javahandler;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import org.junit.Test;
 import step.functions.io.Output;
+import step.functions.io.OutputBuilder;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
+import java.io.Serializable;
+import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +41,7 @@ public class KeywordProxyTest{
 
     @Test
     public void testProxyWithoutParent() {
-        getProxy(new KeywordProxy());
+        executeWithProxy(new KeywordProxy());
     }
 
     @Test
@@ -50,6 +55,25 @@ public class KeywordProxyTest{
     }
 
     @Test
+    public void testProxyWithParentPlanLike() throws Exception {
+        KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
+        Output<JsonObject> output = runner.run("testPlanLike","{\"merge\":true}");
+        assertNull(output.getError());
+        JsonObject jsonObject = Json.createReader(new StringReader("{\"key\":\"someStringValue\",\"long\":12345798798,\"double\":123.456,\"parent_output\":\"test\", \"stringField\":\"someValue\",\"longValue\":123456787,\"booleanValue\":true,\"aoubleValue\":123.4567,\"someList\":[\"text\",true,12345678],\"someMap\":{\"boolean\":true,\"string\":\"value\",\"long\":123456748}}")).readObject();
+        assertEquals(jsonObject, output.getPayload());
+        assertEquals(2, output.getMeasures().size());
+        assertNull(output.getAttachments());
+    }
+
+    @Test
+    public void testProxyCallingNonKeywordMethods() throws Exception {
+        KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
+        assertThrows("Only keyword methods, annotated with '@Keyword', can be invoked using the KeywordProxy.",
+                step.handlers.javahandler.KeywordException.class,
+                () -> runner.run("testNonKeywordMethodCall","{\"merge\":true}"));
+    }
+
+    @Test
     public void testProxyWithParentAndMerge() throws Exception {
         KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
         Output<JsonObject> output = runner.run("testParent", "{\"merge\":true}");
@@ -59,7 +83,7 @@ public class KeywordProxyTest{
         assertNull(output.getAttachments());
     }
 
-    public static void getProxy(KeywordProxy keywordProxy) {
+    public static void executeWithProxy(KeywordProxy keywordProxy) {
         TestKeywords proxy = keywordProxy.getProxy(TestKeywords.class);
 
         // Call myKeyword with an input
@@ -129,8 +153,31 @@ public class KeywordProxyTest{
 
         @Keyword
         public void testParent() {
-            getProxy(new KeywordProxy(this, input.getBoolean("merge")));
+            executeWithProxy(new KeywordProxy(this, input.getBoolean("merge")));
             output.add("parent_output", "test");
+        }
+
+        @Keyword
+        public void testPlanLike() {
+            KeywordProxy keywordProxy = new KeywordProxy(this, input.getBoolean("merge"));
+            MyKeywordLibrary myKeywordLibrary = keywordProxy.getProxy(MyKeywordLibrary.class);
+            this.properties.put("myProperty", "myPropertyValue");
+            Map<String, Serializable> myMap = myKeywordLibrary.MyKeywordWithReturn();
+            assert myMap.get("key").equals("someStringValue");
+            output.add("parent_output", "test");
+
+            MyKeywordLibrary.MyPojo myPojo = myKeywordLibrary.MyKeywordWithReturnPojo();
+            JsonObject jsonObject = JsonObjectMapper.javaObjectToJsonObject(myPojo);
+            String expectedPojoAsJson = "{\"stringField\":\"someValue\",\"longValue\":123456787,\"booleanValue\":true,\"aoubleValue\":123.4567,\"someList\":[\"text\",true,12345678],\"someMap\":{\"boolean\":true,\"string\":\"value\",\"long\":123456748}}";
+            JsonObject expectedJsonObject = Json.createReader(new StringReader(expectedPojoAsJson)).readObject();
+            assert expectedJsonObject.equals(jsonObject);
+        }
+
+        @Keyword
+        public void testNonKeywordMethodCall() {
+            KeywordProxy keywordProxy = new KeywordProxy(this, input.getBoolean("merge"));
+            MyKeywordLibrary myKeywordLibrary = keywordProxy.getProxy(MyKeywordLibrary.class);
+            myKeywordLibrary.setKeywordClassProperty("some value"); // is not accessible
         }
     }
 }

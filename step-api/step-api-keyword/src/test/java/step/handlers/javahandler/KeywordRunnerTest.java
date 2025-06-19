@@ -473,6 +473,7 @@ public class KeywordRunnerTest {
 		assertEquals("a+b+c", result.getString("stringArrayOut"));
 		assertEquals("1+2+3", result.getString("integerArrayOut"));
 		assertEquals("1+2+3", result.getString("stringListOut"));
+		output.getPayload();
 	}
 
 	@Test
@@ -498,6 +499,37 @@ public class KeywordRunnerTest {
 		Assert.assertEquals("myValue", output.getPayload().getString("myKey"));
 		Assert.assertEquals("myValue2", output.getPayload().getString("myKey2"));
 	}
+
+	@Test
+	public void testKeywordWithListAndMapsOfObjects() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordWithInputFields.class);
+		Output<JsonObject> output = runner.run(
+				"MyKeywordWithCustomMapAndCustomList",
+				"{\"customMap\": {\"string\":\"myValue\",\"int\":123, \"long\":1234567891012, \"double\":123.4567, \"boolean\": true, \"nestedMap\": {\"nestedString\":\"nestedStringValue\"}}" +
+						", \"customList\": [\"val1\",123 ,1234567891012, 123.4567, true, [\"sublistelement\",\"sublistelement2\"]]}"
+		);
+	}
+
+	@Test
+	public void testKeywordReturningPojoWithPrivateFields() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+		Output<JsonObject> output = runner.run("MyKeywordReturningPojoWithPrivateFields", "{}");
+		assertNull(output.getError());
+		assertEquals("some value", output.getPayload().getString("stringField"));
+	}
+
+	@Test
+	public void testKeywordReturningPojoWAndUsingOutput() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+		// An exception is thrown as one of the required inputs is missing
+		assertThrows("This keyword function returns a value but also uses 'output' to define the output payload. This is not allowed because returned values override the output payload.",
+				KeywordException.class,
+				() -> runner.run(
+				"MyKeywordWithReturnPojoAndOutputUsage",
+				"{}"
+		));
+	}
+
 
 	@Test
 	public void testKeywordWithInputMaps() throws Exception {

@@ -20,6 +20,9 @@ package step.handlers.javahandler;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 public class MyKeywordLibrary extends AbstractKeyword {
 
@@ -28,9 +31,21 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	public static final String THROW_EXCEPTION_IN_BEFORE = "throwExceptionInBefore";
 	public static final String RETHROW_EXCEPTION_IN_ON_ERROR = "rethrowException";
 
+	private String keywordClassProperty;
+
+	public String getKeywordClassProperty() {
+		return keywordClassProperty;
+	}
+
+	public void setKeywordClassProperty(String keywordClassProperty) {
+		this.keywordClassProperty = keywordClassProperty;
+	}
+
 	@Override
 	public void beforeKeyword(String keywordName,Keyword keyword) {
-		output.add("beforeKeyword",keywordName);
+		if (!keywordName.contains("Return")) {
+			output.add("beforeKeyword", keywordName);
+		}
 		if(getBooleanProperty(THROW_EXCEPTION_IN_BEFORE)) {
 			throw new RuntimeException(THROW_EXCEPTION_IN_BEFORE);
 		}
@@ -64,6 +79,56 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	public void MyKeyword() {
 		output.add("test", "test");
 	}
+
+	@Keyword
+	public Map<String, Serializable> MyKeywordWithReturn() {
+		assert this.properties.get("myProperty").equals("myPropertyValue");
+//		return output.build().getPayload(); --> won't work as not serializable
+		return Map.of("key", "someStringValue","long", 12345798798L, "double", 123.456);
+	}
+
+	@Keyword
+	public MyPojo MyKeywordWithReturnPojo() {
+		assert this.properties.get("myProperty").equals("myPropertyValue");
+		return new MyPojo();
+	}
+
+	@Keyword
+	public PojoWithPrivateFields MyKeywordReturningPojoWithPrivateFields() {
+		PojoWithPrivateFields pojoWithPrivateFields = new PojoWithPrivateFields();
+		pojoWithPrivateFields.setStringField("some value");
+		return pojoWithPrivateFields;
+	}
+
+	@Keyword
+	public PojoWithPrivateFields MyKeywordWithReturnPojoAndOutputUsage() {
+		output.add("test", "test");
+		PojoWithPrivateFields pojoWithPrivateFields = new PojoWithPrivateFields();
+		pojoWithPrivateFields.setStringField("some value");
+		return pojoWithPrivateFields;
+	}
+
+	public static class MyPojo {
+		public String stringField = "someValue";
+		public long longValue = 123456787L;
+		public boolean booleanValue = true;
+		public double aoubleValue = 123.4567;
+		public List<Object> someList = List.of("text", true, 12345678L);
+		public Map<String, Object> someMap = Map.of("string", "value", "long", 123456748L, "boolean", true);
+	}
+
+	public static class PojoWithPrivateFields {
+		private String stringField ;
+
+		public String getStringField() {
+			return stringField;
+		}
+
+		public void setStringField(String stringField) {
+			this.stringField = stringField;
+		}
+	}
+
 	
 	@Keyword(name="My Keyword")
 	public void MyKeywordWithCustomName() {
@@ -136,4 +201,5 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	public void MyKeywordUsingSession2() {
 		output.add("sessionObject", (String)session.get("object1"));
 	}
+
 }
