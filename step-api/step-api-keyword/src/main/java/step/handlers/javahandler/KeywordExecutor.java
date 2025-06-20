@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +76,7 @@ public class KeywordExecutor {
 						Keyword annotation = m.getAnnotation(Keyword.class);
 						String keywordName = getKeywordName(m, annotation);
 						if (keywordName.equals(input.getFunction())) {
-							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation);
+							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation, null);
 						}
 					}
 				}
@@ -85,14 +86,14 @@ public class KeywordExecutor {
 		throw new Exception("Unable to find method annotated by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
-	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation) throws Exception {
+	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation, Consumer<Object> returnKeywordCallback) throws Exception {
 		Parameter[] parameters = method.getParameters();
 		JsonObject inputPayload = getJsonInputFromMethodParameters(args, parameters);
 		String keywordName = getKeywordName(method, annotation);
-		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation);
+		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation, returnKeywordCallback);
 	}
 
-	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation) throws Exception {
+	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation, Consumer<Object> returnKeywordCallback) throws Exception {
 
 		Map<String, String> keywordProperties;
 		if(properties.containsKey(VALIDATE_PROPERTIES)) {
@@ -120,7 +121,7 @@ public class KeywordExecutor {
 			keywordProperties = properties;
 		}
 
-		return invokeMethod(keywordName, method, inputPayload, tokenSession, tokenReservationSession, keywordProperties);
+		return invokeMethod(keywordName, method, inputPayload, tokenSession, tokenReservationSession, keywordProperties, returnKeywordCallback);
 	}
 
 	public static String getKeywordName(Method m, Keyword annotation) {
@@ -186,7 +187,7 @@ public class KeywordExecutor {
 		}
 	}
 
-	private Output<JsonObject> invokeMethod(String keywordName, Method m, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties)
+	private Output<JsonObject> invokeMethod(String keywordName, Method m, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Consumer<Object> returnKeywordCallback)
 			throws Exception {
 		Class<?> clazz = m.getDeclaringClass();
 		Object instance = clazz.newInstance();
@@ -211,8 +212,15 @@ public class KeywordExecutor {
 				script.beforeKeyword(keywordName, annotation);
 				Object outputPojo = m.invoke(instance, resolveMethodArguments(script.getInput(), m));
 				if(outputPojo != null) {
+					if (outputBuilder.getPayload() != null || outputBuilder.getPayloadJson() != null ||
+							(outputBuilder.getPayloadBuilder() != null && !outputBuilder.getPayloadBuilder().build().isEmpty())) {
+						throw new RuntimeException("This keyword function returns a value but also uses 'output' to define the output payload. This is not allowed because returned values override the output payload.");
+					}
 					JsonObject outputPayload = JsonObjectMapper.javaObjectToJsonObject(outputPojo);
 					outputBuilder.setPayload(outputPayload);
+				}
+				if (returnKeywordCallback != null) {
+					returnKeywordCallback.accept(outputPojo);
 				}
 			} catch (Exception e) {
 				boolean throwException = script.onError(e);

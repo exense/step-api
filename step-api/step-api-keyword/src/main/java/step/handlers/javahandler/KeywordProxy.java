@@ -9,6 +9,8 @@ import step.functions.io.OutputBuilder;
 import javax.json.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class KeywordProxy {
 
@@ -41,13 +43,21 @@ public class KeywordProxy {
     public <T extends AbstractKeyword> T getProxy(Class<T> keywordClass) {
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(keywordClass);
-        factory.setFilter(method -> method.getAnnotation(Keyword.class) != null);
 
         MethodHandler handler = (self, keywordMethod, proceed, args) -> {
             Keyword keywordAnnotation = keywordMethod.getAnnotation(Keyword.class);
+            if (keywordAnnotation == null) {
+                throw new IllegalAccessException("Only keyword methods, annotated with '@Keyword', can be invoked using the KeywordProxy.");
+            }
             KeywordExecutor keywordExecutor = new KeywordExecutor(true);
             long start = System.currentTimeMillis();
-            lastOutput = keywordExecutor.executeKeyword(tokenSession, session, properties, keywordMethod, args, keywordAnnotation);
+            AtomicReference<Object> keywordReturnValue = new AtomicReference<>();
+            lastOutput = keywordExecutor.executeKeyword(tokenSession, session, properties, keywordMethod, args, keywordAnnotation, new Consumer<Object>() {
+                @Override
+                public void accept(Object object) {
+                    keywordReturnValue.set(object);
+                }
+            });
             long duration = System.currentTimeMillis() - start;
             if (parentOutputBuilder != null) {
                 parentOutputBuilder.addMeasure(KeywordExecutor.getKeywordName(keywordMethod, keywordAnnotation), duration);
@@ -55,7 +65,7 @@ public class KeywordProxy {
                     parentOutputBuilder.mergeOutput(lastOutput);
                 }
             }
-            return null;
+            return keywordReturnValue.get();
         };
 
         try {

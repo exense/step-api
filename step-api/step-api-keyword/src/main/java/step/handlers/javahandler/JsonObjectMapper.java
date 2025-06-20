@@ -7,6 +7,8 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static step.handlers.javahandler.TypeUtil.mapOf;
+
 public class JsonObjectMapper {
 
     public static Object jsonValueToJavaObject(JsonValue jsonValue, Type type) {
@@ -19,14 +21,24 @@ public class JsonObjectMapper {
             if (jsonValue instanceof JsonArray) {
                 value = jsonArrayToObject((JsonArray) jsonValue, type);
             } else if (jsonValue instanceof JsonObject) {
-                if(Map.class.isAssignableFrom(valueClass)) {
-                    Map map = jsonObjectToMap((JsonObject) jsonValue, (ParameterizedType) type, valueClass);
-                    value = map;
+                if(Map.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
+                    ParameterizedType pt = null;
+
+                    if (type instanceof  ParameterizedType) {
+                        pt  = (ParameterizedType) type;
+                        value = jsonObjectToMap((JsonObject) jsonValue, pt, valueClass);
+                    } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
+                        throw unsupportedType(type, "Only standard parameterized Map types (e.g., HashMap<K,V>) are supported. Custom subclassed types of Map are not allowed.");
+                    } else if (valueClass.equals(Object.class)) {
+                        value = jsonObjectToMap((JsonObject) jsonValue, mapOf(String.class, Object.class), HashMap.class);
+                    } else {
+                        throw unsupportedType(type);
+                    }
                 } else {
                     value = jsonObjectToObject((JsonObject) jsonValue, type);
                 }
             } else if (jsonValue instanceof JsonString) {
-                if (String.class.isAssignableFrom(valueClass)) {
+                if (String.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
                     value = ((JsonString) jsonValue).getString();
                 } else {
                     throw notMappableValueClass(jsonValue, valueClass);
@@ -43,11 +55,23 @@ public class JsonObjectMapper {
                     value = jsonNumber.bigDecimalValue();
                 } else if (BigInteger.class.isAssignableFrom(valueClass)) {
                     value = jsonNumber.bigIntegerValue();
+                } else if (valueClass.equals(Object.class)) {
+                    if (jsonNumber.isIntegral()) {
+                        long longVal = jsonNumber.longValue();
+                        // Check if it fits in Integer
+                        if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
+                            return (int) longVal;
+                        } else {
+                            return longVal;
+                        }
+                    } else {
+                        return jsonNumber.doubleValue(); // or number.bigDecimalValue()
+                    }
                 } else {
                     throw notMappableValueClass(jsonValue, valueClass);
                 }
             } else if (jsonValue.equals(JsonValue.TRUE) || jsonValue.equals(JsonValue.FALSE)) {
-                if (Boolean.class.isAssignableFrom(valueClass) || valueClass.equals(boolean.class)) {
+                if (Boolean.class.isAssignableFrom(valueClass) || valueClass.equals(boolean.class) || valueClass.equals(Object.class)) {
                     value = jsonValue.equals(JsonValue.TRUE);
                 } else {
                     throw notMappableValueClass(jsonValue, valueClass);
@@ -111,11 +135,18 @@ public class JsonObjectMapper {
         } else {
             arrayValueType = resolveGenericTypeForArrayOrCollection(type);
         }
+
         List<Object> list = jsonValue.stream().map(e -> jsonValueToJavaObject(e, arrayValueType)).collect(Collectors.toList());
         if (valueClass.isArray()) {
             value = toArray(arrayValueType, list);
-        } else {
+        } else if (valueClass.isInterface() || valueClass.equals(Object.class)) {
             value = list;
+        } else {
+            try {
+                value = valueClass.getConstructor(Collection.class).newInstance(list);
+            } catch (InstantiationException|IllegalAccessException|InvocationTargetException|NoSuchMethodException e) {
+                throw new IllegalArgumentException("Unsupported type " + type + ". Only List types with a constructor accepting a Collection are supported.");
+            }
         }
         return value;
     }
@@ -129,11 +160,18 @@ public class JsonObjectMapper {
         if(typeClass.isArray()) {
             return typeClass.getComponentType();
         } else {
-            if (!(type instanceof ParameterizedType)) {
+            ParameterizedType pt;
+            if (type instanceof  ParameterizedType) {
+                pt  = (ParameterizedType) type;
+            } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
+                throw unsupportedType(type, "Only standard parameterized List types (e.g., ArrayList<V>) are supported. Custom subclassed types of List are not allowed.");
+            } else if (type.equals(Object.class)) {
+                return Object.class;
+            } else {
                 throw unsupportedType(type);
             }
 
-            Type[] collectionGenerics = ((ParameterizedType) type).getActualTypeArguments();
+            Type[] collectionGenerics = pt.getActualTypeArguments();
             if (collectionGenerics.length != 1) {
                 throw unsupportedType(type);
             }
@@ -143,7 +181,15 @@ public class JsonObjectMapper {
     }
 
     private static IllegalArgumentException unsupportedType(Type type) {
-        return new IllegalArgumentException("Unsupported type " + type);
+        return unsupportedType(type, null);
+    }
+
+    private static IllegalArgumentException unsupportedType(Type type, String optionalMessage) {
+        StringBuilder message  =  new StringBuilder("Unsupported type ").append(type);
+        if (optionalMessage != null && !optionalMessage.isBlank()) {
+            message.append(". ").append(optionalMessage);
+        }
+        return new IllegalArgumentException(message.toString());
     }
 
     private static <T extends Object> T jsonObjectToObject(JsonObject nestedObjectFromInput, Type type) {
@@ -228,9 +274,12 @@ public class JsonObjectMapper {
             List<Field> fields = getAllFields(valueType);
             fields.forEach(field -> {
                 try {
+                    if (!field.canAccess(value)) {
+                        field.setAccessible(true);
+                    }
                     addValueToJsonObject(objectBuilder2, field.getName(), field.get(value));
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Only Pojo with public fields are supported, the following field is not supported:  " + field);
                 }
             });
         }

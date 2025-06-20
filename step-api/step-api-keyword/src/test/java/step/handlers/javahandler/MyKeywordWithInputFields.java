@@ -88,6 +88,23 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 	}
 
 	@Keyword
+	public void MyKeywordWithCustomMapAndCustomList(@Input(name = "customMap") Map<String, Object> map,
+			   @Input(name = "customList") List<Object> myList) {
+		assert (String.class.isAssignableFrom(map.get("string").getClass()) && (map.get("string")).equals("myValue"));
+		assert (Integer.class.isAssignableFrom(map.get("int").getClass()) && ((Integer) map.get("int")) == 123);
+		assert (Long.class.isAssignableFrom(map.get("long").getClass()) && ((Long) map.get("long")) == 1234567891012L);
+		assert (Double.class.isAssignableFrom(map.get("double").getClass()) && ((Double) map.get("double")) == 123.4567);
+		assert (Boolean.class.isAssignableFrom(map.get("boolean").getClass()) && ((Boolean) map.get("boolean")));
+		assert (Map.class.isAssignableFrom(map.get("nestedMap").getClass()) && ((Map) map.get("nestedMap")).get("nestedString").equals("nestedStringValue"));
+		assert (String.class.isAssignableFrom(myList.get(0).getClass()) && myList.get(0).equals("val1"));
+		assert (Integer.class.isAssignableFrom(myList.get(1).getClass()) && ((Integer) myList.get(1)) == 123);
+		assert (Long.class.isAssignableFrom(myList.get(2).getClass()) && ((Long) myList.get(2)) == 1234567891012L);
+		assert (Double.class.isAssignableFrom(myList.get(3).getClass()) && ((Double) myList.get(3)) == 123.4567);
+		assert (Boolean.class.isAssignableFrom(myList.get(4).getClass()) && ((Boolean) myList.get(4)));
+		assert (List.class.isAssignableFrom(myList.get(5).getClass()) && ((List<?>) myList.get(5)).get(0).equals("sublistelement"));
+	}
+
+	@Keyword
 	public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) Map<String,String> stringMap,
 									   @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
 									   @Input(name = "integerMap", required = true) HashMap<String,Integer> integerMap,
@@ -186,6 +203,20 @@ public class MyKeywordWithInputFields extends AbstractKeyword {
 
 		public void setNestedNumberProperty(Integer nestedNumberProperty) {
 			this.nestedNumberProperty = nestedNumberProperty;
+		}
+	}
+
+	private static class MyCustomMap extends HashMap<String, Object> {
+
+		public MyCustomMap() {
+			super();
+		}
+	}
+
+	private static class MyList extends ArrayList<Object> {
+
+		public MyList() {
+			super();
 		}
 	}
 }
