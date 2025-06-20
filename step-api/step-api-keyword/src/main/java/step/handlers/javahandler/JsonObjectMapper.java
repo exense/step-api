@@ -21,7 +21,7 @@ public class JsonObjectMapper {
             if (jsonValue instanceof JsonArray) {
                 value = jsonArrayToObject((JsonArray) jsonValue, type);
             } else if (jsonValue instanceof JsonObject) {
-                if(Map.class.isAssignableFrom(valueClass) || valueClass.getName().equals("java.lang.Object")) {
+                if(Map.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
                     ParameterizedType pt = null;
 
                     if (type instanceof  ParameterizedType) {
@@ -29,7 +29,7 @@ public class JsonObjectMapper {
                         value = jsonObjectToMap((JsonObject) jsonValue, pt, valueClass);
                     } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
                         throw unsupportedType(type, "Only standard parameterized Map types (e.g., HashMap<K,V>) are supported. Custom subclassed types of Map are not allowed.");
-                    } else if (valueClass.getName().equals("java.lang.Object")) {
+                    } else if (valueClass.equals(Object.class)) {
                         value = jsonObjectToMap((JsonObject) jsonValue, mapOf(String.class, Object.class), HashMap.class);
                     } else {
                         throw unsupportedType(type);
@@ -38,7 +38,7 @@ public class JsonObjectMapper {
                     value = jsonObjectToObject((JsonObject) jsonValue, type);
                 }
             } else if (jsonValue instanceof JsonString) {
-                if (String.class.isAssignableFrom(valueClass) || valueClass.getName().equals("java.lang.Object")) {
+                if (String.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
                     value = ((JsonString) jsonValue).getString();
                 } else {
                     throw notMappableValueClass(jsonValue, valueClass);
@@ -55,7 +55,7 @@ public class JsonObjectMapper {
                     value = jsonNumber.bigDecimalValue();
                 } else if (BigInteger.class.isAssignableFrom(valueClass)) {
                     value = jsonNumber.bigIntegerValue();
-                } else if (valueClass.getName().equals("java.lang.Object")) {
+                } else if (valueClass.equals(Object.class)) {
                     if (jsonNumber.isIntegral()) {
                         long longVal = jsonNumber.longValue();
                         // Check if it fits in Integer
@@ -71,7 +71,7 @@ public class JsonObjectMapper {
                     throw notMappableValueClass(jsonValue, valueClass);
                 }
             } else if (jsonValue.equals(JsonValue.TRUE) || jsonValue.equals(JsonValue.FALSE)) {
-                if (Boolean.class.isAssignableFrom(valueClass) || valueClass.equals(boolean.class) || valueClass.getName().equals("java.lang.Object")) {
+                if (Boolean.class.isAssignableFrom(valueClass) || valueClass.equals(boolean.class) || valueClass.equals(Object.class)) {
                     value = jsonValue.equals(JsonValue.TRUE);
                 } else {
                     throw notMappableValueClass(jsonValue, valueClass);
@@ -139,7 +139,7 @@ public class JsonObjectMapper {
         List<Object> list = jsonValue.stream().map(e -> jsonValueToJavaObject(e, arrayValueType)).collect(Collectors.toList());
         if (valueClass.isArray()) {
             value = toArray(arrayValueType, list);
-        } else if (valueClass.isInterface() || valueClass.getName().equals("java.lang.Object")) {
+        } else if (valueClass.isInterface() || valueClass.equals(Object.class)) {
             value = list;
         } else {
             try {
@@ -165,7 +165,7 @@ public class JsonObjectMapper {
                 pt  = (ParameterizedType) type;
             } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
                 throw unsupportedType(type, "Only standard parameterized List types (e.g., ArrayList<V>) are supported. Custom subclassed types of List are not allowed.");
-            } else if (type.getTypeName().equals("java.lang.Object")) {
+            } else if (type.equals(Object.class)) {
                 return Object.class;
             } else {
                 throw unsupportedType(type);
