@@ -4,6 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>step-api-json-schema</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <parent>
         <groupId>ch.exense.step</groupId>
