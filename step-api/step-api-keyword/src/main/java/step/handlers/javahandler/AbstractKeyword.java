@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
+import step.streaming.client.upload.StreamingUploadProvider;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -61,6 +62,8 @@ public class AbstractKeyword {
 	 * object matches the lifecycle of the Agent process
 	 */
 	protected AbstractSession tokenSession;
+
+	protected StreamingUploadProvider streamingUploadProvider;
 	
 	public AbstractSession getSession() {
 		return session;
@@ -103,6 +106,12 @@ public class AbstractKeyword {
 
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
+	}
+
+	// FIXME: This method is not strictly required, one could also directly use the field and avoid exposing a
+	// public method.
+	public void setStreamingUploadProvider(StreamingUploadProvider streamingUploadProvider) {
+		this.streamingUploadProvider = streamingUploadProvider;
 	}
 
 	/**

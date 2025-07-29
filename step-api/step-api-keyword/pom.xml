@@ -22,6 +22,16 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.exense.streaming</groupId>
+            <artifactId>step-streaming-api-client-upload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.exense.streaming</groupId>
+            <artifactId>step-streaming-impl-websocket-client-upload</artifactId>
+            <scope>provided</scope> <!-- is this correct? -->
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <scope>test</scope>

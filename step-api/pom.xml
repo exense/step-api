@@ -44,7 +44,9 @@
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.release>11</maven.compiler.release>
 
+		<!-- exense dependencies -->
 		<dependencies.version>2025.6.25</dependencies.version>
+		<step-streaming.version>2025.7.29-6888abd44e318f3fadb474bc</step-streaming.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
@@ -100,6 +102,13 @@
 				<groupId>ch.exense.dependencies</groupId>
 				<artifactId>dependencies-jackson</artifactId>
 				<version>${dependencies.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>ch.exense.streaming</groupId>
+				<artifactId>step-streaming</artifactId>
+				<version>${step-streaming.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
