@@ -54,10 +54,17 @@ public class KeywordExecutor {
 	private boolean throwExceptionOnError = false;
 	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
+	private final StreamingUploadProvider streamingUploadProvider;
+
 	public KeywordExecutor(boolean throwExceptionOnError) {
+		this(throwExceptionOnError, null);
+	}
+
+	public KeywordExecutor(boolean throwExceptionOnError, StreamingUploadProvider streamingUploadProvider) {
 		super();
 		this.throwExceptionOnError = throwExceptionOnError;
-	}
+        this.streamingUploadProvider = streamingUploadProvider;
+    }
 
 	public boolean isThrowExceptionOnError() {
 		return throwExceptionOnError;
@@ -210,7 +217,7 @@ public class KeywordExecutor {
 			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
-			script.setStreamingUploadProvider(createStreamingUploadProviderFromProperties(properties));
+			script.setStreamingUploadProvider(streamingUploadProvider);
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
 			try {
@@ -256,26 +263,6 @@ public class KeywordExecutor {
 			throw new KeywordException(output);
 		} else {
 			return output;
-		}
-	}
-
-	private StreamingUploadProvider createStreamingUploadProviderFromProperties(Map<String, String> properties) {
-		String host = properties.get("streaming.websocket.baseUrl"); // We don't have access to the constant name definitions from here, so use "magic strings"
-		String path = properties.get("streaming.websocket.upload.path");
-		String contextId = properties.get(StreamingResourceUploadContext.PARAMETER_NAME);
-		if (host != null && path != null && contextId != null) {
-			// normalize host and path (remove trailing/leading slashes if present)
-			while (host.endsWith("/")) {
-				host = host.substring(0, host.length() - 1);
-			}
-			while (path.startsWith("/")) {
-				path = path.substring(1);
-			}
-			URI uri = URI.create(String.format("%s/%s?%s=%s", host, path, StreamingResourceUploadContext.PARAMETER_NAME, contextId));
-			return new WebsocketUploadProvider(uri);
-		} else {
-			logger.warn("Incomplete information in properties, unable to create StreamingUploadProvider instance");
-			return null;
 		}
 	}
 
