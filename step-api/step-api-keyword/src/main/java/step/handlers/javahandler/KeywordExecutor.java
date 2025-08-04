@@ -24,9 +24,7 @@ import step.functions.io.AbstractSession;
 import step.functions.io.Input;
 import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
-import step.streaming.client.upload.StreamingUploadProvider;
-import step.streaming.common.StreamingResourceUploadContext;
-import step.streaming.websocket.client.upload.WebsocketUploadProvider;
+import step.reporting.ReportingCallbacks;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -34,7 +32,6 @@ import javax.json.JsonObjectBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,9 +51,16 @@ public class KeywordExecutor {
 	private boolean throwExceptionOnError = false;
 	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
+	private final ReportingCallbacks reportingCallbacks;
+
 	public KeywordExecutor(boolean throwExceptionOnError) {
+		this(throwExceptionOnError, null);
+	}
+
+	public KeywordExecutor(boolean throwExceptionOnError, ReportingCallbacks reportingCallbacks) {
 		super();
 		this.throwExceptionOnError = throwExceptionOnError;
+		this.reportingCallbacks = reportingCallbacks;
 	}
 
 	public boolean isThrowExceptionOnError() {
@@ -210,7 +214,7 @@ public class KeywordExecutor {
 			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
-			script.setStreamingUploadProvider(createStreamingUploadProviderFromProperties(properties));
+			script.reportingCallbacks = reportingCallbacks;
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
 			try {
@@ -256,26 +260,6 @@ public class KeywordExecutor {
 			throw new KeywordException(output);
 		} else {
 			return output;
-		}
-	}
-
-	private StreamingUploadProvider createStreamingUploadProviderFromProperties(Map<String, String> properties) {
-		String host = properties.get("streaming.websocket.baseUrl"); // We don't have access to the constant name definitions from here, so use "magic strings"
-		String path = properties.get("streaming.websocket.upload.path");
-		String contextId = properties.get(StreamingResourceUploadContext.PARAMETER_NAME);
-		if (host != null && path != null && contextId != null) {
-			// normalize host and path (remove trailing/leading slashes if present)
-			while (host.endsWith("/")) {
-				host = host.substring(0, host.length() - 1);
-			}
-			while (path.startsWith("/")) {
-				path = path.substring(1);
-			}
-			URI uri = URI.create(String.format("%s/%s?%s=%s", host, path, StreamingResourceUploadContext.PARAMETER_NAME, contextId));
-			return new WebsocketUploadProvider(uri);
-		} else {
-			logger.warn("Incomplete information in properties, unable to create StreamingUploadProvider instance");
-			return null;
 		}
 	}
 
