@@ -22,16 +22,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
-import step.streaming.client.upload.StreamingUploadProvider;
+import step.reporting.ReportingCallbacks;
+import step.streaming.client.StreamingTransfer;
+import step.streaming.common.StreamingResourceMetadata;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class AbstractKeyword {
@@ -63,7 +69,7 @@ public class AbstractKeyword {
 	 */
 	protected AbstractSession tokenSession;
 
-	protected StreamingUploadProvider streamingUploadProvider;
+	protected ReportingCallbacks reportingCallbacks;
 	
 	public AbstractSession getSession() {
 		return session;
@@ -106,12 +112,6 @@ public class AbstractKeyword {
 
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
-	}
-
-	// FIXME: This method is not strictly required, one could also directly use the field and avoid exposing a
-	// public method.
-	public void setStreamingUploadProvider(StreamingUploadProvider streamingUploadProvider) {
-		this.streamingUploadProvider = streamingUploadProvider;
 	}
 
 	/**
@@ -245,5 +245,13 @@ public class AbstractKeyword {
 				return null;
 			}
 		}
+	}
+
+	protected StreamingTransfer startLiveTextFileUpload(File textFile) throws IOException {
+		Objects.requireNonNull(reportingCallbacks);
+		Objects.requireNonNull(reportingCallbacks.streamingUploadProvider);
+		Objects.requireNonNull(textFile);
+		return reportingCallbacks.streamingUploadProvider.startLiveTextFileUpload(textFile,
+				new StreamingResourceMetadata(textFile.getName(), "plain/text"), StandardCharsets.UTF_8);
 	}
 }

@@ -24,9 +24,7 @@ import step.functions.io.AbstractSession;
 import step.functions.io.Input;
 import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
-import step.streaming.client.upload.StreamingUploadProvider;
-import step.streaming.common.StreamingResourceUploadContext;
-import step.streaming.websocket.client.upload.WebsocketUploadProvider;
+import step.reporting.ReportingCallbacks;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -34,7 +32,6 @@ import javax.json.JsonObjectBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,17 +51,17 @@ public class KeywordExecutor {
 	private boolean throwExceptionOnError = false;
 	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
-	private final StreamingUploadProvider streamingUploadProvider;
+	private final ReportingCallbacks reportingCallbacks;
 
 	public KeywordExecutor(boolean throwExceptionOnError) {
 		this(throwExceptionOnError, null);
 	}
 
-	public KeywordExecutor(boolean throwExceptionOnError, StreamingUploadProvider streamingUploadProvider) {
+	public KeywordExecutor(boolean throwExceptionOnError, ReportingCallbacks reportingCallbacks) {
 		super();
 		this.throwExceptionOnError = throwExceptionOnError;
-        this.streamingUploadProvider = streamingUploadProvider;
-    }
+		this.reportingCallbacks = reportingCallbacks;
+	}
 
 	public boolean isThrowExceptionOnError() {
 		return throwExceptionOnError;
@@ -217,7 +214,7 @@ public class KeywordExecutor {
 			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
-			script.setStreamingUploadProvider(streamingUploadProvider);
+			script.reportingCallbacks = reportingCallbacks;
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
 			try {
