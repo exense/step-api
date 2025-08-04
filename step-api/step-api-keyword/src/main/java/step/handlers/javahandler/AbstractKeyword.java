@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
 import step.reporting.ReportingCallbacks;
-import step.streaming.client.StreamingTransfer;
+import step.streaming.client.upload.StreamingUpload;
 import step.streaming.common.StreamingResourceMetadata;
 
 import javax.json.Json;
@@ -247,7 +247,10 @@ public class AbstractKeyword {
 		}
 	}
 
-	protected StreamingTransfer startLiveTextFileUpload(File textFile) throws IOException {
+	// The API of streamingUploadProvider is quite low-level for most of the cases we want to handle within Keywords.
+	// A simplified method to upload text files might be added here
+	// TODO: this is just a suggestion that should be reviewed, discussed and replaced by the final implementation
+	protected StreamingUpload startLiveTextFileUpload(File textFile) throws IOException {
 		Objects.requireNonNull(reportingCallbacks);
 		Objects.requireNonNull(reportingCallbacks.streamingUploadProvider);
 		Objects.requireNonNull(textFile);
