@@ -22,22 +22,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
-import step.reporting.ReportingCallbacks;
-import step.streaming.client.upload.StreamingUpload;
-import step.streaming.common.StreamingResourceMetadata;
+import step.reporting.LiveReporting;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 public class AbstractKeyword {
@@ -69,7 +64,7 @@ public class AbstractKeyword {
 	 */
 	protected AbstractSession tokenSession;
 
-	protected ReportingCallbacks reportingCallbacks;
+	protected LiveReporting liveReporting;
 	
 	public AbstractSession getSession() {
 		return session;
@@ -245,16 +240,5 @@ public class AbstractKeyword {
 				return null;
 			}
 		}
-	}
-
-	// The API of streamingUploadProvider is quite low-level for most of the cases we want to handle within Keywords.
-	// A simplified method to upload text files might be added here
-	// TODO: this is just a suggestion that should be reviewed, discussed and replaced by the final implementation
-	protected StreamingUpload startLiveTextFileUpload(File textFile) throws IOException {
-		Objects.requireNonNull(reportingCallbacks);
-		Objects.requireNonNull(reportingCallbacks.streamingUploadProvider);
-		Objects.requireNonNull(textFile);
-		return reportingCallbacks.streamingUploadProvider.startLiveTextFileUpload(textFile,
-				new StreamingResourceMetadata(textFile.getName(), "plain/text"), StandardCharsets.UTF_8);
 	}
 }

@@ -24,7 +24,7 @@ import step.functions.io.AbstractSession;
 import step.functions.io.Input;
 import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
-import step.reporting.ReportingCallbacks;
+import step.reporting.LiveReporting;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -51,16 +51,16 @@ public class KeywordExecutor {
 	private boolean throwExceptionOnError = false;
 	private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
-	private final ReportingCallbacks reportingCallbacks;
+	private final LiveReporting liveReporting;
 
 	public KeywordExecutor(boolean throwExceptionOnError) {
 		this(throwExceptionOnError, null);
 	}
 
-	public KeywordExecutor(boolean throwExceptionOnError, ReportingCallbacks reportingCallbacks) {
+	public KeywordExecutor(boolean throwExceptionOnError, LiveReporting liveReporting) {
 		super();
 		this.throwExceptionOnError = throwExceptionOnError;
-		this.reportingCallbacks = reportingCallbacks;
+		this.liveReporting = liveReporting;
 	}
 
 	public boolean isThrowExceptionOnError() {
@@ -214,7 +214,7 @@ public class KeywordExecutor {
 			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
-			script.reportingCallbacks = reportingCallbacks;
+			script.liveReporting = liveReporting;
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
 			try {
