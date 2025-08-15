@@ -164,6 +164,15 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	public void MyKeywordWithPlaceHoldersInProperties() {
 		echoProperties();
 	}
+
+	@Keyword(routing = {})
+	public void MyKeywordWithDefaultRouting() {	}
+
+	@Keyword(routing = {Keyword.EXECUTE_ON_CONTROLLER})
+	public void MyKeywordWithRoutingToController() {	}
+
+	@Keyword(routing = {"OS", "Windows","type","playwright"})
+	public void MyKeywordWithRoutingToAgentsWithCriteria() {	}
 	
 	protected void echoProperties() {
 		properties.entrySet().forEach(e->{
