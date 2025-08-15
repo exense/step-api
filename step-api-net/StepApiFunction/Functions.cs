@@ -32,6 +32,10 @@ namespace Step.Functions.IO
         public JObject schema;
 
         public DynamicValue<int> callTimeout = new DynamicValue<int>(180000);
+
+        public bool executeLocally;
+
+        public Dictionary<string, string> tokenSelectionCriteria;
     }
 
     public class Input

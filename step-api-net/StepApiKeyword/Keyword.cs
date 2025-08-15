@@ -9,6 +9,11 @@ namespace Step.Handlers.NetHandler
     [AttributeUsage(AttributeTargets.Method)]
     public class Keyword : Attribute
     {
+        /// <summary>
+        /// Reserved keyword for the routing element; execution will occur on the controller rather than on agents
+        /// </summary>
+        public const string ROUTING_EXECUTE_ON_CONTROLLER = "controller";
+        
         public string name;
         public string description;
         public string schema;
@@ -16,6 +21,14 @@ namespace Step.Handlers.NetHandler
         public string[] optionalProperties;
         // keyword timeout in milliseconds:
         public int timeout = 180000;
+
+        /// <summary>
+        /// Routing criteria. Can be:
+        /// - empty: use default routing
+        /// - <see cref="Keyword.ROUTING_EXECUTE_ON_CONTROLLER"/>: execute on controller rather than on agents
+        /// - array of key-value pairs for agent token selection criteria
+        /// </summary>
+        public string[] routing;
     }
 
     public class AbstractKeyword
