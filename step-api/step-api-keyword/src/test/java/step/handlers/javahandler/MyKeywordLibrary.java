@@ -168,7 +168,7 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	@Keyword(routing = {})
 	public void MyKeywordWithDefaultRouting() {	}
 
-	@Keyword(routing = {Keyword.EXECUTE_ON_CONTROLLER})
+	@Keyword(routing = {Keyword.ROUTING_EXECUTE_ON_CONTROLLER})
 	public void MyKeywordWithRoutingToController() {	}
 
 	@Keyword(routing = {"OS", "Windows","type","playwright"})

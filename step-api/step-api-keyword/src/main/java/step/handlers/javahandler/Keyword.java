@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 public @interface Keyword {
 
 	/** Reserved keyword for the routing element; execution will occur on the controller rather than on agents */
-    String EXECUTE_ON_CONTROLLER = "controller";
+    String ROUTING_EXECUTE_ON_CONTROLLER = "controller";
 	/**
 	 * @return the name of this keyword. If not specified the method name is 
 	 * used as keyword name
@@ -70,7 +70,7 @@ public @interface Keyword {
 	 *
 	 * @return the routing criteria which can be either <ul>
 	 *     <li>empty: use default routing on Step</li>
-	 *     <li>{@link #EXECUTE_ON_CONTROLLER}: execute the keyword directly on the controller rather than on agents</li>
+	 *     <li>{@link #ROUTING_EXECUTE_ON_CONTROLLER}: execute the keyword directly on the controller rather than on agents</li>
 	 *     <li>"agent_attribute_key_1","agent_attribute_value_1",...: the agent token selection criteria provided as a list of key-value pairs</li>
 	 * </ul>
 	 */
