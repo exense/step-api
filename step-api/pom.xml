@@ -46,7 +46,7 @@
 
 		<!-- exense dependencies -->
 		<dependencies.version>2025.6.25</dependencies.version>
-		<step-streaming.version>2025.8.12-689b091ed298ec4d73876da1</step-streaming.version>
+		<step-streaming.version>2025.8.21-68a71732a5fd2f56794bb451</step-streaming.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
@@ -55,7 +55,7 @@
 		<dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version>
 		<dep.mvn.shade.version>3.6.0</dep.mvn.shade.version>
 		<dep.mvn.source.version>3.0.1</dep.mvn.source.version>
-		<dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version>
+		<dep.mvn.surefire.version>3.2.5</dep.mvn.surefire.version>
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
 		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
 	</properties>
@@ -194,6 +194,11 @@
 					<version>${dep.mvn.jacoco.version}</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${dep.mvn.surefire.version}</version>
+				</plugin>
+				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
 					<version>${dep.mvn.dependency-check.version}</version>
@@ -201,6 +206,10 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 			<!-- Source -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
