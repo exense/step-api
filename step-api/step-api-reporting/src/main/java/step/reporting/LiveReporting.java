@@ -47,6 +47,12 @@ public class LiveReporting {
      * explicitly instructed to.
      */
     public void close() {
-        fileUploads.close();
+        try {
+            fileUploads.close();
+        } catch (Exception unexpected) {
+            // this SHOULD never happen, but just to be safe in case something goes terribly wrong,
+            // so we don't break the code which uses us and may not be prepared for exceptions...
+            logger.error("Unexpected exception occurred while closing LiveReporting", unexpected);
+        }
     }
 }
