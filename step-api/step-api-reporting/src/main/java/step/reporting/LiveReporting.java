@@ -6,6 +6,8 @@ import step.streaming.client.upload.StreamingUploadProvider;
 import step.streaming.client.upload.StreamingUploads;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
 
+import java.util.concurrent.Executors;
+
 /**
  * LiveReporting is a container class for real-time reporting features.
  * Currently, only uploading of files (which are uploaded, and directly available for download
@@ -35,7 +37,7 @@ public class LiveReporting {
         if (streamingUploadProvider == null) {
             // FIXME: improve to give option to save locally -- SED-4192
             logger.debug("LiveReporting initializing without a provided StreamingUploads object, instantiating one that discards all data");
-            streamingUploadProvider = new DiscardingStreamingUploadProvider();
+            streamingUploadProvider = new DiscardingStreamingUploadProvider(Executors.newFixedThreadPool(100));
         }
         fileUploads = new StreamingUploads(streamingUploadProvider);
     }
