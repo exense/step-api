@@ -37,7 +37,7 @@ public class LiveReporting {
         if (streamingUploadProvider == null) {
             // FIXME: improve to give option to save locally -- SED-4192
             logger.debug("LiveReporting initializing without a provided StreamingUploads object, instantiating one that discards all data");
-            streamingUploadProvider = new DiscardingStreamingUploadProvider(Executors.newFixedThreadPool(100));
+            streamingUploadProvider = new DiscardingStreamingUploadProvider();
         }
         fileUploads = new StreamingUploads(streamingUploadProvider);
     }
