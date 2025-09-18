@@ -2,11 +2,11 @@ package step.reporting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import step.reporting.impl.DiscardingLiveMeasureSink;
+import step.reporting.impl.LiveMeasureSink;
 import step.streaming.client.upload.StreamingUploadProvider;
 import step.streaming.client.upload.StreamingUploads;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
-
-import java.util.concurrent.Executors;
 
 /**
  * LiveReporting is a container class for real-time reporting features.
@@ -27,19 +27,27 @@ public class LiveReporting {
      */
     public final StreamingUploads fileUploads;
 
+    public final LiveMeasures measures;
+
     /**
      * Instantiates a new LiveReporting object. <b>Reserved for the framework</b>, do not use unless
      * explicitly instructed to.
      *
      * @param streamingUploadProvider provider instance for creating streaming uploads
      */
-    public LiveReporting(StreamingUploadProvider streamingUploadProvider) {
+    public LiveReporting(StreamingUploadProvider streamingUploadProvider, LiveMeasureSink liveMeasureSink) {
         if (streamingUploadProvider == null) {
             // FIXME: improve to give option to save locally -- SED-4192
-            logger.debug("LiveReporting initializing without a provided StreamingUploads object, instantiating one that discards all data");
+            logger.debug("LiveReporting initializing without a StreamingUploadProvider object, instantiating one that discards all data");
             streamingUploadProvider = new DiscardingStreamingUploadProvider();
         }
         fileUploads = new StreamingUploads(streamingUploadProvider);
+
+        if (liveMeasureSink == null) {
+            logger.debug("LiveReporting instantiated without a LiveMeasureSink object, instantiating one that discards all data");
+            liveMeasureSink = new DiscardingLiveMeasureSink();
+        }
+        measures = new LiveMeasures(liveMeasureSink);
     }
 
     /**
@@ -54,6 +62,11 @@ public class LiveReporting {
         } catch (Exception unexpected) {
             // this SHOULD never happen, but just to be safe in case something goes terribly wrong,
             // so we don't break the code which uses us and may not be prepared for exceptions...
+            logger.error("Unexpected exception occurred while closing LiveReporting", unexpected);
+        }
+        try {
+            measures.close();
+        } catch (Exception unexpected) {
             logger.error("Unexpected exception occurred while closing LiveReporting", unexpected);
         }
     }
