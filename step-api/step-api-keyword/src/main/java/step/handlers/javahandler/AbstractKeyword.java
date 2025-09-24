@@ -26,7 +26,6 @@ import step.reporting.LiveReporting;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
