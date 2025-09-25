@@ -21,6 +21,8 @@ package step.grid.io;
 public class Attachment {
 
 	String name;
+
+	String mimeType;
 	
 	String description;
 	
@@ -38,6 +40,14 @@ public class Attachment {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 
 	public String getDescription() {

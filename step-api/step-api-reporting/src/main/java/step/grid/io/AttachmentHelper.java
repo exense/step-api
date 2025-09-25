@@ -36,13 +36,18 @@ public class AttachmentHelper {
 	public static Attachment generateAttachmentForException(Throwable e) {
 		StringWriter w = new StringWriter();
 		e.printStackTrace(new PrintWriter(w));
-		return generateAttachmentFromByteArray(w.toString().getBytes(), "exception.log");
+		return generateAttachmentFromByteArray(w.toString().getBytes(), "exception.log", "text/plain");
 	}
-	
-	public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName) {
-		Attachment attachment = new Attachment();	
+
+	public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName, String mimeType) {
+		Attachment attachment = new Attachment();
 		attachment.setName(attachmentName);
+		attachment.setMimeType(mimeType);
 		attachment.setHexContent(AttachmentHelper.getHex(bytes));
 		return attachment;
+	}
+
+	public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName) {
+		return generateAttachmentFromByteArray(bytes, attachmentName, "application/octet-stream");
 	}
 }
