@@ -169,6 +169,14 @@ public class KeywordRunnerTest {
 		Output<JsonObject> output = runner.run("MyKeywordWithPlaceHoldersInProperties","{}");
 		assertEquals("The Keyword is missing the following property or input 'myPlaceHolder'", output.getError().getMsg());
 	}
+
+	@Test
+	public void testKeywordWithKeywordAnnotation() throws Exception {
+		ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), MyKeywordLibrary.class);
+		runner.run("MyKeywordWithDefaultRouting");
+		runner.run("MyKeywordWithRoutingToController");
+		runner.run("MyKeywordWithRoutingToAgentsWithCriteria");
+	}
 	
 	@Test
 	public void testSession() throws Exception {
