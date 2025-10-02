@@ -44,7 +44,9 @@
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.release>11</maven.compiler.release>
 
+		<!-- exense dependencies -->
 		<dependencies.version>2025.6.25</dependencies.version>
+		<step-streaming.version>2025.10.2-68de24758e322422c135b278</step-streaming.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
@@ -53,7 +55,7 @@
 		<dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version>
 		<dep.mvn.shade.version>3.6.0</dep.mvn.shade.version>
 		<dep.mvn.source.version>3.0.1</dep.mvn.source.version>
-		<dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version>
+		<dep.mvn.surefire.version>3.2.5</dep.mvn.surefire.version>
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
 		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
 	</properties>
@@ -100,6 +102,13 @@
 				<groupId>ch.exense.dependencies</groupId>
 				<artifactId>dependencies-jackson</artifactId>
 				<version>${dependencies.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>ch.exense.streaming</groupId>
+				<artifactId>step-streaming</artifactId>
+				<version>${step-streaming.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -185,6 +194,11 @@
 					<version>${dep.mvn.jacoco.version}</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${dep.mvn.surefire.version}</version>
+				</plugin>
+				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
 					<version>${dep.mvn.dependency-check.version}</version>
@@ -192,6 +206,10 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 			<!-- Source -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -22,9 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
+import step.reporting.LiveReporting;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -61,6 +63,8 @@ public class AbstractKeyword {
 	 * object matches the lifecycle of the Agent process
 	 */
 	protected AbstractSession tokenSession;
+
+	protected LiveReporting liveReporting;
 	
 	public AbstractSession getSession() {
 		return session;
