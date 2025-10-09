@@ -9,10 +9,12 @@ import step.streaming.client.upload.StreamingUploads;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
 
 /**
- * LiveReporting is a container class for real-time reporting features.
- * Currently, only uploading of files (which are uploaded, and directly available for download
- * in real time e.g. while a Keyword is still executing) is available, but this is planned to
- * be extended in the future with other real-time functionality.
+ * LiveReporting is a container class for real-time reporting features, i.e.,
+ * data which is made available to Step users immediately even during Keyword execution,
+ * as opposed to only after a Keyword execution is finished.
+ *
+ * The current implementation supports live-streaming of attachments (i.e., files),
+ * as well as measures.
  * <p>
  * API users will get access to an existing {@link LiveReporting} instance and should only
  * interact with its exposed fields. In particular, instantiation and closure of the reporting
@@ -34,6 +36,7 @@ public class LiveReporting {
      * explicitly instructed to.
      *
      * @param streamingUploadProvider provider instance for creating streaming uploads
+     * @param liveMeasureSink data sink where measures are forwarded to
      */
     public LiveReporting(StreamingUploadProvider streamingUploadProvider, LiveMeasureSink liveMeasureSink) {
         if (streamingUploadProvider == null) {
