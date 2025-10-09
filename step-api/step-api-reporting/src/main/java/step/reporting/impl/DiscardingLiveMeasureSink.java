@@ -9,7 +9,7 @@ public class DiscardingLiveMeasureSink implements LiveMeasureSink {
 
     @Override
     public void accept(Measure measure) {
-        logger.warn("discarding live measure {}, duration={}", measure.getName(), measure.getDuration());
+        logger.warn("Received, but discarding live measure {}, duration={}", measure.getName(), measure.getDuration());
     }
 
     @Override
