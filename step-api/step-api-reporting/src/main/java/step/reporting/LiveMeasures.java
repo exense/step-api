@@ -22,17 +22,17 @@ public class LiveMeasures {
     /**
      * Concrete implementation class where measures are forwarded
      */
-    public final LiveMeasureDestination measureSink;
+    public final LiveMeasureDestination destination;
     // ConcurrentLinkedDeque is a thread-safe alternative to stacks
     private final ConcurrentLinkedDeque<Measure> ongoingStack = new ConcurrentLinkedDeque<>();
 
     /**
      * Instantiates a new LiveMeasures object.
      * <b>Reserved for the framework</b>, do not use for normal API usage.
-     * @param measureSink data sink object, i.e., where measures are forwarded to
+     * @param destination data destination object, i.e., where measures are forwarded to
      */
-    public LiveMeasures(LiveMeasureDestination measureSink) {
-        this.measureSink = measureSink;
+    public LiveMeasures(LiveMeasureDestination destination) {
+        this.destination = destination;
     }
 
 
@@ -46,7 +46,7 @@ public class LiveMeasures {
      * @param measure the measure to submit; must not be {@code null}
      */
     public void addMeasure(Measure measure) {
-        measureSink.accept(Objects.requireNonNull(measure));
+        destination.accept(Objects.requireNonNull(measure));
     }
 
     /**
@@ -88,7 +88,7 @@ public class LiveMeasures {
             Measure measure = ongoingStack.pop();
             measure.setDuration(now - measure.getBegin());
             measure.setData(data);
-            measureSink.accept(measure);
+            destination.accept(measure);
         } catch (NoSuchElementException e) {
             throw new IllegalArgumentException("Unbalanced measures stack: stopMeasure() called but no measure present; did you forget to call startMeasure()?");
         }
@@ -102,6 +102,6 @@ public class LiveMeasures {
         if (!ongoingStack.isEmpty()) {
             logger.warn("LiveMeasures object closing, but there are still {} ongoing measures; these will be discarded", ongoingStack.size());
         }
-        measureSink.close();
+        destination.close();
     }
 }
