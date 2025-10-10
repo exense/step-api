@@ -2,7 +2,7 @@ package step.reporting.impl;
 
 import step.core.reports.Measure;
 
-public interface LiveMeasureSink {
+public interface LiveMeasureDestination {
     void accept(Measure measure);
-    void close();
+    default void close() {}
 }

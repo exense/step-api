@@ -20,7 +20,7 @@ package step.handlers.javahandler;
 
 import step.core.reports.Measure;
 import step.reporting.LiveReporting;
-import step.reporting.impl.LiveMeasureSink;
+import step.reporting.impl.LiveMeasureDestination;
 import step.streaming.client.upload.StreamingUpload;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
 import step.streaming.client.upload.impl.local.LocalDirectoryBackedStreamingUploadProvider;
@@ -242,17 +242,7 @@ public class MyKeywordLibrary extends AbstractKeyword {
                             outputDir.toFile()
                     ),
                     // redirect live measure to "regular" measure system, appended to output
-                    new LiveMeasureSink() {
-                        @Override
-                        public void accept(Measure measure) {
-                            output.addMeasure(measure);
-                        }
-
-                        @Override
-                        public void close() {
-
-                        }
-                    }
+                    measure -> output.addMeasure(measure)
             );
         }
 

@@ -3,7 +3,7 @@ package step.reporting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.core.reports.Measure;
-import step.reporting.impl.LiveMeasureSink;
+import step.reporting.impl.LiveMeasureDestination;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -19,17 +19,20 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class LiveMeasures {
     private final Logger logger = LoggerFactory.getLogger(LiveMeasures.class);
-    private final LiveMeasureSink sink;
+    /**
+     * Concrete implementation class where measures are forwarded
+     */
+    public final LiveMeasureDestination measureSink;
     // ConcurrentLinkedDeque is a thread-safe alternative to stacks
     private final ConcurrentLinkedDeque<Measure> ongoingStack = new ConcurrentLinkedDeque<>();
 
     /**
      * Instantiates a new LiveMeasures object.
      * <b>Reserved for the framework</b>, do not use for normal API usage.
-     * @param sink data sink object, i.e., where measures are forwarded to
+     * @param measureSink data sink object, i.e., where measures are forwarded to
      */
-    public LiveMeasures(LiveMeasureSink sink) {
-        this.sink = sink;
+    public LiveMeasures(LiveMeasureDestination measureSink) {
+        this.measureSink = measureSink;
     }
 
 
@@ -43,7 +46,7 @@ public class LiveMeasures {
      * @param measure the measure to submit; must not be {@code null}
      */
     public void addMeasure(Measure measure) {
-        sink.accept(Objects.requireNonNull(measure));
+        measureSink.accept(Objects.requireNonNull(measure));
     }
 
     /**
@@ -85,7 +88,7 @@ public class LiveMeasures {
             Measure measure = ongoingStack.pop();
             measure.setDuration(now - measure.getBegin());
             measure.setData(data);
-            sink.accept(measure);
+            measureSink.accept(measure);
         } catch (NoSuchElementException e) {
             throw new IllegalArgumentException("Unbalanced measures stack: stopMeasure() called but no measure present; did you forget to call startMeasure()?");
         }
@@ -99,6 +102,6 @@ public class LiveMeasures {
         if (!ongoingStack.isEmpty()) {
             logger.warn("LiveMeasures object closing, but there are still {} ongoing measures; these will be discarded", ongoingStack.size());
         }
-        sink.close();
+        measureSink.close();
     }
 }

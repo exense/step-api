@@ -2,8 +2,8 @@ package step.reporting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import step.reporting.impl.DiscardingLiveMeasureSink;
-import step.reporting.impl.LiveMeasureSink;
+import step.reporting.impl.DelegatingLiveMeasureDestination;
+import step.reporting.impl.LiveMeasureDestination;
 import step.streaming.client.upload.StreamingUploadProvider;
 import step.streaming.client.upload.StreamingUploads;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
@@ -36,9 +36,9 @@ public class LiveReporting {
      * explicitly instructed to.
      *
      * @param streamingUploadProvider provider instance for creating streaming uploads
-     * @param liveMeasureSink data sink where measures are forwarded to
+     * @param liveMeasureDestination data sink where measures are forwarded to
      */
-    public LiveReporting(StreamingUploadProvider streamingUploadProvider, LiveMeasureSink liveMeasureSink) {
+    public LiveReporting(StreamingUploadProvider streamingUploadProvider, LiveMeasureDestination liveMeasureDestination) {
         if (streamingUploadProvider == null) {
             // FIXME: improve to give option to save locally -- SED-4192
             logger.debug("LiveReporting initializing without a StreamingUploadProvider object, instantiating one that discards all data");
@@ -46,11 +46,11 @@ public class LiveReporting {
         }
         fileUploads = new StreamingUploads(streamingUploadProvider);
 
-        if (liveMeasureSink == null) {
-            logger.debug("LiveReporting instantiated without a LiveMeasureSink object, instantiating one that discards all data");
-            liveMeasureSink = new DiscardingLiveMeasureSink();
+        if (liveMeasureDestination == null) {
+            logger.debug("LiveReporting instantiated without a LiveMeasureSink object, instantiating one that discards all data by default");
+            liveMeasureDestination = new DelegatingLiveMeasureDestination();
         }
-        measures = new LiveMeasures(liveMeasureSink);
+        measures = new LiveMeasures(liveMeasureDestination);
     }
 
     /**
