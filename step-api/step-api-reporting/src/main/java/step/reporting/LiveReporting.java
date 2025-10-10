@@ -2,17 +2,19 @@ package step.reporting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import step.reporting.impl.DelegatingLiveMeasureDestination;
+import step.reporting.impl.LiveMeasureDestination;
 import step.streaming.client.upload.StreamingUploadProvider;
 import step.streaming.client.upload.StreamingUploads;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
 
-import java.util.concurrent.Executors;
-
 /**
- * LiveReporting is a container class for real-time reporting features.
- * Currently, only uploading of files (which are uploaded, and directly available for download
- * in real time e.g. while a Keyword is still executing) is available, but this is planned to
- * be extended in the future with other real-time functionality.
+ * LiveReporting is a container class for real-time reporting features, i.e.,
+ * data which is made available to Step users immediately even during Keyword execution,
+ * as opposed to only after a Keyword execution is finished.
+ *
+ * The current implementation supports live-streaming of attachments (i.e., files),
+ * as well as measures.
  * <p>
  * API users will get access to an existing {@link LiveReporting} instance and should only
  * interact with its exposed fields. In particular, instantiation and closure of the reporting
@@ -27,19 +29,28 @@ public class LiveReporting {
      */
     public final StreamingUploads fileUploads;
 
+    public final LiveMeasures measures;
+
     /**
      * Instantiates a new LiveReporting object. <b>Reserved for the framework</b>, do not use unless
      * explicitly instructed to.
      *
      * @param streamingUploadProvider provider instance for creating streaming uploads
+     * @param liveMeasureDestination data sink where measures are forwarded to
      */
-    public LiveReporting(StreamingUploadProvider streamingUploadProvider) {
+    public LiveReporting(StreamingUploadProvider streamingUploadProvider, LiveMeasureDestination liveMeasureDestination) {
         if (streamingUploadProvider == null) {
             // FIXME: improve to give option to save locally -- SED-4192
-            logger.debug("LiveReporting initializing without a provided StreamingUploads object, instantiating one that discards all data");
+            logger.debug("LiveReporting initializing without a StreamingUploadProvider object, instantiating one that discards all data");
             streamingUploadProvider = new DiscardingStreamingUploadProvider();
         }
         fileUploads = new StreamingUploads(streamingUploadProvider);
+
+        if (liveMeasureDestination == null) {
+            logger.debug("LiveReporting instantiated without a LiveMeasureSink object, instantiating one that discards all data by default");
+            liveMeasureDestination = new DelegatingLiveMeasureDestination();
+        }
+        measures = new LiveMeasures(liveMeasureDestination);
     }
 
     /**
@@ -54,6 +65,11 @@ public class LiveReporting {
         } catch (Exception unexpected) {
             // this SHOULD never happen, but just to be safe in case something goes terribly wrong,
             // so we don't break the code which uses us and may not be prepared for exceptions...
+            logger.error("Unexpected exception occurred while closing LiveReporting", unexpected);
+        }
+        try {
+            measures.close();
+        } catch (Exception unexpected) {
             logger.error("Unexpected exception occurred while closing LiveReporting", unexpected);
         }
     }

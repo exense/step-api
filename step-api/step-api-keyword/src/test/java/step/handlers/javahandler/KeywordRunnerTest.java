@@ -564,6 +564,21 @@ public class KeywordRunnerTest {
 
 	}
 
+    @Test
+    public void testKeywordWithLiveReporting() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+
+        var out = runner.run(
+                "MyKeywordWithLiveReporting",
+                "{}"
+        );
+		assertEquals(70, out.getPayload().getInt("uploadedFileLength"));
+		assertEquals(1, out.getMeasures().size());
+		var duration = out.getMeasures().get(0).getDuration();
+		// should be slightly more than 1000
+		assertTrue(duration > 1000 && duration < 1500);
+    }
+
 	private static JsonNode readJsonFromFile(String path) throws IOException {
 		File inputFile = new File(path);
 

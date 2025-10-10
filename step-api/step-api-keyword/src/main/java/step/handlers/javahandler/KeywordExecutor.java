@@ -54,7 +54,7 @@ public class KeywordExecutor {
 	private final LiveReporting liveReporting;
 
 	public KeywordExecutor(boolean throwExceptionOnError) {
-		this(throwExceptionOnError, new LiveReporting(null));
+		this(throwExceptionOnError, new LiveReporting(null, null));
 	}
 
 	public KeywordExecutor(boolean throwExceptionOnError, LiveReporting liveReporting) {
