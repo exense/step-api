@@ -57,7 +57,7 @@ public class KeywordProxy {
                 public void accept(Object object) {
                     keywordReturnValue.set(object);
                 }
-            });
+            }, null);
             long duration = System.currentTimeMillis() - start;
             if (parentOutputBuilder != null) {
                 parentOutputBuilder.addMeasure(KeywordExecutor.getKeywordName(keywordMethod, keywordAnnotation), duration);

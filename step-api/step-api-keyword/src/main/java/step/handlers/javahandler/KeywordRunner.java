@@ -99,7 +99,7 @@ public class KeywordRunner {
 			allProperties.putAll(properties);
 			Output<JsonObject> output;
 			try {
-				output = keywordExecutor.handle(input, tokenSession, tokenReservationSession, allProperties);
+				output = keywordExecutor.handle(input, tokenSession, tokenReservationSession, allProperties, null);
 				if(output.getError()!=null) {
 					logger.error("Keyword error occurred:"+output.getError());
 				}
