@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.OutputBuilder;
+import step.reporting.LiveReporting;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -63,8 +64,10 @@ public class AbstractKeyword {
 	 */
 	protected AbstractSession tokenSession;
 
-	private AutomationPackageFileSupplier automationPackageFileSupplier;
-	
+	protected LiveReporting liveReporting;
+
+    private AutomationPackageFileSupplier automationPackageFileSupplier;
+
 	public AbstractSession getSession() {
 		return session;
 	}
