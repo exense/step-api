@@ -65,7 +65,9 @@ public class AbstractKeyword {
 	protected AbstractSession tokenSession;
 
 	protected LiveReporting liveReporting;
-	
+
+    private AutomationPackageFileSupplier automationPackageFileSupplier;
+
 	public AbstractSession getSession() {
 		return session;
 	}
@@ -107,6 +109,10 @@ public class AbstractKeyword {
 
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
+	}
+
+	public void setAutomationPackageFileSupplier(AutomationPackageFileSupplier automationPackageFileSupplier) {
+		this.automationPackageFileSupplier = automationPackageFileSupplier;
 	}
 
 	/**
@@ -240,5 +246,20 @@ public class AbstractKeyword {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * @return the extracted automation package content if this Keyword instance is part of an automation package.
+	 * If this Keyword instance is not part of an automation package, this method returns null.
+	 */
+	protected File retrieveAndExtractAutomationPackage() {
+		return automationPackageFileSupplier != null ? automationPackageFileSupplier.retrieveAndExtractAutomationPackage() : null;
+	}
+
+	/**
+	 * @return true if this Keyword instance is part of an automation package
+	 */
+	protected boolean isInAutomationPackage() {
+		return automationPackageFileSupplier != null && automationPackageFileSupplier.hasAutomationPackageFile();
 	}
 }

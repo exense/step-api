@@ -71,7 +71,7 @@ public class KeywordExecutor {
 		this.throwExceptionOnError = throwExceptionOnError;
 	}
 
-	public Output<JsonObject> handle(Input<JsonObject> input, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties) throws Exception {
+	public Output<JsonObject> handle(Input<JsonObject> input, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, AutomationPackageFileSupplier automationPackageFileSupplier) throws Exception {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		
 		String kwClassnames = input.getProperties().get(KEYWORD_CLASSES);
@@ -84,7 +84,7 @@ public class KeywordExecutor {
 						Keyword annotation = m.getAnnotation(Keyword.class);
 						String keywordName = getKeywordName(m, annotation);
 						if (keywordName.equals(input.getFunction())) {
-							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation, null);
+							return executeKeyword(keywordName, input.getPayload(), tokenSession, tokenReservationSession, properties, m, annotation, null, automationPackageFileSupplier);
 						}
 					}
 				}
@@ -94,14 +94,14 @@ public class KeywordExecutor {
 		throw new Exception("Unable to find method annotated by '" + Keyword.class.getName() + "' with name=='"+ input.getFunction() + "'");
 	}
 
-	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation, Consumer<Object> returnKeywordCallback) throws Exception {
+	protected Output<JsonObject> executeKeyword(AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Object[] args, Keyword annotation, Consumer<Object> returnKeywordCallback, AutomationPackageFileSupplier automationPackageFileSupplier) throws Exception {
 		Parameter[] parameters = method.getParameters();
 		JsonObject inputPayload = getJsonInputFromMethodParameters(args, parameters);
 		String keywordName = getKeywordName(method, annotation);
-		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation, returnKeywordCallback);
+		return executeKeyword(keywordName, inputPayload, tokenSession, tokenReservationSession, properties, method, annotation, returnKeywordCallback, automationPackageFileSupplier);
 	}
 
-	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation, Consumer<Object> returnKeywordCallback) throws Exception {
+	protected Output<JsonObject> executeKeyword(String keywordName, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Method method, Keyword annotation, Consumer<Object> returnKeywordCallback, AutomationPackageFileSupplier automationPackageFileSupplier) throws Exception {
 
 		Map<String, String> keywordProperties;
 		if(properties.containsKey(VALIDATE_PROPERTIES)) {
@@ -129,7 +129,7 @@ public class KeywordExecutor {
 			keywordProperties = properties;
 		}
 
-		return invokeMethod(keywordName, method, inputPayload, tokenSession, tokenReservationSession, keywordProperties, returnKeywordCallback);
+		return invokeMethod(keywordName, method, inputPayload, tokenSession, tokenReservationSession, keywordProperties, returnKeywordCallback, automationPackageFileSupplier);
 	}
 
 	public static String getKeywordName(Method m, Keyword annotation) {
@@ -195,7 +195,7 @@ public class KeywordExecutor {
 		}
 	}
 
-	private Output<JsonObject> invokeMethod(String keywordName, Method m, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Consumer<Object> returnKeywordCallback)
+	private Output<JsonObject> invokeMethod(String keywordName, Method m, JsonObject inputPayload, AbstractSession tokenSession, AbstractSession tokenReservationSession, Map<String, String> properties, Consumer<Object> returnKeywordCallback, AutomationPackageFileSupplier automationPackageFileSupplier)
 			throws Exception {
 		Class<?> clazz = m.getDeclaringClass();
 		Object instance = clazz.newInstance();
@@ -214,6 +214,7 @@ public class KeywordExecutor {
 			script.setInput(inputPayload);
 			script.setProperties(properties);
 			script.setOutputBuilder(outputBuilder);
+            script.setAutomationPackageFileSupplier(automationPackageFileSupplier);
 			script.liveReporting = liveReporting;
 
 			Keyword annotation = m.getAnnotation(Keyword.class);
