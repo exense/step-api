@@ -46,14 +46,16 @@ public class LiveMeasures {
      * @param measure the measure to submit; must not be {@code null}
      */
     public void addMeasure(Measure measure) {
-        destination.accept(Objects.requireNonNull(measure));
+        Objects.requireNonNull(measure, "measure must not be null");
+        Objects.requireNonNull(measure.getStatus(), "measure status must not be null");
+        Objects.requireNonNull(measure.getName(), "measure name must not be null");
+        destination.accept(measure);
     }
 
     /**
      * Starts a new measure with the given name and pushes it onto the internal stack.
      * <p>
      * The measure will remain open until a corresponding call to {@link #stopMeasure()}
-     * or {@link #stopMeasure(Map)} is made.
      * </p>
      *
      * @param measureName the name of the measure to start; must not be {@code null}
@@ -66,12 +68,25 @@ public class LiveMeasures {
     }
 
     /**
-     * Stops the most recently started measure and submits it.
+     * Stops the most recently started measure, assigns it a {@code PASSED} status, and submits it.
      *
      * @throws IllegalArgumentException if called without a matching call to {@link #startMeasure(String)}
+     * @see #stopMeasure(Measure.Status)
+     * @see #stopMeasure(Measure.Status, Map)
      */
     public void stopMeasure() {
-        stopMeasure(null);
+        stopMeasure(Measure.Status.PASSED);
+    }
+
+    /**
+     * Stops the most recently started measure, assigns the given status, and submits it.
+     *
+     * @param status the status of the measure, must not be null.
+     * @throws IllegalArgumentException if called without a matching call to {@link #startMeasure(String)}
+     * @see #stopMeasure(Measure.Status, Map)
+     */
+    public void stopMeasure(Measure.Status status) {
+        stopMeasure(status, null);
     }
 
     /**
@@ -79,16 +94,18 @@ public class LiveMeasures {
      * <p>
      * The measure's resulting duration is automatically computed based on its start time.
      *
-     * @param data optional key-value data to associate with the measure
+     * @param status the status of the measure, must not be null.
+     * @param data optional key-value data to associate with the measure, may be null.
      * @throws IllegalArgumentException if called without a matching call to {@link #startMeasure(String)}
      */
-    public void stopMeasure(Map<String, Object> data) {
+    public void stopMeasure(Measure.Status status, Map<String, Object> data) {
         long now = System.currentTimeMillis();
         try {
             Measure measure = ongoingStack.pop();
             measure.setDuration(now - measure.getBegin());
             measure.setData(data);
-            destination.accept(measure);
+            measure.setStatus(status);
+            addMeasure(measure);
         } catch (NoSuchElementException e) {
             throw new IllegalArgumentException("Unbalanced measures stack: stopMeasure() called but no measure present; did you forget to call startMeasure()?");
         }

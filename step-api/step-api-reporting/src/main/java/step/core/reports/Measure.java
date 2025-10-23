@@ -29,8 +29,20 @@ import java.util.Map;
  * (e.g. passed, failed, or technical error).
  * </p>
  *
- * Measures are implicitly created with a status of PASSED unless otherwise specified
- * by the constructor used.
+ * <b>Implementation / behavior note</b>
+ * <p>
+ * Measures are reported either 1) at the end of a keyword call (via a {@link MeasurementsBuilder} object),
+ * or 2) live, while a keyword call is performed, via a {@link  step.reporting.LiveMeasures} object.
+ * <p>
+ * In the former case (1), measures that don't have an explicit status set will be assigned the same
+ * status as the (finished) keyword they belong to.
+ * <p>
+ * In the latter case (2), measures <b>must</b> carry their own status, because the keyword execution
+ * has not finished yet (and therefore has no final status) at the time when the measure is processed.
+ *
+ * @see step.reporting.LiveMeasures
+ * @see MeasurementsBuilder
+ *
  */
 public class Measure {
 
@@ -70,7 +82,7 @@ public class Measure {
 	private long begin;
 
 	/**
-	 * The status of the measure, defaulting to {@link Status#PASSED}.
+	 * The status of the measure.
 	 */
 	private Status status = Status.PASSED;
 
@@ -80,7 +92,7 @@ public class Measure {
 	private Map<String, Object> data;
 
 	/**
-	 * Creates an empty {@code Measure} instance with default values.
+	 * Creates an empty {@code Measure} instance with no field values defined.
 	 * Typically used when fields are to be set later.
 	 */
 	public Measure() {
@@ -88,8 +100,8 @@ public class Measure {
 	}
 
 	/**
-	 * Creates a {@code Measure} instance with basic information and an implicit
-	 * {@link Status#PASSED} status.
+	 * Creates a {@code Measure} instance with basic information and no explicit
+	 * status.
 	 *
 	 * @param name     the name or identifier of the measure
 	 * @param duration the duration of the measure in milliseconds
@@ -97,7 +109,7 @@ public class Measure {
 	 * @param data     additional contextual data
 	 */
 	public Measure(String name, long duration, long begin, Map<String, Object> data) {
-		this(name, duration, begin, data, Status.PASSED);
+		this(name, duration, begin, data, null);
 	}
 
 	/**
