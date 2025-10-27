@@ -329,14 +329,33 @@ public class OutputBuilder {
 	}
 
 	/**
+	 * Stops the current performance measurement and adds it to the output
+	 *
+	 * @param status the explicit status to set for the measurement
+	 */
+	public void stopMeasure(Measure.Status status) {
+		measureHelper.stopMeasure(null, status);
+	}
+
+	/**
 	 * Stops the current performance measurement and adds it to the output. 
-	 * 
+	 *
 	 * @param data custom data to be added to the measurement
 	 */
 	public void stopMeasure(Map<String, Object> data) {
 		measureHelper.stopMeasure(data);
 	}
-	
+
+	/**
+	 * Stops the current performance measurement and adds it to the output.
+	 *
+	 * @param status the explicit status to set for the measurement
+	 * @param data   custom data to be added to the measurement
+	 */
+	public void stopMeasure(Measure.Status status, Map<String, Object> data) {
+		measureHelper.stopMeasure(data, status);
+	}
+
 	public void stopMeasureForAdditionalData() {
 		this.lastMeasureHandle = measureHelper.stopMeasure();
 	}

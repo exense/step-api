@@ -43,7 +43,7 @@ public class MeasurementsBuilder {
 		}
 	}
 	
-	private Measure stopMeasure(long end, Map<String, Object> data) {
+	private Measure stopMeasure(long end, Map<String, Object> data, Measure.Status status) {
 		Measure tr = null;
 		synchronized (stack) {
 			tr = stack.pop();
@@ -52,6 +52,7 @@ public class MeasurementsBuilder {
 		if(tr!=null) {
 			tr.setDuration(end-tr.getBegin());
 			tr.setData(data);
+			tr.setStatus(status);
 			synchronized (closedMeasures) {
 				closedMeasures.add(tr);
 			}
@@ -61,11 +62,15 @@ public class MeasurementsBuilder {
 		
 		return tr;
 	}
-	
-	public Measure stopMeasure(Map<String, Object> data) {
-		return stopMeasure(System.currentTimeMillis(), data);
+
+	public Measure stopMeasure(Map<String, Object> data, Measure.Status status) {
+		return stopMeasure(System.currentTimeMillis(), data, status);
 	}
-	
+
+	public Measure stopMeasure(Map<String, Object> data) {
+		return stopMeasure(System.currentTimeMillis(), data, null);
+	}
+
 	public Measure stopMeasure() {
 		return stopMeasure(null);
 	}

@@ -18,11 +18,29 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import step.core.reports.Measure;
+import step.reporting.LiveReporting;
+import step.reporting.impl.LiveMeasureDestination;
+import step.streaming.client.upload.StreamingUpload;
+import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
+import step.streaming.client.upload.impl.local.LocalDirectoryBackedStreamingUploadProvider;
+import step.streaming.common.QuotaExceededException;
+import step.streaming.common.StreamingResourceStatus;
+import step.streaming.common.StreamingResourceTransferStatus;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 
 public class MyKeywordLibrary extends AbstractKeyword {
 
@@ -210,5 +228,78 @@ public class MyKeywordLibrary extends AbstractKeyword {
 	public void MyKeywordUsingSession2() {
 		output.add("sessionObject", (String)session.get("object1"));
 	}
+
+    // This is (almost) the same KW as we use in the documentation as a sample
+    @Keyword /* Advanced error handling left of for the sake of simplicity */
+    public void MyKeywordWithLiveReporting() throws IOException, InterruptedException {
+
+        Path outputDir = null;
+        if (liveReporting.fileUploads.getProvider() instanceof DiscardingStreamingUploadProvider) {
+            outputDir = Files.createTempDirectory("output-");
+            liveReporting = new LiveReporting(
+                    new LocalDirectoryBackedStreamingUploadProvider(
+                            Executors.newCachedThreadPool(),
+                            outputDir.toFile()
+                    ),
+                    // redirect live measure to "regular" measure system, appended to output
+                    measure -> output.addMeasure(measure)
+            );
+        }
+
+        liveReporting.measures.startMeasure("realtime_measure");
+
+        // This could also be a file produced by something else, like a log file/stdout of another process;
+        // We're populating it ourselves here for demo purposes
+        Path logFile = Files.createTempFile("logfile", ".txt");
+
+        StreamingUpload upload = null;
+        try {
+            upload = liveReporting.fileUploads.startTextFileUpload(logFile.toFile());
+        } catch (QuotaExceededException e) {
+            // Your KW should be prepared to handle at least QuotaExceededException;
+            output.add("quota error", e.getMessage());
+        }
+
+        // Log some demo data
+        Files.writeString(logFile, "This is a line of text that can be streamed in realtime\n", StandardOpenOption.APPEND);
+        Thread.sleep(1000);
+        Files.writeString(logFile, "Another line.\n", StandardOpenOption.APPEND);
+
+        // Uploads MUST be signaled to be complete!
+        if (upload != null) {
+            try {
+                StreamingResourceStatus uploadStatus = upload.complete(Duration.ofSeconds(5));
+                if (!uploadStatus.getTransferStatus().equals(StreamingResourceTransferStatus.COMPLETED)) {
+                    output.add("unexpected transfer status", uploadStatus.getTransferStatus().name());
+                }
+            } catch (QuotaExceededException e) {
+                // Again, be prepared to at least handle aborted uploads due to quota restrictions
+                output.add("quota error", e.getMessage());
+            } catch (TimeoutException | ExecutionException e) {
+                output.add("unexpected error", e.getMessage());
+            }
+        }
+
+        liveReporting.measures.stopMeasure();
+
+        Files.deleteIfExists(logFile);
+        // Recursively delete streaming target dir, while also capturing information about the "streamed" output
+        if (outputDir != null) {
+            try (var paths = Files.walk(outputDir)) {
+                paths.sorted(Comparator.reverseOrder())
+                        .forEach(path -> {
+                            try {
+                                if (path.toFile().isFile()) {
+                                    // we're expecting to find exactly one file.
+                                    output.add("uploadedFileLength", path.toFile().length());
+                                }
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+        }
+    }
 
 }
