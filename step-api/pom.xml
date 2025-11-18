@@ -46,7 +46,7 @@
 
 		<!-- exense dependencies -->
 		<dependencies.version>2025.6.25</dependencies.version>
-		<step-streaming.version>2025.11.10-691224041e9eb03e39bd2614</step-streaming.version>
+		<step-streaming.version>2025.11.18-691c362e11ea7b7be5a4a65d</step-streaming.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
