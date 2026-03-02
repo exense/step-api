@@ -45,7 +45,7 @@
 		<maven.compiler.release>11</maven.compiler.release>
 
 		<!-- exense dependencies -->
-		<dependencies.version>2025.6.25</dependencies.version>
+		<dependencies.version>2026.2.27</dependencies.version>
 		<step-streaming.version>1.0.0</step-streaming.version>
 
 		<!-- maven build dependencies -->
