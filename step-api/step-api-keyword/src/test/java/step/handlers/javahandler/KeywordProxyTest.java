@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class KeywordProxyTest{
+public class KeywordProxyTest {
 
     public static final String MY_SESSION_OBJECT = "mySessionObject";
     public static final String MY_TOKEN_SESSION_OBJECT = "myTokenSessionObject";
@@ -34,8 +34,8 @@ public class KeywordProxyTest{
         proxy.MyKeywordWithInputAnnotation(10, 100, true, "str", "str2");
         JsonObject outputPayload = keywordProxy.getLastOutput().getPayload();
         JsonObject expectedJson = Json.createObjectBuilder().add("numberFieldOut", 10)
-                .add("primitiveIntOut", 100).add("booleanFieldOut", true)
-                .add("stringField1Out", "str").add("stringField2Out", "str2").build();
+            .add("primitiveIntOut", 100).add("booleanFieldOut", true)
+            .add("stringField1Out", "str").add("stringField2Out", "str2").build();
         assertEquals(expectedJson, outputPayload);
     }
 
@@ -47,7 +47,7 @@ public class KeywordProxyTest{
     @Test
     public void testProxyWithParent() throws Exception {
         KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
-        Output<JsonObject> output = runner.run("testParent","{\"merge\":false}");
+        Output<JsonObject> output = runner.run("testParent", "{\"merge\":false}");
         assertNull(output.getError());
         assertEquals("{\"parent_output\":\"test\"}", output.getPayload().toString());
         assertEquals(3, output.getMeasures().size());
@@ -57,7 +57,7 @@ public class KeywordProxyTest{
     @Test
     public void testProxyWithParentPlanLike() throws Exception {
         KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
-        Output<JsonObject> output = runner.run("testPlanLike","{\"merge\":true}");
+        Output<JsonObject> output = runner.run("testPlanLike", "{\"merge\":true}");
         assertNull(output.getError());
         JsonObject jsonObject = Json.createReader(new StringReader("{\"key\":\"someStringValue\",\"long\":12345798798,\"double\":123.456,\"parent_output\":\"test\", \"stringField\":\"someValue\",\"longValue\":123456787,\"booleanValue\":true,\"aoubleValue\":123.4567,\"someList\":[\"text\",true,12345678],\"someMap\":{\"boolean\":true,\"string\":\"value\",\"long\":123456748}}")).readObject();
         assertEquals(jsonObject, output.getPayload());
@@ -69,8 +69,8 @@ public class KeywordProxyTest{
     public void testProxyCallingNonKeywordMethods() throws Exception {
         KeywordRunner.ExecutionContext runner = KeywordRunner.getExecutionContext(new HashMap<>(), ParentKeyword.class);
         assertThrows("Only keyword methods, annotated with '@Keyword', can be invoked using the KeywordProxy.",
-                step.handlers.javahandler.KeywordException.class,
-                () -> runner.run("testNonKeywordMethodCall","{\"merge\":true}"));
+            step.handlers.javahandler.KeywordException.class,
+            () -> runner.run("testNonKeywordMethodCall", "{\"merge\":true}"));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class KeywordProxyTest{
         }
     }
 
-    public  static class ParentKeyword extends AbstractKeyword {
+    public static class ParentKeyword extends AbstractKeyword {
 
         @Keyword
         public void testParent() {

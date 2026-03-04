@@ -32,92 +32,92 @@ import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForAr
 
 public class JsonInputConverter {
 
-	public static final String ARRAY_VALUE_SEPARATOR = ";";
+    public static final String ARRAY_VALUE_SEPARATOR = ";";
 
-	// TODO this method duplicates a lot of the code of JsonObjectMapper. It should be refactored
-	public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
-		Class<?> clazz = resolveClass(type, jsonName);
+    // TODO this method duplicates a lot of the code of JsonObjectMapper. It should be refactored
+    public static void addValueToJsonBuilder(String value, JsonObjectBuilder builder, Type type, String jsonName) throws IllegalArgumentException {
+        Class<?> clazz = resolveClass(type, jsonName);
 
-		if(String.class.isAssignableFrom(clazz)){
-			builder.add(jsonName, value);
-		} else if(Boolean.class.isAssignableFrom(clazz) || clazz.equals(boolean.class)){
-			builder.add(jsonName, Boolean.parseBoolean(value));
-		} else if(Integer.class.isAssignableFrom(clazz) || clazz.equals(int.class)){
-			builder.add(jsonName, Integer.parseInt(value));
-		} else if(Long.class.isAssignableFrom(clazz) || clazz.equals(long.class)){
-			builder.add(jsonName, Long.parseLong(value));
-		} else if(Double.class.isAssignableFrom(clazz) || clazz.equals(double.class)){
-			builder.add(jsonName, Double.parseDouble(value));
-		} else if(BigInteger.class.isAssignableFrom(clazz)){
-			builder.add(jsonName, BigInteger.valueOf(Long.parseLong(value)));
-		} else if(BigDecimal.class.isAssignableFrom(clazz)){
-			builder.add(jsonName, BigDecimal.valueOf(Double.parseDouble(value)));
-		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)){
-			JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        if (String.class.isAssignableFrom(clazz)) {
+            builder.add(jsonName, value);
+        } else if (Boolean.class.isAssignableFrom(clazz) || clazz.equals(boolean.class)) {
+            builder.add(jsonName, Boolean.parseBoolean(value));
+        } else if (Integer.class.isAssignableFrom(clazz) || clazz.equals(int.class)) {
+            builder.add(jsonName, Integer.parseInt(value));
+        } else if (Long.class.isAssignableFrom(clazz) || clazz.equals(long.class)) {
+            builder.add(jsonName, Long.parseLong(value));
+        } else if (Double.class.isAssignableFrom(clazz) || clazz.equals(double.class)) {
+            builder.add(jsonName, Double.parseDouble(value));
+        } else if (BigInteger.class.isAssignableFrom(clazz)) {
+            builder.add(jsonName, BigInteger.valueOf(Long.parseLong(value)));
+        } else if (BigDecimal.class.isAssignableFrom(clazz)) {
+            builder.add(jsonName, BigDecimal.valueOf(Double.parseDouble(value)));
+        } else if (clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
+            JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-			Class<?> arrayValueType = getTypeClass(resolveGenericTypeForArrayOrCollection(type));
+            Class<?> arrayValueType = getTypeClass(resolveGenericTypeForArrayOrCollection(type));
 
-			for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
-				if(String.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(arrayValue);
-				} else if(Boolean.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(boolean.class)){
-					arrayBuilder.add(Boolean.parseBoolean(arrayValue));
-				} else if(Integer.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(int.class)){
-					arrayBuilder.add(Integer.parseInt(arrayValue));
-				} else if(Long.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(long.class)){
-					arrayBuilder.add(Long.parseLong(arrayValue));
-				} else if(Double.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(double.class)){
-					arrayBuilder.add(Double.parseDouble(arrayValue));
-				} else if(BigInteger.class.isAssignableFrom(arrayValueType)){
-					arrayBuilder.add(BigInteger.valueOf(Long.parseLong(arrayValue)));
-				} else if(BigDecimal.class.isAssignableFrom(arrayValueType)) {
-					arrayBuilder.add(BigDecimal.valueOf(Double.parseDouble(arrayValue)));
-				} else {
-					throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + arrayValueType);
-				}
-			}
-			builder.add(jsonName, arrayBuilder);
-		} else {
-			//assuming json object as json string
-			try (JsonReader jsonReader = Json.createReader(new StringReader(value))) {
-				JsonObject jsonObject = jsonReader.readObject();
-				builder.add(jsonName, jsonObject);
-			} catch (Exception e) {
-				throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
-			}
-		}
-	}
+            for (String arrayValue : value.split(ARRAY_VALUE_SEPARATOR)) {
+                if (String.class.isAssignableFrom(arrayValueType)) {
+                    arrayBuilder.add(arrayValue);
+                } else if (Boolean.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(boolean.class)) {
+                    arrayBuilder.add(Boolean.parseBoolean(arrayValue));
+                } else if (Integer.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(int.class)) {
+                    arrayBuilder.add(Integer.parseInt(arrayValue));
+                } else if (Long.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(long.class)) {
+                    arrayBuilder.add(Long.parseLong(arrayValue));
+                } else if (Double.class.isAssignableFrom(arrayValueType) || arrayValueType.equals(double.class)) {
+                    arrayBuilder.add(Double.parseDouble(arrayValue));
+                } else if (BigInteger.class.isAssignableFrom(arrayValueType)) {
+                    arrayBuilder.add(BigInteger.valueOf(Long.parseLong(arrayValue)));
+                } else if (BigDecimal.class.isAssignableFrom(arrayValueType)) {
+                    arrayBuilder.add(BigDecimal.valueOf(Double.parseDouble(arrayValue)));
+                } else {
+                    throw new IllegalArgumentException("Unsupported type found for array field " + jsonName + ": " + arrayValueType);
+                }
+            }
+            builder.add(jsonName, arrayBuilder);
+        } else {
+            //assuming json object as json string
+            try (JsonReader jsonReader = Json.createReader(new StringReader(value))) {
+                JsonObject jsonObject = jsonReader.readObject();
+                builder.add(jsonName, jsonObject);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Unsupported type found for field " + jsonName + ": " + type);
+            }
+        }
+    }
 
-	public static Class resolveClass(Type type, String jsonName) {
-		Class<?> clazz;
-		try {
-			if (type instanceof Class) {
-				clazz = (Class<?>) type;
-			} else if (type instanceof ParameterizedType) {
-				// we expect the parameterized collection here
-				clazz = (Class<?>) ((ParameterizedType) type).getRawType();
-			} else {
-				throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
-			}
-		} catch (Exception ex) {
-			throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
-		}
-		return clazz;
-	}
+    public static Class resolveClass(Type type, String jsonName) {
+        Class<?> clazz;
+        try {
+            if (type instanceof Class) {
+                clazz = (Class<?>) type;
+            } else if (type instanceof ParameterizedType) {
+                // we expect the parameterized collection here
+                clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+            } else {
+                throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+            }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Unsupported type " + type + " found for field " + jsonName);
+        }
+        return clazz;
+    }
 
-	public static String resolveJsonPropertyType(Class<?> type) {
-		if (String.class.isAssignableFrom(type)) {
-			return "string";
-		} else if (Boolean.class.isAssignableFrom(type) || type.equals(boolean.class)) {
-			return "boolean";
-		} else if (Number.class.isAssignableFrom(type) || type.equals(int.class) || type.equals(long.class) || type.equals(double.class)) {
-			return "number";
-		} else if (type.isArray() || Collection.class.isAssignableFrom(type)){
-			return "array";
-		} else {
-			return "object";
-		}
-	}
+    public static String resolveJsonPropertyType(Class<?> type) {
+        if (String.class.isAssignableFrom(type)) {
+            return "string";
+        } else if (Boolean.class.isAssignableFrom(type) || type.equals(boolean.class)) {
+            return "boolean";
+        } else if (Number.class.isAssignableFrom(type) || type.equals(int.class) || type.equals(long.class) || type.equals(double.class)) {
+            return "number";
+        } else if (type.isArray() || Collection.class.isAssignableFrom(type)) {
+            return "array";
+        } else {
+            return "object";
+        }
+    }
 
 
 }

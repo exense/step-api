@@ -17,13 +17,13 @@ public class SimplifiedObjectDeserializer {
 
     public static Object parse(String string, Type type) {
         Class<?> typeClass = getTypeClass(type);
-        if(typeClass == String.class) {
+        if (typeClass == String.class) {
             return string;
         } else if (typeClass == Integer.class || typeClass == int.class) {
             return Integer.parseInt(string);
         } else if (typeClass == Long.class || typeClass == long.class) {
             return Long.parseLong(string);
-        }  else if (typeClass == Double.class || typeClass == double.class) {
+        } else if (typeClass == Double.class || typeClass == double.class) {
             return Double.parseDouble(string);
         } else if (typeClass == BigDecimal.class) {
             return new BigDecimal(string);

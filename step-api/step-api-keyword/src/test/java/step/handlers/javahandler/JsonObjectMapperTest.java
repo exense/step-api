@@ -65,23 +65,23 @@ public class JsonObjectMapperTest {
         JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_BOOLEAN, BOOLEAN);
         JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_NULL_OBJECT, null);
         JsonObjectMapper.addValueToJsonObject(inputBuilder, MY_OBJECT, new myPojo());
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myStringList", List.of(STRING, "value2"));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myIntegerList", List.of(INT, 2));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myLongList", List.of(LONG, 2L));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myDoubleList", List.of(DOUBLE, 2.03));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBigDecimalList", List.of(BIG_DECIMAL, new BigDecimal(2)));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBigIntegerList", List.of(BIG_INTEGER));
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myBooleanList", List.of(BOOLEAN, false));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myStringList", List.of(STRING, "value2"));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myIntegerList", List.of(INT, 2));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myLongList", List.of(LONG, 2L));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myDoubleList", List.of(DOUBLE, 2.03));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myBigDecimalList", List.of(BIG_DECIMAL, new BigDecimal(2)));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myBigIntegerList", List.of(BIG_INTEGER));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myBooleanList", List.of(BOOLEAN, false));
         List<String> listOfNull = new ArrayList<>();
         listOfNull.add(null);
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myListWithNullValues", listOfNull);
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myListOfList", List.of( List.of(STRING, "value2"),  List.of(STRING, "value2")));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myListWithNullValues", listOfNull);
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myListOfList", List.of(List.of(STRING, "value2"), List.of(STRING, "value2")));
 
-        JsonObjectMapper.addValueToJsonObject(inputBuilder,"myMapOfString", new HashMap<>(Map.of("key1", "value1", "key2", "value2" )));
+        JsonObjectMapper.addValueToJsonObject(inputBuilder, "myMapOfString", new HashMap<>(Map.of("key1", "value1", "key2", "value2")));
 
         JsonObject jsonObject = inputBuilder.build();
         assertEquals("{\"myString\":\"test\",\"myInteger\":1,\"myLong\":" + LONG + ",\"myDouble\":0.1,\"myBigDecimal\":10,\"myBigInteger\":100,\"myBoolean\":true,\"myNullObject\":null,\"myObject\":{\"test\":\"test\"},\"myStringList\":[\"test\",\"value2\"],\"myIntegerList\":[1,2],\"myLongList\":[" + LONG + ",2],\"myDoubleList\":[0.1,2.03],\"myBigDecimalList\":[10,2],\"myBigIntegerList\":[100],\"myBooleanList\":[true,false],\"myListWithNullValues\":[null],\"myListOfList\":[[\"test\",\"value2\"],[\"test\",\"value2\"]],\"myMapOfString\":{\"key1\":\"value1\",\"key2\":\"value2\"}}",
-                jsonObject.toString());
+            jsonObject.toString());
 
     }
 
@@ -101,17 +101,17 @@ public class JsonObjectMapperTest {
         builder.add("myBigIntegerList", Json.createArrayBuilder().add(BIG_INTEGER).build());
         builder.add("myBooleanList", Json.createArrayBuilder().add(BOOLEAN).build());
         builder.add("myListWithNullValues", Json.createArrayBuilder().addNull().build());
-        builder.add("myListWithObjectValues" ,Json.createArrayBuilder().add(STRING).add(BOOLEAN).add(INT).add(LONG).add(DOUBLE).build());
+        builder.add("myListWithObjectValues", Json.createArrayBuilder().add(STRING).add(BOOLEAN).add(INT).add(LONG).add(DOUBLE).build());
         builder.add("myListOfList", Json.createArrayBuilder().add(Json.createArrayBuilder().add(STRING).build()).build());
-        builder.add("mapOfPojos", Json.createObjectBuilder().add("key1", pojo2AsJson()).add( "key2", pojo2AsJson()).build());
-        builder.add("mapOfStrings", Json.createObjectBuilder().add("key1",  STRING).add( "key2", STRING).build());
-        builder.add("mapOfIntegers", Json.createObjectBuilder().add("key1",  INT).add( "key2", INT).build());
-        builder.add("mapOfLongs", Json.createObjectBuilder().add("key1",  LONG).add( "key2", LONG).build());
-        builder.add("mapOfDoubles", Json.createObjectBuilder().add("key1",  DOUBLE).add( "key2", DOUBLE).build());
-        builder.add("mapOfBigDecimals", Json.createObjectBuilder().add("key1",  BIG_DECIMAL).add( "key2", BIG_DECIMAL).build());
-        builder.add("mapOfBigIntegers", Json.createObjectBuilder().add("key1",  BIG_INTEGER).add( "key2", BIG_INTEGER).build());
-        builder.add("mapOfBooleans", Json.createObjectBuilder().add("key1",  BOOLEAN).add( "key2", BOOLEAN).build());
-        builder.add("mapOfObjects", Json.createObjectBuilder().add("key1",  STRING).add( "key2", INT).build());
+        builder.add("mapOfPojos", Json.createObjectBuilder().add("key1", pojo2AsJson()).add("key2", pojo2AsJson()).build());
+        builder.add("mapOfStrings", Json.createObjectBuilder().add("key1", STRING).add("key2", STRING).build());
+        builder.add("mapOfIntegers", Json.createObjectBuilder().add("key1", INT).add("key2", INT).build());
+        builder.add("mapOfLongs", Json.createObjectBuilder().add("key1", LONG).add("key2", LONG).build());
+        builder.add("mapOfDoubles", Json.createObjectBuilder().add("key1", DOUBLE).add("key2", DOUBLE).build());
+        builder.add("mapOfBigDecimals", Json.createObjectBuilder().add("key1", BIG_DECIMAL).add("key2", BIG_DECIMAL).build());
+        builder.add("mapOfBigIntegers", Json.createObjectBuilder().add("key1", BIG_INTEGER).add("key2", BIG_INTEGER).build());
+        builder.add("mapOfBooleans", Json.createObjectBuilder().add("key1", BOOLEAN).add("key2", BOOLEAN).build());
+        builder.add("mapOfObjects", Json.createObjectBuilder().add("key1", STRING).add("key2", INT).build());
         return builder;
     }
 
@@ -139,9 +139,11 @@ public class JsonObjectMapperTest {
         List<BigInteger> myBigIntegerList = Arrays.asList(BIG_INTEGER);
         List<Boolean> myBooleanList = Arrays.asList(BOOLEAN);
         List<Object> myListWithNullValues = new ArrayList<>();
+
         {
             myListWithNullValues.add(null);
         }
+
         List<Object> myListWithObjectValues = Arrays.asList(STRING, BOOLEAN, INT, LONG, DOUBLE);
         List<Collection<String>> myListOfList = Arrays.asList(Arrays.asList(STRING));
         Pojo2 myPojo = new Pojo2();
@@ -150,7 +152,7 @@ public class JsonObjectMapperTest {
         Map<String, Integer> mapOfIntegers = Map.of("key1", INT, "key2", INT);
         Map<String, Long> mapOfLongs = Map.of("key1", LONG, "key2", LONG);
         Map<String, Double> mapOfDoubles = Map.of("key1", DOUBLE, "key2", DOUBLE);
-        Map<String, BigDecimal> mapOfBigDecimals =  Map.of("key1", BIG_DECIMAL, "key2", BIG_DECIMAL);
+        Map<String, BigDecimal> mapOfBigDecimals = Map.of("key1", BIG_DECIMAL, "key2", BIG_DECIMAL);
         Map<String, BigInteger> mapOfBigIntegers = Map.of("key1", BIG_INTEGER, "key2", BIG_INTEGER);
         Map<String, Boolean> mapOfBooleans = Map.of("key1", BOOLEAN, "key2", BOOLEAN);
         Map<String, Object> mapOfObjects = Map.of("key1", STRING, "key2", INT);
@@ -190,7 +192,7 @@ public class JsonObjectMapperTest {
         }
     }
 
-    public static class PojoPrivateFields  {
+    public static class PojoPrivateFields {
         private String myString = STRING;
         private int myInteger = INT;
         private long myLong = LONG;
@@ -209,9 +211,11 @@ public class JsonObjectMapperTest {
         private List<BigInteger> myBigIntegerList = Arrays.asList(BIG_INTEGER);
         private List<Boolean> myBooleanList = Arrays.asList(BOOLEAN);
         private List<Object> myListWithNullValues = new ArrayList<>();
+
         {
             myListWithNullValues.add(null);
         }
+
         List<Object> myListWithObjectValues = Arrays.asList(STRING, BOOLEAN, INT, LONG, DOUBLE);
         private List<Collection<String>> myListOfList = Arrays.asList(Arrays.asList(STRING));
         private Pojo2 myPojo = new Pojo2();
@@ -220,7 +224,7 @@ public class JsonObjectMapperTest {
         private Map<String, Integer> mapOfIntegers = Map.of("key1", INT, "key2", INT);
         private Map<String, Long> mapOfLongs = Map.of("key1", LONG, "key2", LONG);
         private Map<String, Double> mapOfDoubles = Map.of("key1", DOUBLE, "key2", DOUBLE);
-        private Map<String, BigDecimal> mapOfBigDecimals =  Map.of("key1", BIG_DECIMAL, "key2", BIG_DECIMAL);
+        private Map<String, BigDecimal> mapOfBigDecimals = Map.of("key1", BIG_DECIMAL, "key2", BIG_DECIMAL);
         private Map<String, BigInteger> mapOfBigIntegers = Map.of("key1", BIG_INTEGER, "key2", BIG_INTEGER);
         private Map<String, Boolean> mapOfBooleans = Map.of("key1", BOOLEAN, "key2", BOOLEAN);
         private Map<String, Object> mapOfObjects = Map.of("key1", STRING, "key2", INT);

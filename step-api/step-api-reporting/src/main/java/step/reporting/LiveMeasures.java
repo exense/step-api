@@ -29,6 +29,7 @@ public class LiveMeasures {
     /**
      * Instantiates a new LiveMeasures object.
      * <b>Reserved for the framework</b>, do not use for normal API usage.
+     *
      * @param destination data destination object, i.e., where measures are forwarded to
      */
     public LiveMeasures(LiveMeasureDestination destination) {
@@ -95,7 +96,7 @@ public class LiveMeasures {
      * The measure's resulting duration is automatically computed based on its start time.
      *
      * @param status the status of the measure, must not be null.
-     * @param data optional key-value data to associate with the measure, may be null.
+     * @param data   optional key-value data to associate with the measure, may be null.
      * @throws IllegalArgumentException if called without a matching call to {@link #startMeasure(String)}
      */
     public void stopMeasure(Measure.Status status, Map<String, Object> data) {

@@ -27,7 +27,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Input {
-	String name() default "";
-	String defaultValue() default "";
-	boolean required() default false;
+    String name() default "";
+
+    String defaultValue() default "";
+
+    boolean required() default false;
 }

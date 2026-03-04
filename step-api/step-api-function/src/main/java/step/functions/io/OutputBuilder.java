@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright (C) 2020, exense GmbH
- *  
+ *
  * This file is part of STEP
- *  
+ *
  * STEP is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * STEP is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -40,381 +40,381 @@ import step.grid.io.AttachmentHelper;
  *
  */
 public class OutputBuilder {
-	
-	private JsonObjectBuilder payloadBuilder;
-	
-	private String payloadJson;
-	private JsonObject payload;
 
-	private MeasurementsBuilder measureHelper;
-	
-	private Error error;
-	
-	private List<Attachment> attachments;
-	
-	private static JsonProvider jprov = JsonProvider.provider();
-	
-	private Measure lastMeasureHandle = null;
+    private JsonObjectBuilder payloadBuilder;
 
-	public OutputBuilder() {
-		super();
-		
-		payloadBuilder = jprov.createObjectBuilder();
+    private String payloadJson;
+    private JsonObject payload;
 
-		measureHelper = new MeasurementsBuilder();
-	}
-	
-	public JsonObjectBuilder getPayloadBuilder() {
-		return payloadBuilder;
-	}
+    private MeasurementsBuilder measureHelper;
 
-	public void setPayloadBuilder(JsonObjectBuilder payloadBuilder) {
-		this.payloadBuilder = payloadBuilder;
-	}
+    private Error error;
 
-	/**
-	 * Adds an output attribute  
-	 * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
-	 * 
-	 * @param name the name of the output attribute
-	 * @param value the value of the output attribute
-	 * @return this instance
-	 */
-	public OutputBuilder add(String name, boolean value) {
-		payloadBuilder.add(name, value);
-		return this;
-	}
+    private List<Attachment> attachments;
 
-	/**
-	 * Adds an output attribute  
-	 * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
-	 * 
-	 * @param name the name of the output attribute
-	 * @param value the value of the output attribute
-	 * @return this instance
-	 */
-	public OutputBuilder add(String name, double value) {
-		payloadBuilder.add(name, value);
-		return this;
-	}
+    private static JsonProvider jprov = JsonProvider.provider();
 
-	/**
-	 * Adds an output attribute  
-	 * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
-	 * 
-	 * @param name the name of the output attribute
-	 * @param value the value of the output attribute
-	 * @return this instance
-	 */
-	public OutputBuilder add(String name, int value) {
-		payloadBuilder.add(name, value);
-		return this;
-	}
+    private Measure lastMeasureHandle = null;
 
-	/**
-	 * Adds an output attribute  
-	 * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
-	 * 
-	 * @param name the name of the output attribute
-	 * @param value the value of the output attribute
-	 * @return this instance
-	 */
-	public OutputBuilder add(String name, long value) {
-		payloadBuilder.add(name, value);
-		return this;
-	}
-	
-	/**
-	 * Adds an output attribute  
-	 * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
-	 * 
-	 * @param name the name of the output attribute
-	 * @param value the value of the output attribute
-	 * @return this instance
-	 */
-	public OutputBuilder add(String name, String value) {
-		payloadBuilder.add(name, value);
-		return this;
-	}
+    public OutputBuilder() {
+        super();
 
-	private OutputBuilder add(String name, JsonValue jsonValue) {
-		payloadBuilder.add(name, jsonValue);
-		return this;
-	}
+        payloadBuilder = jprov.createObjectBuilder();
 
-	/**
-	 * Reports a technical error. This will be reported as ERROR in STEP
-	 * 
-	 * @param technicalError the error message of the technical error
-	 * @return this instance
-	 */
-	public OutputBuilder setError(String technicalError) {
-		error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
-		return this;
-	}
-	
-	/**
-	 * Appends a technical error message.
-	 * Calling this method for the first time will have the same effect as calling setError
-	 * 
-	 * @param technicalError the error message of the technical error
-	 * @return this instance
-	 */
-	public OutputBuilder appendError(String technicalError) {
-		if(error!=null) {
-			error.setMsg(error.getMsg()+technicalError);			
-		} else {
-			setError(technicalError);
-		}
-		return this;
-	}
-	
-	/**
-	 * Reports a technical error and appends the exception causing this error
-	 * as attachment
-	 * 
-	 * @param errorMessage the error message of the technical error
-	 * @param e the exception that caused the technical error
-	 * @return this instance
-	 */
-	public OutputBuilder setError(String errorMessage, Throwable e) {
-		setError(errorMessage);
-		addAttachment(generateAttachmentForException(e));
-		return this;
-	}
-	
-	/**
-	 * Reports a business error. This will be reported as FAILED in STEP
-	 * 
-	 * @param businessError the error message of the business error
-	 * @return this instance
-	 */
-	public OutputBuilder setBusinessError(String businessError) {
-		error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
-		return this;
-	}
-	
-	public OutputBuilder setError(Error error) {
-		this.error = error;
-		return this;
-	}
-	
-	/**
-	 * @return the payload of this output. This has no eff
-	 * 
-	 */
-	public String getPayloadJson() {
-		return payloadJson;
-	}
+        measureHelper = new MeasurementsBuilder();
+    }
 
-	/**
-	 * 
-	 * @param payloadJson the payload of this output.
-	 */
-	public void setPayloadJson(String payloadJson) {
-		this.payloadJson = payloadJson;
-	}
+    public JsonObjectBuilder getPayloadBuilder() {
+        return payloadBuilder;
+    }
 
-	public JsonObject getPayload() {
-		return payload;
-	}
+    public void setPayloadBuilder(JsonObjectBuilder payloadBuilder) {
+        this.payloadBuilder = payloadBuilder;
+    }
 
-	public void setPayload(JsonObject payload) {
-		this.payload = payload;
-	}
+    /**
+     * Adds an output attribute
+     * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
+     *
+     * @param name  the name of the output attribute
+     * @param value the value of the output attribute
+     * @return this instance
+     */
+    public OutputBuilder add(String name, boolean value) {
+        payloadBuilder.add(name, value);
+        return this;
+    }
 
-	/**
-	 * Adds attachments to the output
-	 * 
-	 * @param attachments the list of attachments to be added to the output
-	 */
-	public void addAttachments(List<Attachment> attachments) {
-		createAttachmentListIfNeeded();
-		attachments.addAll(attachments);
-	}
+    /**
+     * Adds an output attribute
+     * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
+     *
+     * @param name  the name of the output attribute
+     * @param value the value of the output attribute
+     * @return this instance
+     */
+    public OutputBuilder add(String name, double value) {
+        payloadBuilder.add(name, value);
+        return this;
+    }
 
-	/**
-	 * Adds an attachment to the output
-	 * 
-	 * @param attachment the attachment to be added to the output
-	 */
-	public void addAttachment(Attachment attachment) {
-		createAttachmentListIfNeeded();
-		attachments.add(attachment);
-	}
+    /**
+     * Adds an output attribute
+     * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
+     *
+     * @param name  the name of the output attribute
+     * @param value the value of the output attribute
+     * @return this instance
+     */
+    public OutputBuilder add(String name, int value) {
+        payloadBuilder.add(name, value);
+        return this;
+    }
 
-	private void createAttachmentListIfNeeded() {
-		if(attachments==null) {
-			attachments = new ArrayList<>();
-		}
-	}
-	
-	/**
-	 * Starts a performance measurement. The current time will be used as starttime
-	 * 
-	 * @param id a unique identifier of the measurement
-	 */
-	public void startMeasure(String id) {
-		measureHelper.startMeasure(id);
-	}
+    /**
+     * Adds an output attribute
+     * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
+     *
+     * @param name  the name of the output attribute
+     * @param value the value of the output attribute
+     * @return this instance
+     */
+    public OutputBuilder add(String name, long value) {
+        payloadBuilder.add(name, value);
+        return this;
+    }
 
-	/**
-	 * Starts a performance measurement
-	 * 
-	 * @param id a unique identifier of the measurement
-	 * @param begin the start time of the measurement
-	 */
-	public void startMeasure(String id, long begin) {
-		measureHelper.startMeasure(id, begin);
-	}
+    /**
+     * Adds an output attribute
+     * If the object contains a mapping for the specified name, this method replaces the old value with the specified value.
+     *
+     * @param name  the name of the output attribute
+     * @param value the value of the output attribute
+     * @return this instance
+     */
+    public OutputBuilder add(String name, String value) {
+        payloadBuilder.add(name, value);
+        return this;
+    }
 
-	/**
-	 * Adds a performance measurement
-	 * 
-	 * @param measureName a unique identifier of the measurement
-	 * @param durationMillis the duration of the measurement in ms
-	 */
-	public void addMeasure(String measureName, long durationMillis) {
-		measureHelper.addMeasure(measureName, durationMillis);
-	}
+    private OutputBuilder add(String name, JsonValue jsonValue) {
+        payloadBuilder.add(name, jsonValue);
+        return this;
+    }
 
-	/**
-	 * Adds a performance measurement
-	 *
-	 * @param measureName a unique identifier of the measurement
-	 * @param durationMillis the duration of the measurement in ms
-	 * @param begin the start timestamp of the measurement in ms
-	 */
-	public void addMeasure(String measureName, long durationMillis, long begin) {
-		measureHelper.addMeasure(measureName, durationMillis, begin);
-	}
+    /**
+     * Reports a technical error. This will be reported as ERROR in STEP
+     *
+     * @param technicalError the error message of the technical error
+     * @return this instance
+     */
+    public OutputBuilder setError(String technicalError) {
+        error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
+        return this;
+    }
 
-	/**
-	 * Adds a performance measurement with custom data
-	 * 
-	 * @param measureName a unique identifier of the measurement
-	 * @param aDurationMillis the duration of the measurement in ms
-	 * @param data the custom data of the measurement
-	 */
-	public void addMeasure(String measureName, long aDurationMillis, Map<String, Object> data) {
-		measureHelper.addMeasure(measureName, aDurationMillis, data);
-	}
+    /**
+     * Appends a technical error message.
+     * Calling this method for the first time will have the same effect as calling setError
+     *
+     * @param technicalError the error message of the technical error
+     * @return this instance
+     */
+    public OutputBuilder appendError(String technicalError) {
+        if (error != null) {
+            error.setMsg(error.getMsg() + technicalError);
+        } else {
+            setError(technicalError);
+        }
+        return this;
+    }
 
-	/**
-	 * Adds a performance measurement
-	 *
-	 * @param measure the performance measurement to be added
-	 */
-	public void addMeasure(Measure measure) {
-		measureHelper.addMeasure(measure);
-	}
+    /**
+     * Reports a technical error and appends the exception causing this error
+     * as attachment
+     *
+     * @param errorMessage the error message of the technical error
+     * @param e            the exception that caused the technical error
+     * @return this instance
+     */
+    public OutputBuilder setError(String errorMessage, Throwable e) {
+        setError(errorMessage);
+        addAttachment(generateAttachmentForException(e));
+        return this;
+    }
+
+    /**
+     * Reports a business error. This will be reported as FAILED in STEP
+     *
+     * @param businessError the error message of the business error
+     * @return this instance
+     */
+    public OutputBuilder setBusinessError(String businessError) {
+        error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
+        return this;
+    }
+
+    public OutputBuilder setError(Error error) {
+        this.error = error;
+        return this;
+    }
+
+    /**
+     * @return the payload of this output. This has no eff
+     *
+     */
+    public String getPayloadJson() {
+        return payloadJson;
+    }
+
+    /**
+     *
+     * @param payloadJson the payload of this output.
+     */
+    public void setPayloadJson(String payloadJson) {
+        this.payloadJson = payloadJson;
+    }
+
+    public JsonObject getPayload() {
+        return payload;
+    }
+
+    public void setPayload(JsonObject payload) {
+        this.payload = payload;
+    }
+
+    /**
+     * Adds attachments to the output
+     *
+     * @param attachments the list of attachments to be added to the output
+     */
+    public void addAttachments(List<Attachment> attachments) {
+        createAttachmentListIfNeeded();
+        attachments.addAll(attachments);
+    }
+
+    /**
+     * Adds an attachment to the output
+     *
+     * @param attachment the attachment to be added to the output
+     */
+    public void addAttachment(Attachment attachment) {
+        createAttachmentListIfNeeded();
+        attachments.add(attachment);
+    }
+
+    private void createAttachmentListIfNeeded() {
+        if (attachments == null) {
+            attachments = new ArrayList<>();
+        }
+    }
+
+    /**
+     * Starts a performance measurement. The current time will be used as starttime
+     *
+     * @param id a unique identifier of the measurement
+     */
+    public void startMeasure(String id) {
+        measureHelper.startMeasure(id);
+    }
+
+    /**
+     * Starts a performance measurement
+     *
+     * @param id    a unique identifier of the measurement
+     * @param begin the start time of the measurement
+     */
+    public void startMeasure(String id, long begin) {
+        measureHelper.startMeasure(id, begin);
+    }
+
+    /**
+     * Adds a performance measurement
+     *
+     * @param measureName    a unique identifier of the measurement
+     * @param durationMillis the duration of the measurement in ms
+     */
+    public void addMeasure(String measureName, long durationMillis) {
+        measureHelper.addMeasure(measureName, durationMillis);
+    }
+
+    /**
+     * Adds a performance measurement
+     *
+     * @param measureName    a unique identifier of the measurement
+     * @param durationMillis the duration of the measurement in ms
+     * @param begin          the start timestamp of the measurement in ms
+     */
+    public void addMeasure(String measureName, long durationMillis, long begin) {
+        measureHelper.addMeasure(measureName, durationMillis, begin);
+    }
 
     /**
      * Adds a performance measurement with custom data
      *
-     * @param measureName a unique identifier of the measurement
+     * @param measureName     a unique identifier of the measurement
      * @param aDurationMillis the duration of the measurement in ms
-     * @param begin the start timestamp of the measurement in ms
-     * @param data the custom data of the measurement
+     * @param data            the custom data of the measurement
+     */
+    public void addMeasure(String measureName, long aDurationMillis, Map<String, Object> data) {
+        measureHelper.addMeasure(measureName, aDurationMillis, data);
+    }
+
+    /**
+     * Adds a performance measurement
+     *
+     * @param measure the performance measurement to be added
+     */
+    public void addMeasure(Measure measure) {
+        measureHelper.addMeasure(measure);
+    }
+
+    /**
+     * Adds a performance measurement with custom data
+     *
+     * @param measureName     a unique identifier of the measurement
+     * @param aDurationMillis the duration of the measurement in ms
+     * @param begin           the start timestamp of the measurement in ms
+     * @param data            the custom data of the measurement
      */
     public void addMeasure(String measureName, long aDurationMillis, long begin, Map<String, Object> data) {
         measureHelper.addMeasure(measureName, aDurationMillis, begin, data);
     }
 
-	/**
-	 * Stops the current performance measurement and adds it to the output
-	 */
-	public void stopMeasure() {
-		measureHelper.stopMeasure();
-	}
+    /**
+     * Stops the current performance measurement and adds it to the output
+     */
+    public void stopMeasure() {
+        measureHelper.stopMeasure();
+    }
 
-	/**
-	 * Stops the current performance measurement and adds it to the output
-	 *
-	 * @param status the explicit status to set for the measurement
-	 */
-	public void stopMeasure(Measure.Status status) {
-		measureHelper.stopMeasure(null, status);
-	}
+    /**
+     * Stops the current performance measurement and adds it to the output
+     *
+     * @param status the explicit status to set for the measurement
+     */
+    public void stopMeasure(Measure.Status status) {
+        measureHelper.stopMeasure(null, status);
+    }
 
-	/**
-	 * Stops the current performance measurement and adds it to the output. 
-	 *
-	 * @param data custom data to be added to the measurement
-	 */
-	public void stopMeasure(Map<String, Object> data) {
-		measureHelper.stopMeasure(data);
-	}
+    /**
+     * Stops the current performance measurement and adds it to the output.
+     *
+     * @param data custom data to be added to the measurement
+     */
+    public void stopMeasure(Map<String, Object> data) {
+        measureHelper.stopMeasure(data);
+    }
 
-	/**
-	 * Stops the current performance measurement and adds it to the output.
-	 *
-	 * @param status the explicit status to set for the measurement
-	 * @param data   custom data to be added to the measurement
-	 */
-	public void stopMeasure(Measure.Status status, Map<String, Object> data) {
-		measureHelper.stopMeasure(data, status);
-	}
+    /**
+     * Stops the current performance measurement and adds it to the output.
+     *
+     * @param status the explicit status to set for the measurement
+     * @param data   custom data to be added to the measurement
+     */
+    public void stopMeasure(Measure.Status status, Map<String, Object> data) {
+        measureHelper.stopMeasure(data, status);
+    }
 
-	public void stopMeasureForAdditionalData() {
-		this.lastMeasureHandle = measureHelper.stopMeasure();
-	}
-	
-	public void setLastMeasureAdditionalData(Map<String, Object> data) {
-		this.lastMeasureHandle.setData(data);
-		this.lastMeasureHandle = null;
-	}
+    public void stopMeasureForAdditionalData() {
+        this.lastMeasureHandle = measureHelper.stopMeasure();
+    }
 
-	/**
-	 * Builds the output instance
-	 * 
-	 * @return the output message
-	 */
-	public Output<JsonObject> build() {
-		Output<JsonObject> message = new Output<>();
-		JsonObject payload;
-		if (this.payload != null) {
-			payload = this.payload;
-		} else {
-			if (payloadJson == null) {
-				payload = payloadBuilder.build();
-			} else {
-				JsonReader reader = Json.createReader(new StringReader(payloadJson));
-				try {
-					payload = reader.readObject();
-				} finally {
-					reader.close();
-				}
-			}
-		}
-		message.setPayload(payload);
-		message.setMeasures(measureHelper.getMeasures());
-		message.setAttachments(attachments);
-		message.setError(error);
-		return message;
-	}
+    public void setLastMeasureAdditionalData(Map<String, Object> data) {
+        this.lastMeasureHandle.setData(data);
+        this.lastMeasureHandle = null;
+    }
 
-	private Attachment generateAttachmentForException(Throwable e) {
-		Attachment attachment = new Attachment();	
-		attachment.setName("exception.log");
-		StringWriter w = new StringWriter();
-		e.printStackTrace(new PrintWriter(w));
-		attachment.setHexContent(AttachmentHelper.getHex(w.toString().getBytes()));
-		return attachment;
-	}
+    /**
+     * Builds the output instance
+     *
+     * @return the output message
+     */
+    public Output<JsonObject> build() {
+        Output<JsonObject> message = new Output<>();
+        JsonObject payload;
+        if (this.payload != null) {
+            payload = this.payload;
+        } else {
+            if (payloadJson == null) {
+                payload = payloadBuilder.build();
+            } else {
+                JsonReader reader = Json.createReader(new StringReader(payloadJson));
+                try {
+                    payload = reader.readObject();
+                } finally {
+                    reader.close();
+                }
+            }
+        }
+        message.setPayload(payload);
+        message.setMeasures(measureHelper.getMeasures());
+        message.setAttachments(attachments);
+        message.setError(error);
+        return message;
+    }
 
-	public void mergeOutput(Output<JsonObject> output) {
-		if (output.getPayload() != null) {
-			output.getPayload().forEach(this::add);
-		}
-		if (output.getMeasures() != null) {
-			output.getMeasures().forEach(this::addMeasure);
-		}
-		if (output.getAttachments() != null) {
-			output.getAttachments().forEach(this::addAttachment);
-		}
-		if(output.getError() != null) {
-			this.appendError(output.getError().getMsg());
-		}
-	}
+    private Attachment generateAttachmentForException(Throwable e) {
+        Attachment attachment = new Attachment();
+        attachment.setName("exception.log");
+        StringWriter w = new StringWriter();
+        e.printStackTrace(new PrintWriter(w));
+        attachment.setHexContent(AttachmentHelper.getHex(w.toString().getBytes()));
+        return attachment;
+    }
+
+    public void mergeOutput(Output<JsonObject> output) {
+        if (output.getPayload() != null) {
+            output.getPayload().forEach(this::add);
+        }
+        if (output.getMeasures() != null) {
+            output.getMeasures().forEach(this::addMeasure);
+        }
+        if (output.getAttachments() != null) {
+            output.getAttachments().forEach(this::addAttachment);
+        }
+        if (output.getError() != null) {
+            this.appendError(output.getError().getMsg());
+        }
+    }
 }

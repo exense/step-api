@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright (C) 2020, exense GmbH
- *  
+ *
  * This file is part of STEP
- *  
+ *
  * STEP is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * STEP is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -20,57 +20,57 @@ package step.grid.io;
 
 public class Attachment {
 
-	String name;
+    String name;
 
-	String mimeType;
-	
-	String description;
-	
-	String hexContent;
-	
-	Boolean isDirectory;
+    String mimeType;
 
-	public Attachment() {
-		super();
-	}
+    String description;
 
-	public String getName() {
-		return name;
-	}
+    String hexContent;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    Boolean isDirectory;
 
-	public String getMimeType() {
-		return mimeType;
-	}
+    public Attachment() {
+        super();
+    }
 
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getMimeType() {
+        return mimeType;
+    }
 
-	public String getHexContent() {
-		return hexContent;
-	}
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
 
-	public void setHexContent(String hexContent) {
-		this.hexContent = hexContent;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public Boolean getIsDirectory() {
-		return isDirectory;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setIsDirectory(Boolean isDirectory) {
-		this.isDirectory = isDirectory;
-	}
+    public String getHexContent() {
+        return hexContent;
+    }
+
+    public void setHexContent(String hexContent) {
+        this.hexContent = hexContent;
+    }
+
+    public Boolean getIsDirectory() {
+        return isDirectory;
+    }
+
+    public void setIsDirectory(Boolean isDirectory) {
+        this.isDirectory = isDirectory;
+    }
 }

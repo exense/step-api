@@ -24,5 +24,6 @@ import java.io.File;
 public interface AutomationPackageFileSupplier {
 
     File retrieveAndExtractAutomationPackage();
+
     boolean hasAutomationPackageFile();
 }
