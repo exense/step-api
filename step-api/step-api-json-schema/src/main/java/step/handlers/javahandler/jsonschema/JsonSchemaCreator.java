@@ -85,7 +85,7 @@ public class JsonSchemaCreator {
             JsonInputConverter.addValueToJsonBuilder(defaultValue, builder, type, "default");
         } catch (IllegalArgumentException ex) {
             throw new JsonSchemaPreparationException("Unable to resolve default value for input " + paramName +
-                    ". Caused by : " + ex.getMessage());
+                ". Caused by : " + ex.getMessage());
         }
     }
 

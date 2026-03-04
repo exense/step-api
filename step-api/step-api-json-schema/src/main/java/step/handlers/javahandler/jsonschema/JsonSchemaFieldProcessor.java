@@ -28,19 +28,20 @@ import java.util.List;
  */
 public interface JsonSchemaFieldProcessor {
 
-	/**
-	 * Applies non-default JSON schema preparation logic for the field
-	 *
-	 * @param objectClass the field owner class
-	 * @param field the target field
-	 * @param fieldMetadata field metadata containing the information about field name, default value etc
-	 * @param propertiesBuilder json object builder to be filled with field data
-	 * @param requiredPropertiesOutput for required fields the field name should be added
-	 * @return true - custom processing is applied, false - custom processing is not required
-	 */
-	boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException;
+    /**
+     * Applies non-default JSON schema preparation logic for the field
+     *
+     * @param objectClass              the field owner class
+     * @param field                    the target field
+     * @param fieldMetadata            field metadata containing the information about field name, default value etc
+     * @param propertiesBuilder        json object builder to be filled with field data
+     * @param requiredPropertiesOutput for required fields the field name should be added
+     * @return true - custom processing is applied, false - custom processing is not required
+     */
+    boolean applyCustomProcessing(Class<?> objectClass, Field field, FieldMetadata fieldMetadata, JsonObjectBuilder propertiesBuilder, List<String> requiredPropertiesOutput, JsonSchemaCreator schemaCreator) throws JsonSchemaPreparationException;
 
-	abstract class None implements JsonSchemaFieldProcessor {
-		private None() { } // not to be instantiated
-	}
+    abstract class None implements JsonSchemaFieldProcessor {
+        private None() {
+        } // not to be instantiated
+    }
 }

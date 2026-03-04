@@ -21,11 +21,11 @@ public class JsonObjectMapper {
             if (jsonValue instanceof JsonArray) {
                 value = jsonArrayToObject((JsonArray) jsonValue, type);
             } else if (jsonValue instanceof JsonObject) {
-                if(Map.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
+                if (Map.class.isAssignableFrom(valueClass) || valueClass.equals(Object.class)) {
                     ParameterizedType pt = null;
 
-                    if (type instanceof  ParameterizedType) {
-                        pt  = (ParameterizedType) type;
+                    if (type instanceof ParameterizedType) {
+                        pt = (ParameterizedType) type;
                         value = jsonObjectToMap((JsonObject) jsonValue, pt, valueClass);
                     } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
                         throw unsupportedType(type, "Only standard parameterized Map types (e.g., HashMap<K,V>) are supported. Custom subclassed types of Map are not allowed.");
@@ -103,12 +103,14 @@ public class JsonObjectMapper {
     }
 
     public static JsonObject javaObjectToJsonObject(Object value) {
-        if(value != null) {
+        if (value != null) {
             return valueToJsonObject(value, value.getClass()).build();
         } else {
             return null;
         }
-    };
+    }
+
+    ;
 
     private static RuntimeException notMappableValueClass(JsonValue jsonValue, Class<?> valueClass) {
         return new RuntimeException("Unable to map JSON value of type " + jsonValue.getValueType() + " to java type" + valueClass);
@@ -130,7 +132,7 @@ public class JsonObjectMapper {
         Class<?> valueClass = getTypeClass(type);
         Object value;
         Type arrayValueType;
-        if(valueClass.isArray()) {
+        if (valueClass.isArray()) {
             arrayValueType = valueClass.getComponentType();
         } else {
             arrayValueType = resolveGenericTypeForArrayOrCollection(type);
@@ -144,7 +146,7 @@ public class JsonObjectMapper {
         } else {
             try {
                 value = valueClass.getConstructor(Collection.class).newInstance(list);
-            } catch (InstantiationException|IllegalAccessException|InvocationTargetException|NoSuchMethodException e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new IllegalArgumentException("Unsupported type " + type + ". Only List types with a constructor accepting a Collection are supported.");
             }
         }
@@ -157,12 +159,12 @@ public class JsonObjectMapper {
 
     public static Type resolveGenericTypeForArrayOrCollection(Type type) {
         Class<?> typeClass = getTypeClass(type);
-        if(typeClass.isArray()) {
+        if (typeClass.isArray()) {
             return typeClass.getComponentType();
         } else {
             ParameterizedType pt;
-            if (type instanceof  ParameterizedType) {
-                pt  = (ParameterizedType) type;
+            if (type instanceof ParameterizedType) {
+                pt = (ParameterizedType) type;
             } else if (type instanceof Class && ((Class<?>) type).getGenericSuperclass() instanceof ParameterizedType) {
                 throw unsupportedType(type, "Only standard parameterized List types (e.g., ArrayList<V>) are supported. Custom subclassed types of List are not allowed.");
             } else if (type.equals(Object.class)) {
@@ -185,7 +187,7 @@ public class JsonObjectMapper {
     }
 
     private static IllegalArgumentException unsupportedType(Type type, String optionalMessage) {
-        StringBuilder message  =  new StringBuilder("Unsupported type ").append(type);
+        StringBuilder message = new StringBuilder("Unsupported type ").append(type);
         if (optionalMessage != null && !optionalMessage.isBlank()) {
             message.append(". ").append(optionalMessage);
         }
@@ -269,7 +271,7 @@ public class JsonObjectMapper {
     private static JsonObjectBuilder valueToJsonObject(Object value, Class<?> valueType) {
         JsonObjectBuilder objectBuilder2 = Json.createObjectBuilder();
         if (Map.class.isAssignableFrom(value.getClass())) {
-            ((Map<String,Object>) value).forEach((k,v) -> addValueToJsonObject(objectBuilder2, k, v));
+            ((Map<String, Object>) value).forEach((k, v) -> addValueToJsonObject(objectBuilder2, k, v));
         } else {
             List<Field> fields = getAllFields(valueType);
             fields.forEach(field -> {

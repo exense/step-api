@@ -37,171 +37,171 @@ import java.util.function.Supplier;
 
 public class KeywordJsonSchemaCreatorTest {
 
-	public static final Logger log = LoggerFactory.getLogger(KeywordJsonSchemaCreatorTest.class);
+    public static final Logger log = LoggerFactory.getLogger(KeywordJsonSchemaCreatorTest.class);
 
-	@Test
-	public void jsonInputParamsReaderTest() throws Throwable {
-		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
+    @Test
+    public void jsonInputParamsReaderTest() throws Throwable {
+        step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
 
-		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+        Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
-		log.info("Check json schema for method " + method.getName());
-		JsonObject schema = reader.createJsonSchemaForKeyword(method);
-		String jsonString = schema.toString();
-		log.info(jsonString);
+        log.info("Check json schema for method " + method.getName());
+        JsonObject schema = reader.createJsonSchemaForKeyword(method);
+        String jsonString = schema.toString();
+        log.info(jsonString);
 
-		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-1.json");
+        File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-1.json");
 
-		JsonFactory factory = new JsonFactory();
-		ObjectMapper mapper = new ObjectMapper(factory);
+        JsonFactory factory = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper(factory);
 
-		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
-		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
-		JsonNode actualJsonNode = mapper.readTree(jsonString);
+        // compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+        JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+        JsonNode actualJsonNode = mapper.readTree(jsonString);
 
-		Assert.assertEquals(expectedJsonNode, actualJsonNode);
-	}
+        Assert.assertEquals(expectedJsonNode, actualJsonNode);
+    }
 
-	@Test
-	public void jsonInputParamsReaderNestedFieldsTest() throws Throwable {
-		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
+    @Test
+    public void jsonInputParamsReaderNestedFieldsTest() throws Throwable {
+        step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator();
 
-		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputNestedFieldAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+        Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputNestedFieldAnnotation")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
-		log.info("Check json schema for method " + method.getName());
-		JsonObject schema = reader.createJsonSchemaForKeyword(method);
-		String jsonString = schema.toString();
-		log.info(jsonString);
+        log.info("Check json schema for method " + method.getName());
+        JsonObject schema = reader.createJsonSchemaForKeyword(method);
+        String jsonString = schema.toString();
+        log.info(jsonString);
 
-		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-2.json");
+        File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-2.json");
 
-		JsonFactory factory = new JsonFactory();
-		ObjectMapper mapper = new ObjectMapper(factory);
+        JsonFactory factory = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper(factory);
 
-		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
-		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
-		JsonNode actualJsonNode = mapper.readTree(jsonString);
+        // compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+        JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+        JsonNode actualJsonNode = mapper.readTree(jsonString);
 
-		Assert.assertEquals(expectedJsonNode, actualJsonNode);
-	}
+        Assert.assertEquals(expectedJsonNode, actualJsonNode);
+    }
 
-	@Test
-	public void jsonInputParamsReaderArrayFieldsTest() throws Throwable {
-		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+    @Test
+    public void jsonInputParamsReaderArrayFieldsTest() throws Throwable {
+        step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
 
-		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputArrays")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+        Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputArrays")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
-		log.info("Check json schema for method " + method.getName());
-		JsonObject schema = reader.createJsonSchemaForKeyword(method);
-		String jsonString = schema.toString();
-		log.info(jsonString);
+        log.info("Check json schema for method " + method.getName());
+        JsonObject schema = reader.createJsonSchemaForKeyword(method);
+        String jsonString = schema.toString();
+        log.info(jsonString);
 
-		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-3.json");
+        File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-json-schema-3.json");
 
-		JsonFactory factory = new JsonFactory();
-		ObjectMapper mapper = new ObjectMapper(factory);
+        JsonFactory factory = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper(factory);
 
-		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
-		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
-		JsonNode actualJsonNode = mapper.readTree(jsonString);
+        // compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+        JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+        JsonNode actualJsonNode = mapper.readTree(jsonString);
 
-		Assert.assertEquals(expectedJsonNode, actualJsonNode);
-	}
+        Assert.assertEquals(expectedJsonNode, actualJsonNode);
+    }
 
-	@Test
-	public void jsonInputParamsReaderMapFieldsTest() throws Throwable {
-		step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
+    @Test
+    public void jsonInputParamsReaderMapFieldsTest() throws Throwable {
+        step.handlers.javahandler.jsonschema.KeywordJsonSchemaCreator reader = new KeywordJsonSchemaCreator();
 
-		Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputMaps")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
+        Method method = Arrays.stream(KeywordTestClass.class.getMethods()).filter(m -> m.getName().equals("MyKeywordWithInputMaps")).findFirst().orElseThrow((Supplier<Throwable>) () -> new RuntimeException("Test class not found"));
 
-		log.info("Check json schema for method " + method.getName());
-		JsonObject schema = reader.createJsonSchemaForKeyword(method);
-		String jsonString = schema.toString();
-		log.info(jsonString);
+        log.info("Check json schema for method " + method.getName());
+        JsonObject schema = reader.createJsonSchemaForKeyword(method);
+        String jsonString = schema.toString();
+        log.info(jsonString);
 
-		File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-maps-json-input-schema.json");
+        File expectedSchema = new File("src/test/resources/step/handlers/javahandler/jsonschema/expected-maps-json-input-schema.json");
 
-		JsonFactory factory = new JsonFactory();
-		ObjectMapper mapper = new ObjectMapper(factory);
+        JsonFactory factory = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper(factory);
 
-		// compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
-		JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
-		JsonNode actualJsonNode = mapper.readTree(jsonString);
+        // compare json nodes to avoid unstable comparisons in case of changed whitespaces or fields ordering
+        JsonNode expectedJsonNode = mapper.readTree(expectedSchema);
+        JsonNode actualJsonNode = mapper.readTree(jsonString);
 
-		Assert.assertEquals(expectedJsonNode, actualJsonNode);
-	}
+        Assert.assertEquals(expectedJsonNode, actualJsonNode);
+    }
 
-	public static class KeywordTestClass extends AbstractKeyword {
-		@Keyword
-		public void MyKeywordWithInputAnnotation(@Input(name = "numberField", defaultValue = "1", required = true) Integer numberField,
-												 @Input(name = "booleanField", defaultValue = "true", required = true) Boolean booleanField,
-												 @Input(name = "intPrimitiveField", defaultValue = "2", required = true) int intPrimitive,
-												 @Input(name = "booleanPrimitiveField", defaultValue = "true", required = true) boolean booleanPrimitive,
-												 @Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
-												 @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField) {
-			output.add("test", "test");
-		}
+    public static class KeywordTestClass extends AbstractKeyword {
+        @Keyword
+        public void MyKeywordWithInputAnnotation(@Input(name = "numberField", defaultValue = "1", required = true) Integer numberField,
+                                                 @Input(name = "booleanField", defaultValue = "true", required = true) Boolean booleanField,
+                                                 @Input(name = "intPrimitiveField", defaultValue = "2", required = true) int intPrimitive,
+                                                 @Input(name = "booleanPrimitiveField", defaultValue = "true", required = true) boolean booleanPrimitive,
+                                                 @Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
+                                                 @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField) {
+            output.add("test", "test");
+        }
 
-		@Keyword
-		public void MyKeywordWithInputNestedFieldAnnotation(@Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
-															@Input(name = "stringField2", defaultValue = "myValue2") String secondStringField,
-															@Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields) {
-			output.add("test", "test");
-		}
+        @Keyword
+        public void MyKeywordWithInputNestedFieldAnnotation(@Input(name = "stringField", defaultValue = "myValue", required = true) String stringField,
+                                                            @Input(name = "stringField2", defaultValue = "myValue2") String secondStringField,
+                                                            @Input(name = "propertyWithNestedFields") ClassWithNestedFields classWithNestedFields) {
+            output.add("test", "test");
+        }
 
-		@Keyword
-		public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
-											 @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
-											 @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList,
-											 @Input(name = "booleanList", defaultValue = "true;false;true") ArrayList<Boolean> booleanList) {
-			output.add("test", "test");
-		}
+        @Keyword
+        public void MyKeywordWithInputArrays(@Input(name = "stringArray", defaultValue = "a;b;c", required = true) String[] stringArray,
+                                             @Input(name = "integerArray", defaultValue = "1;2;3") Integer[] integerArray,
+                                             @Input(name = "stringList", defaultValue = "c;d;e") List<String> stringList,
+                                             @Input(name = "booleanList", defaultValue = "true;false;true") ArrayList<Boolean> booleanList) {
+            output.add("test", "test");
+        }
 
-		@Keyword
-		public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) HashMap<String,String> stringMap,
-										   @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
-											 @Input(name = "integerMap") HashMap<String,Integer> integerMap,
-											 @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString,
-										   @Input(name = "mapWithDefault", defaultValue = "{\"key\":\"value\"}") HashMap<String, HashMap<String, String>> mapWithDefault) {
-			output.add("test", "test");
-		}
-	}
+        @Keyword
+        public void MyKeywordWithInputMaps(@Input(name = "stringMap", required = true) HashMap<String, String> stringMap,
+                                           @Input(name = "stringLinkedHashMap", required = true) LinkedHashMap<String, String> stringLinkedHashMap,
+                                           @Input(name = "integerMap") HashMap<String, Integer> integerMap,
+                                           @Input(name = "mapMapString") HashMap<String, HashMap<String, String>> mapMapString,
+                                           @Input(name = "mapWithDefault", defaultValue = "{\"key\":\"value\"}") HashMap<String, HashMap<String, String>> mapWithDefault) {
+            output.add("test", "test");
+        }
+    }
 
-	public static class ClassWithNestedFields extends TestParent {
+    public static class ClassWithNestedFields extends TestParent {
 
-		private String nestedString;
+        private String nestedString;
 
-		private List<Integer> nestedNumberList;
+        private List<Integer> nestedNumberList;
 
-		public ClassWithNestedFields() {
-		}
+        public ClassWithNestedFields() {
+        }
 
-		public String getNestedString() {
-			return nestedString;
-		}
+        public String getNestedString() {
+            return nestedString;
+        }
 
-		public void setNestedString(String nestedString) {
-			this.nestedString = nestedString;
-		}
+        public void setNestedString(String nestedString) {
+            this.nestedString = nestedString;
+        }
 
-		public List<Integer> getNestedNumberList() {
-			return nestedNumberList;
-		}
+        public List<Integer> getNestedNumberList() {
+            return nestedNumberList;
+        }
 
-		public void setNestedNumberList(List<Integer> nestedNumberList) {
-			this.nestedNumberList = nestedNumberList;
-		}
-	}
+        public void setNestedNumberList(List<Integer> nestedNumberList) {
+            this.nestedNumberList = nestedNumberList;
+        }
+    }
 
-	private static class TestParent {
-		private String parentProperty;
+    private static class TestParent {
+        private String parentProperty;
 
-		public String getParentProperty() {
-			return parentProperty;
-		}
+        public String getParentProperty() {
+            return parentProperty;
+        }
 
-		public void setParentProperty(String parentProperty) {
-			this.parentProperty = parentProperty;
-		}
-	}
+        public void setParentProperty(String parentProperty) {
+            this.parentProperty = parentProperty;
+        }
+    }
 }

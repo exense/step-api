@@ -6,28 +6,44 @@
       "items": {
         "type": "string"
       },
-      "default": ["a", "b", "c"]
+      "default": [
+        "a",
+        "b",
+        "c"
+      ]
     },
     "integerArray": {
       "type": "array",
       "items": {
         "type": "number"
       },
-      "default": [1, 2, 3]
+      "default": [
+        1,
+        2,
+        3
+      ]
     },
     "stringList": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "default": ["c", "d", "e"]
+      "default": [
+        "c",
+        "d",
+        "e"
+      ]
     },
     "booleanList": {
       "type": "array",
       "items": {
         "type": "boolean"
       },
-      "default": [true, false, true]
+      "default": [
+        true,
+        false,
+        true
+      ]
     }
   },
   "required": [

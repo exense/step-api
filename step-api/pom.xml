@@ -1,376 +1,376 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (c) exense GmbH -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>ch.exense.step</groupId>
-	<artifactId>step-api</artifactId>
-	<version>0.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+  <groupId>ch.exense.step</groupId>
+  <artifactId>step-api</artifactId>
+  <version>0.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<!-- required metadata for maven central -->
-	<name>${project.groupId}:${project.artifactId}</name>
-	<description>Step API</description>
-	<url>https://github.com/exense/step-api</url>
+  <!-- required metadata for maven central -->
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Step API</description>
+  <url>https://github.com/exense/step-api</url>
 
-	<licenses>
-		<license>
-			<name>The GNU Affero General Public License, Version 3</name>
-			<url>https://www.gnu.org/licenses/#AGPL</url>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>The GNU Affero General Public License, Version 3</name>
+      <url>https://www.gnu.org/licenses/#AGPL</url>
+    </license>
+  </licenses>
 
-	<developers>
-		<developer>
-			<name>Exense GmbH</name>
-			<organization>Exense GmbH</organization>
-			<organizationUrl>https://exense.ch</organizationUrl>
-			<email>support@exense.ch</email>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <name>Exense GmbH</name>
+      <organization>Exense GmbH</organization>
+      <organizationUrl>https://exense.ch</organizationUrl>
+      <email>support@exense.ch</email>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:git:https://github.com/exense/step-api.git</connection>
-		<developerConnection>scm:git:https://github.com/exense/step-api.git</developerConnection>
-		<url>https://github.com/exense/step-api</url>
-	</scm>
-	<!-- metadata end -->
+  <scm>
+    <connection>scm:git:https://github.com/exense/step-api.git</connection>
+    <developerConnection>scm:git:https://github.com/exense/step-api.git</developerConnection>
+    <url>https://github.com/exense/step-api</url>
+  </scm>
+  <!-- metadata end -->
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.release>11</maven.compiler.release>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
 
-		<!-- exense dependencies -->
-		<dependencies.version>0.0.0-MASTER-SNAPSHOT</dependencies.version>
-		<step-streaming.version>0.0.0-MASTER-SNAPSHOT</step-streaming.version>
+    <!-- exense dependencies -->
+    <dependencies.version>0.0.0-MASTER-SNAPSHOT</dependencies.version>
+    <step-streaming.version>0.0.0-MASTER-SNAPSHOT</step-streaming.version>
 
-		<!-- maven build dependencies -->
-		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
-		<dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
-		<dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
-		<dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version>
-		<dep.mvn.shade.version>3.6.0</dep.mvn.shade.version>
-		<dep.mvn.source.version>3.0.1</dep.mvn.source.version>
-		<dep.mvn.surefire.version>3.2.5</dep.mvn.surefire.version>
-		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
-		<dep.mvn.enforcer.version>3.1.0</dep.mvn.enforcer.version>
-		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
-	</properties>
+    <!-- maven build dependencies -->
+    <dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
+    <dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
+    <dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
+    <dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version>
+    <dep.mvn.shade.version>3.6.0</dep.mvn.shade.version>
+    <dep.mvn.source.version>3.0.1</dep.mvn.source.version>
+    <dep.mvn.surefire.version>3.2.5</dep.mvn.surefire.version>
+    <dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
+    <dep.mvn.enforcer.version>3.1.0</dep.mvn.enforcer.version>
+    <dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
+  </properties>
 
-	<repositories>
-		<!-- staging nexus -->
-		<repository>
-			<id>nexus-staging</id>
-			<url>https://nexus-enterprise.exense.ch/repository/staging-maven/</url>
-		</repository>
-		<!-- private nexus -->
-		<repository>
-			<id>nexus-exense</id>
-			<url>https://nexus-enterprise.exense.ch/repository/exense/</url>
-		</repository>
-	</repositories>
+  <repositories>
+    <!-- staging nexus -->
+    <repository>
+      <id>nexus-staging</id>
+      <url>https://nexus-enterprise.exense.ch/repository/staging-maven/</url>
+    </repository>
+    <!-- private nexus -->
+    <repository>
+      <id>nexus-exense</id>
+      <url>https://nexus-enterprise.exense.ch/repository/exense/</url>
+    </repository>
+  </repositories>
 
-	<!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
-	<modules>
-		<module>step-api-function</module>
-		<module>step-api-keyword</module>
-		<module>step-api-reporting</module>
-		<module>step-api-json-schema</module>
-	</modules>
+  <!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
+  <modules>
+    <module>step-api-function</module>
+    <module>step-api-keyword</module>
+    <module>step-api-reporting</module>
+    <module>step-api-json-schema</module>
+  </modules>
 
-	<!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>ch.exense.dependencies</groupId>
-				<artifactId>dependencies-junit</artifactId>
-				<version>${dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.dependencies</groupId>
-				<artifactId>dependencies-logging</artifactId>
-				<version>${dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.dependencies</groupId>
-				<artifactId>dependencies-jackson</artifactId>
-				<version>${dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.streaming</groupId>
-				<artifactId>step-streaming</artifactId>
-				<version>${step-streaming.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+  <!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ch.exense.dependencies</groupId>
+        <artifactId>dependencies-junit</artifactId>
+        <version>${dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.dependencies</groupId>
+        <artifactId>dependencies-logging</artifactId>
+        <version>${dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.dependencies</groupId>
+        <artifactId>dependencies-jackson</artifactId>
+        <version>${dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.streaming</groupId>
+        <artifactId>step-streaming</artifactId>
+        <version>${step-streaming.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
-			<!-- BOM of *this* project, exporting our OWN modules -->
-			<dependency>
-				<groupId>ch.exense.step</groupId>
-				<artifactId>step-api-function</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.step</groupId>
-				<artifactId>step-api-keyword</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.step</groupId>
-				<artifactId>step-api-reporting</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.step</groupId>
-				<artifactId>step-api-json-schema</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+      <!-- BOM of *this* project, exporting our OWN modules -->
+      <dependency>
+        <groupId>ch.exense.step</groupId>
+        <artifactId>step-api-function</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.step</groupId>
+        <artifactId>step-api-keyword</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.step</groupId>
+        <artifactId>step-api-reporting</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.step</groupId>
+        <artifactId>step-api-json-schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+  <!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${dep.mvn.compiler.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>${dep.mvn.deploy.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<version>${dep.mvn.gpg.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>${dep.mvn.javadoc.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-shade-plugin</artifactId>
-					<version>${dep.mvn.shade.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>${dep.mvn.source.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>${dep.mvn.jacoco.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${dep.mvn.surefire.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>${dep.mvn.enforcer.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.owasp</groupId>
-					<artifactId>dependency-check-maven</artifactId>
-					<version>${dep.mvn.dependency-check.version}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			<!-- Source -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Javadoc -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<source>8</source>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Coverage -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-policies</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireUpperBoundDeps/>
-							</rules>
-							<fail>true</fail>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${dep.mvn.compiler.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${dep.mvn.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${dep.mvn.gpg.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${dep.mvn.javadoc.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${dep.mvn.shade.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${dep.mvn.source.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${dep.mvn.jacoco.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${dep.mvn.surefire.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${dep.mvn.enforcer.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${dep.mvn.dependency-check.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <!-- Source -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <source>8</source>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Coverage -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-policies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireUpperBoundDeps/>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
-	<profiles>
-		<profile>
-			<id>SignedBuild</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<!-- Signature -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-								<configuration>
-									<gpgArguments>
-										<arg>--pinentry-mode</arg>
-										<arg>loopback</arg>
-									</gpgArguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+  <profiles>
+    <profile>
+      <id>SignedBuild</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Signature -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
 
-					<!-- Disable old maven-deploy plugin -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</plugin>
+          <!-- Disable old maven-deploy plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
 
-					<!-- Publish directly to central instead -->
-					<plugin>
-						<groupId>org.sonatype.central</groupId>
-						<artifactId>central-publishing-maven-plugin</artifactId>
-						<version>0.8.0</version>
-						<extensions>true</extensions>
-						<configuration>
-							<publishingServerId>sonatype</publishingServerId>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>DependencyCheck</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<!-- Profile use for checking security issues in external dependencies. -->
-			<!-- This may take a LOOONG time (possibly multiple minutes), even when using an API key -->
-			<!-- To quickly check the results, run this (in the project directory):
+          <!-- Publish directly to central instead -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>sonatype</publishingServerId>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>DependencyCheck</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <!-- Profile use for checking security issues in external dependencies. -->
+      <!-- This may take a LOOONG time (possibly multiple minutes), even when using an API key -->
+      <!-- To quickly check the results, run this (in the project directory):
                  find . -name dependency-check-report.csv | xargs wc -l
              -->
-			<!-- Anything that returns more than 1 line (the CSV header line) is potentially vulnerable. -->
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.owasp</groupId>
-						<artifactId>dependency-check-maven</artifactId>
-						<configuration>
-							<formats>HTML,CSV</formats>
-							<skipDependencyManagement>false</skipDependencyManagement>
-							<!--                            <nvdApiKey>KEY_HERE</nvdApiKey>-->
-							<failOnError>false</failOnError>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>
-									verify
-								</phase>
-								<goals>
-									<goal>check</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+      <!-- Anything that returns more than 1 line (the CSV header line) is potentially vulnerable. -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <configuration>
+              <formats>HTML,CSV</formats>
+              <skipDependencyManagement>false</skipDependencyManagement>
+              <!--                            <nvdApiKey>KEY_HERE</nvdApiKey>-->
+              <failOnError>false</failOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>
+                  verify
+                </phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

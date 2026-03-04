@@ -46,157 +46,157 @@ import java.util.Map;
  */
 public class Measure {
 
-	/**
-	 * Possible outcomes for a measure or operation.
-	 */
-	public enum Status {
-		/**
-		 * The operation completed successfully.
-		 */
-		PASSED,
+    /**
+     * Possible outcomes for a measure or operation.
+     */
+    public enum Status {
+        /**
+         * The operation completed successfully.
+         */
+        PASSED,
 
-		/**
-		 * The operation completed but did not meet expected conditions.
-		 */
-		FAILED,
+        /**
+         * The operation completed but did not meet expected conditions.
+         */
+        FAILED,
 
-		/**
-		 * The operation failed due to a technical or unexpected error.
-		 */
-		TECHNICAL_ERROR,
-	}
+        /**
+         * The operation failed due to a technical or unexpected error.
+         */
+        TECHNICAL_ERROR,
+    }
 
-	/**
-	 * The name or identifier of the measure or operation.
-	 */
-	private String name;
+    /**
+     * The name or identifier of the measure or operation.
+     */
+    private String name;
 
-	/**
-	 * The duration of the measure in milliseconds.
-	 */
-	private long duration;
+    /**
+     * The duration of the measure in milliseconds.
+     */
+    private long duration;
 
-	/**
-	 * The timestamp (in milliseconds since epoch) when the measure began.
-	 */
-	private long begin;
+    /**
+     * The timestamp (in milliseconds since epoch) when the measure began.
+     */
+    private long begin;
 
-	/**
-	 * The status of the measure.
-	 */
-	private Status status = Status.PASSED;
+    /**
+     * The status of the measure.
+     */
+    private Status status = Status.PASSED;
 
-	/**
-	 * Optional key-value data providing additional context or metrics.
-	 */
-	private Map<String, Object> data;
+    /**
+     * Optional key-value data providing additional context or metrics.
+     */
+    private Map<String, Object> data;
 
-	/**
-	 * Creates an empty {@code Measure} instance with no field values defined.
-	 * Typically used when fields are to be set later.
-	 */
-	public Measure() {
-		super();
-	}
+    /**
+     * Creates an empty {@code Measure} instance with no field values defined.
+     * Typically used when fields are to be set later.
+     */
+    public Measure() {
+        super();
+    }
 
-	/**
-	 * Creates a {@code Measure} instance with basic information and no explicit
-	 * status.
-	 *
-	 * @param name     the name or identifier of the measure
-	 * @param duration the duration of the measure in milliseconds
-	 * @param begin    the timestamp when the measure began
-	 * @param data     additional contextual data
-	 */
-	public Measure(String name, long duration, long begin, Map<String, Object> data) {
-		this(name, duration, begin, data, null);
-	}
+    /**
+     * Creates a {@code Measure} instance with basic information and no explicit
+     * status.
+     *
+     * @param name     the name or identifier of the measure
+     * @param duration the duration of the measure in milliseconds
+     * @param begin    the timestamp when the measure began
+     * @param data     additional contextual data
+     */
+    public Measure(String name, long duration, long begin, Map<String, Object> data) {
+        this(name, duration, begin, data, null);
+    }
 
-	/**
-	 * Creates a fully specified {@code Measure} instance.
-	 *
-	 * @param name     the name or identifier of the measure
-	 * @param duration the duration of the measure in milliseconds
-	 * @param begin    the timestamp when the measure began
-	 * @param data     additional contextual data
-	 * @param status   the outcome status of the measurement
-	 */
-	public Measure(String name, long duration, long begin, Map<String, Object> data, Status status) {
-		super();
-		this.name = name;
-		this.duration = duration;
-		this.begin = begin;
-		this.data = data;
-		this.status = status;
-	}
+    /**
+     * Creates a fully specified {@code Measure} instance.
+     *
+     * @param name     the name or identifier of the measure
+     * @param duration the duration of the measure in milliseconds
+     * @param begin    the timestamp when the measure began
+     * @param data     additional contextual data
+     * @param status   the outcome status of the measurement
+     */
+    public Measure(String name, long duration, long begin, Map<String, Object> data, Status status) {
+        super();
+        this.name = name;
+        this.duration = duration;
+        this.begin = begin;
+        this.data = data;
+        this.status = status;
+    }
 
-	/**
-	 * @return the duration of the measure, in milliseconds
-	 */
-	public long getDuration() {
-		return duration;
-	}
+    /**
+     * @return the duration of the measure, in milliseconds
+     */
+    public long getDuration() {
+        return duration;
+    }
 
-	/**
-	 * @param duration the duration to set, in milliseconds
-	 */
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
+    /**
+     * @param duration the duration to set, in milliseconds
+     */
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 
-	/**
-	 * @return the start timestamp (in milliseconds since epoch) of the measure
-	 */
-	public long getBegin() {
-		return begin;
-	}
+    /**
+     * @return the start timestamp (in milliseconds since epoch) of the measure
+     */
+    public long getBegin() {
+        return begin;
+    }
 
-	/**
-	 * @param begin the start timestamp to set, in milliseconds since epoch
-	 */
-	public void setBegin(long begin) {
-		this.begin = begin;
-	}
+    /**
+     * @param begin the start timestamp to set, in milliseconds since epoch
+     */
+    public void setBegin(long begin) {
+        this.begin = begin;
+    }
 
-	/**
-	 * @return the name or identifier of the measure
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * @return the name or identifier of the measure
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * @param name the name or identifier to assign to this measure
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * @param name the name or identifier to assign to this measure
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * @return a map of additional contextual data associated with this measure
-	 */
-	public Map<String, Object> getData() {
-		return data;
-	}
+    /**
+     * @return a map of additional contextual data associated with this measure
+     */
+    public Map<String, Object> getData() {
+        return data;
+    }
 
-	/**
-	 * @param data additional contextual data to associate with this measure
-	 */
-	public void setData(Map<String, Object> data) {
-		this.data = data;
-	}
+    /**
+     * @param data additional contextual data to associate with this measure
+     */
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
 
-	/**
-	 * @return the result status of the measure
-	 */
-	public Status getStatus() {
-		return status;
-	}
+    /**
+     * @return the result status of the measure
+     */
+    public Status getStatus() {
+        return status;
+    }
 
-	/**
-	 * @param status the status to set for this measure
-	 */
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    /**
+     * @param status the status to set for this measure
+     */
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }

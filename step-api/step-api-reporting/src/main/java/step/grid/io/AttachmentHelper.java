@@ -1,18 +1,18 @@
 /*******************************************************************************
  * Copyright (C) 2020, exense GmbH
- *  
+ *
  * This file is part of STEP
- *  
+ *
  * STEP is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * STEP is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -24,30 +24,30 @@ import java.util.Base64;
 
 
 public class AttachmentHelper {
-	
-	public static String getHex(byte[] raw) {
-		return Base64.getEncoder().encodeToString(raw);
-	}
-	
-	public static byte[] hexStringToByteArray(String s) {
-		return Base64.getDecoder().decode(s);
-	}
 
-	public static Attachment generateAttachmentForException(Throwable e) {
-		StringWriter w = new StringWriter();
-		e.printStackTrace(new PrintWriter(w));
-		return generateAttachmentFromByteArray(w.toString().getBytes(), "exception.log", "text/plain");
-	}
+    public static String getHex(byte[] raw) {
+        return Base64.getEncoder().encodeToString(raw);
+    }
 
-	public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName, String mimeType) {
-		Attachment attachment = new Attachment();
-		attachment.setName(attachmentName);
-		attachment.setMimeType(mimeType);
-		attachment.setHexContent(AttachmentHelper.getHex(bytes));
-		return attachment;
-	}
+    public static byte[] hexStringToByteArray(String s) {
+        return Base64.getDecoder().decode(s);
+    }
 
-	public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName) {
-		return generateAttachmentFromByteArray(bytes, attachmentName, "application/octet-stream");
-	}
+    public static Attachment generateAttachmentForException(Throwable e) {
+        StringWriter w = new StringWriter();
+        e.printStackTrace(new PrintWriter(w));
+        return generateAttachmentFromByteArray(w.toString().getBytes(), "exception.log", "text/plain");
+    }
+
+    public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName, String mimeType) {
+        Attachment attachment = new Attachment();
+        attachment.setName(attachmentName);
+        attachment.setMimeType(mimeType);
+        attachment.setHexContent(AttachmentHelper.getHex(bytes));
+        return attachment;
+    }
+
+    public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName) {
+        return generateAttachmentFromByteArray(bytes, attachmentName, "application/octet-stream");
+    }
 }
