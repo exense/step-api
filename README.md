@@ -3,7 +3,10 @@
 [![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/ch.exense.step/step-api)](https://central.sonatype.com/artifact/ch.exense.step/step-api)
 
-The API for writing **Keywords** in the [Step automation platform](https://step.exense.ch) in Java and .NET. This library is the only dependency needed to implement keyword libraries that can be executed by the Step engine.
+The API for writing **Keywords** in the [Step automation platform](https://step.dev) in Java and .NET. This library is the only dependency needed to implement keyword libraries that can be executed by the Step engine.
+
+For full documentation, architecture details, and getting started guides, see the main repository:
+**[github.com/exense/step](https://github.com/exense/step)**
 
 ## Overview
 
