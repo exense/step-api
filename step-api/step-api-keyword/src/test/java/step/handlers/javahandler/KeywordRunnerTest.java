@@ -35,8 +35,14 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import step.core.metrics.CounterSnapshot;
+import step.core.metrics.MetricSnapshot;
+import step.core.metrics.MetricType;
+import step.core.metrics.SampledSnapshot;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -562,6 +568,56 @@ public class KeywordRunnerTest {
         assertTrue(payload.getString("valueStringMapMap1").contains("myValue"));
         //Assert.assertEquals("myValue", payload.getString("arrayOfMapsValue1"));
 
+    }
+
+    @Test
+    public void testKeywordWithNonLiveMetrics() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithNonLiveMetrics");
+
+        assertNull(output.getError());
+        List<MetricSnapshot> metrics = output.getMetrics();
+        assertEquals(3, metrics.size());
+
+        // Counter: 5+3 increments, label preserved
+        CounterSnapshot counter = (CounterSnapshot) metrics.get(0);
+        assertEquals("requests", counter.getName());
+        assertEquals(MetricType.COUNTER, counter.getType());
+        assertEquals(8, counter.getAccumulatedDiff());
+        assertEquals(8, counter.getLongRunningTotal());
+        assertEquals("checkout", counter.getLabels().get("service"));
+
+        // Gauge: 3 observations (10, 20, 5)
+        SampledSnapshot gauge = (SampledSnapshot) metrics.get(1);
+        assertEquals("queue_depth", gauge.getName());
+        assertEquals(MetricType.GAUGE, gauge.getType());
+        assertEquals(3, gauge.getCount());
+        assertEquals(35, gauge.getSum());
+        assertEquals(5, gauge.getMin());
+        assertEquals(20, gauge.getMax());
+        assertEquals(5, gauge.getLast());
+
+        // Histogram: 2 observations (100, 200)
+        SampledSnapshot histogram = (SampledSnapshot) metrics.get(2);
+        assertEquals("response_time_ms", histogram.getName());
+        assertEquals(MetricType.HISTOGRAM, histogram.getType());
+        assertEquals(2, histogram.getCount());
+        assertEquals(300, histogram.getSum());
+        assertNotNull(histogram.getDistribution());
+        assertEquals(2, histogram.getDistribution().size());
+    }
+
+    @Test
+    public void testKeywordWithLiveMetrics() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithLiveMetrics");
+
+        assertNull(output.getError());
+        // One flush was triggered; verify the captured snapshot values
+        assertEquals(1, output.getPayload().getInt("capturedCount"));
+        assertEquals(10, output.getPayload().getJsonNumber("counterDiff").longValue());   // 7+3
+        assertEquals(10, output.getPayload().getJsonNumber("counterTotal").longValue());
+        assertEquals("test", output.getPayload().getString("labelEnv"));
     }
 
     @Test

@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.json.*;
 import javax.json.spi.JsonProvider;
 
+import step.core.metrics.*;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.core.reports.Measure;
@@ -47,6 +48,8 @@ public class OutputBuilder {
     private JsonObject payload;
 
     private MeasurementsBuilder measureHelper;
+
+    private List<Metric> metrics;
 
     private Error error;
 
@@ -356,6 +359,95 @@ public class OutputBuilder {
         measureHelper.stopMeasure(data, status);
     }
 
+    /**
+     * Creates a counter metric, registers it for inclusion in the output, and returns it
+     * so accumulated values can be recorded against it before {@link #build()} is called.
+     *
+     * @param name the metric name
+     * @return the new counter metric
+     */
+    public CounterMetric addCounter(String name) {
+        CounterMetric metric = new CounterMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a counter metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new counter metric
+     */
+    public CounterMetric addCounter(String name, java.util.Map<String, String> labels) {
+        CounterMetric metric = new CounterMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a gauge metric, registers it for inclusion in the output, and returns it.
+     *
+     * @param name the metric name
+     * @return the new gauge metric
+     */
+    public GaugeMetric addGauge(String name) {
+        GaugeMetric metric = new GaugeMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a gauge metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new gauge metric
+     */
+    public GaugeMetric addGauge(String name, java.util.Map<String, String> labels) {
+        GaugeMetric metric = new GaugeMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a histogram metric, registers it for inclusion in the output, and returns it.
+     *
+     * @param name the metric name
+     * @return the new histogram metric
+     */
+    public HistogramMetric addHistogram(String name) {
+        HistogramMetric metric = new HistogramMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a histogram metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new histogram metric
+     */
+    public HistogramMetric addHistogram(String name, java.util.Map<String, String> labels) {
+        HistogramMetric metric = new HistogramMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Registers a metric for inclusion in the output. {@link Metric#flush()} is called at
+     * {@link #build()} time to capture the accumulated state.
+     *
+     * @param metric the metric to include in the output; must not be {@code null}
+     */
+    public void addMetric(Metric metric) {
+        if (metrics == null) {
+            metrics = new ArrayList<>();
+        }
+        metrics.add(metric);
+    }
+
     public void stopMeasureForAdditionalData() {
         this.lastMeasureHandle = measureHelper.stopMeasure();
     }
@@ -389,6 +481,11 @@ public class OutputBuilder {
         }
         message.setPayload(payload);
         message.setMeasures(measureHelper.getMeasures());
+        if (metrics != null) {
+            List<MetricSnapshot> snapshots = new ArrayList<>();
+            metrics.forEach(m -> snapshots.add(m.flush()));
+            message.setMetrics(snapshots);
+        }
         message.setAttachments(attachments);
         message.setError(error);
         return message;
@@ -409,6 +506,22 @@ public class OutputBuilder {
         }
         if (output.getMeasures() != null) {
             output.getMeasures().forEach(this::addMeasure);
+        }
+        if (output.getMetrics() != null) {
+            if (metrics == null) {
+                metrics = new ArrayList<>();
+            }
+            // Snapshots from a built output are already flushed — wrap them in a no-op
+            // add them directly via a dedicated path to avoid double-flush.
+            output.getMetrics().forEach(snapshot -> {
+                if (metrics == null) {
+                    // handled by the outer null check above
+                }
+                metrics.add(new Metric(snapshot.getName(), snapshot.getLabels()) {
+                    @Override public MetricType getType() { return snapshot.getType(); }
+                    @Override public MetricSnapshot flush() { return snapshot; }
+                });
+            });
         }
         if (output.getAttachments() != null) {
             output.getAttachments().forEach(this::addAttachment);

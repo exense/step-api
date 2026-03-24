@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 
 /**
- * Provides functionality for recording and streaming live performance measures.
+ * Provides functionality for recording and streaming live performance (response times) measures.
  * <p>
  * Measures can be started and stopped in a stack-like fashion, allowing for nested
  * measurements.

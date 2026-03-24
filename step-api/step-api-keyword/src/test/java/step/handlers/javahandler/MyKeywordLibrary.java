@@ -18,6 +18,11 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import step.core.metrics.CounterMetric;
+import step.core.metrics.CounterSnapshot;
+import step.core.metrics.GaugeMetric;
+import step.core.metrics.HistogramMetric;
+import step.core.metrics.Metric;
 import step.core.reports.Measure;
 import step.reporting.LiveReporting;
 import step.reporting.impl.LiveMeasureDestination;
@@ -35,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -302,6 +308,55 @@ public class MyKeywordLibrary extends AbstractKeyword {
                         }
                     });
             }
+        }
+    }
+
+    /**
+     * Demonstrates adding counter, gauge, and histogram metrics directly to the keyword output.
+     * These are batched with the output and processed once the keyword completes.
+     */
+    @Keyword
+    public void MyKeywordWithNonLiveMetrics() {
+        CounterMetric requests = new CounterMetric("requests");
+        requests.getLabels().put("service", "checkout");
+        requests.increment(5);
+        requests.increment(3);
+
+        GaugeMetric queueDepth = new GaugeMetric("queue_depth");
+        queueDepth.observe(10);
+        queueDepth.observe(20);
+        queueDepth.observe(5);
+
+        HistogramMetric responseTimes = new HistogramMetric("response_time_ms");
+        responseTimes.observe(100);
+        responseTimes.observe(200);
+
+        output.addMetric(requests);
+        output.addMetric(queueDepth);
+        output.addMetric(responseTimes);
+    }
+
+    /**
+     * Demonstrates registering a metric with the live reporting channel so that it can be
+     * flushed and dispatched periodically by the framework during keyword execution.
+     * In this test, a capturing destination is wired and flushed explicitly to verify the flow.
+     */
+    @Keyword
+    public void MyKeywordWithLiveMetrics() {
+        List<Metric> captured = new ArrayList<>();
+        liveReporting = new LiveReporting(null, null, captured::add);
+
+        CounterMetric counter = liveReporting.metrics.registerCounter("events", Map.of("env", "test"));
+        counter.increment(7);
+        counter.increment(3);
+
+        // Simulate the periodic flush that the framework's destination implementation performs
+        output.add("capturedCount", (long) captured.size());
+        if (!captured.isEmpty()) {
+            CounterSnapshot snap = (CounterSnapshot) captured.get(0).flush();
+            output.add("counterDiff", snap.getAccumulatedDiff());
+            output.add("counterTotal", snap.getLongRunningTotal());
+            output.add("labelEnv", snap.getLabels().get("env"));
         }
     }
 
