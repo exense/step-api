@@ -96,7 +96,11 @@ public class MetricSamplesBuilder implements AutoCloseable {
         AtomicLong lastFlushTime = new AtomicLong(0L);
         LongConsumer listener = observationTimestampMs -> {
             long last = lastFlushTime.get();
-            if (observationTimestampMs - last >= flushIntervalMs
+            if (last == 0L) {
+                // First observation: start the interval clock without flushing.
+                // The final flush in getSamples() will capture these early observations.
+                lastFlushTime.compareAndSet(0L, observationTimestampMs);
+            } else if (observationTimestampMs - last >= flushIntervalMs
                     && lastFlushTime.compareAndSet(last, observationTimestampMs)) {
                 publish(metric.flush());
             }
