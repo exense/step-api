@@ -3,10 +3,9 @@ package step.reporting;
 import org.junit.Assert;
 import org.junit.Test;
 import step.core.metrics.CounterMetric;
-import step.core.metrics.CounterSnapshot;
+import step.core.metrics.MetricSample;
 import step.core.metrics.GaugeMetric;
 import step.core.metrics.Metric;
-import step.core.metrics.MetricSnapshot;
 import step.reporting.impl.LiveMetricDestination;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class LiveMetricsTest {
             received.add(metric);
         }
 
-        public List<MetricSnapshot> flushAll() {
+        public List<MetricSample> flushAll() {
             return received.stream().map(Metric::flush).collect(Collectors.toList());
         }
     }
@@ -38,12 +37,12 @@ public class LiveMetricsTest {
         counter.increment(5);
         liveMetrics.register(counter);
 
-        List<MetricSnapshot> snapshots = dest.flushAll();
+        List<MetricSample> snapshots = dest.flushAll();
 
         Assert.assertEquals(1, dest.received.size());
         Assert.assertSame(counter, dest.received.get(0));
-        CounterSnapshot snap = (CounterSnapshot) snapshots.get(0);
-        Assert.assertEquals(5, snap.getAccumulatedDiff());
+        MetricSample snap = (MetricSample) snapshots.get(0);
+        Assert.assertEquals(5, snap.getCount());
     }
 
     @Test
@@ -66,7 +65,7 @@ public class LiveMetricsTest {
         liveMetrics.register(c);
         liveMetrics.register(g);
 
-        List<MetricSnapshot> snapshots = dest.flushAll();
+        List<MetricSample> snapshots = dest.flushAll();
 
         Assert.assertEquals(2, snapshots.size());
     }
@@ -80,17 +79,17 @@ public class LiveMetricsTest {
         counter.increment(10);
         liveMetrics.register(counter);
 
-        List<MetricSnapshot> snapshots1 = dest.flushAll();
-        CounterSnapshot snap1 = (CounterSnapshot) snapshots1.get(0);
-        Assert.assertEquals(10, snap1.getAccumulatedDiff());
-        Assert.assertEquals(10, snap1.getLongRunningTotal());
+        List<MetricSample> snapshots1 = dest.flushAll();
+        MetricSample snap1 = (MetricSample) snapshots1.get(0);
+        Assert.assertEquals(10, snap1.getCount());
+        Assert.assertEquals(10, snap1.getMax());
         Assert.assertEquals(1, dest.received.size()); // registered metrics
 
         // No new increments — diff should be zero on next flush
-        List<MetricSnapshot> snapshots2 = dest.flushAll();
-        CounterSnapshot snap2 = (CounterSnapshot) snapshots2.get(0);
-        Assert.assertEquals(0, snap2.getAccumulatedDiff());
-        Assert.assertEquals(10, snap2.getLongRunningTotal());
+        List<MetricSample> snapshots2 = dest.flushAll();
+        MetricSample snap2 = (MetricSample) snapshots2.get(0);
+        Assert.assertEquals(0, snap2.getCount());
+        Assert.assertEquals(10, snap2.getMax());
         Assert.assertEquals(1, dest.received.size()); // registered metrics
     }
 }

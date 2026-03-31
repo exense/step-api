@@ -14,44 +14,44 @@ public class CounterMetricTest {
         CounterMetric counter = new CounterMetric("requests");
         counter.increment();
         counter.increment(4);
-        CounterSnapshot snap = counter.flush();
+        MetricSample snap = counter.flush();
 
-        Assert.assertEquals("accumulatedDiff should be 5 after 1+4 increments", 5, snap.getAccumulatedDiff());
-        Assert.assertEquals("longRunningTotal should be 5", 5, snap.getLongRunningTotal());
+        Assert.assertEquals("accumulatedDiff should be 5 after 1+4 increments", 5, snap.getCount());
+        Assert.assertEquals("longRunningTotal should be 5", 5, snap.getMax());
     }
 
     @Test
     public void flush_resetsDiff_butNotTotal() {
         CounterMetric counter = new CounterMetric("requests");
         counter.increment(10);
-        CounterSnapshot snap1 = counter.flush();
+        MetricSample snap1 = counter.flush();
 
-        Assert.assertEquals(10, snap1.getAccumulatedDiff());
-        Assert.assertEquals(10, snap1.getLongRunningTotal());
+        Assert.assertEquals(10, snap1.getCount());
+        Assert.assertEquals(10, snap1.getMax());
 
         // Second interval
         counter.increment(3);
-        CounterSnapshot snap2 = counter.flush();
+        MetricSample snap2 = counter.flush();
 
-        Assert.assertEquals("accumulatedDiff should only reflect second interval", 3, snap2.getAccumulatedDiff());
-        Assert.assertEquals("longRunningTotal should be cumulative", 13, snap2.getLongRunningTotal());
+        Assert.assertEquals("accumulatedDiff should only reflect second interval", 3, snap2.getCount());
+        Assert.assertEquals("longRunningTotal should be cumulative", 13, snap2.getMax());
     }
 
     @Test
     public void flush_withNoIncrements_returnsZeroDiff() {
         CounterMetric counter = new CounterMetric("idle");
-        CounterSnapshot snap = counter.flush();
+        MetricSample snap = counter.flush();
 
-        Assert.assertEquals(0, snap.getAccumulatedDiff());
-        Assert.assertEquals(0, snap.getLongRunningTotal());
+        Assert.assertEquals(0, snap.getCount());
+        Assert.assertEquals(0, snap.getMax());
     }
 
     @Test
-    public void flush_returnsCounterSnapshot() {
+    public void flush_returnsMetricSnapshot() {
         CounterMetric counter = new CounterMetric("c");
-        MetricSnapshot snap = counter.flush();
+        MetricSample snap = counter.flush();
         Assert.assertNotNull(snap);
-        Assert.assertTrue(snap instanceof CounterSnapshot);
+        Assert.assertTrue(snap instanceof MetricSample);
     }
 
     @Test
@@ -74,10 +74,10 @@ public class CounterMetricTest {
         }
         pool.shutdown();
         pool.awaitTermination(10, TimeUnit.SECONDS);
-        CounterSnapshot snap = counter.flush();
+        MetricSample snap = counter.flush();
 
         long expected = (long) threads * incrementsPerThread;
-        Assert.assertEquals(expected, snap.getAccumulatedDiff());
-        Assert.assertEquals(expected, snap.getLongRunningTotal());
+        Assert.assertEquals(expected, snap.getCount());
+        Assert.assertEquals(expected, snap.getMax());
     }
 }

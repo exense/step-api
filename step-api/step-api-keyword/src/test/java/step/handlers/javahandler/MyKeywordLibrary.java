@@ -19,13 +19,11 @@
 package step.handlers.javahandler;
 
 import step.core.metrics.CounterMetric;
-import step.core.metrics.CounterSnapshot;
+import step.core.metrics.MetricSample;
 import step.core.metrics.GaugeMetric;
 import step.core.metrics.HistogramMetric;
 import step.core.metrics.Metric;
-import step.core.reports.Measure;
 import step.reporting.LiveReporting;
-import step.reporting.impl.LiveMeasureDestination;
 import step.streaming.client.upload.StreamingUpload;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
 import step.streaming.client.upload.impl.local.LocalDirectoryBackedStreamingUploadProvider;
@@ -353,9 +351,9 @@ public class MyKeywordLibrary extends AbstractKeyword {
         // Simulate the periodic flush that the framework's destination implementation performs
         output.add("capturedCount", (long) captured.size());
         if (!captured.isEmpty()) {
-            CounterSnapshot snap = (CounterSnapshot) captured.get(0).flush();
-            output.add("counterDiff", snap.getAccumulatedDiff());
-            output.add("counterTotal", snap.getLongRunningTotal());
+            MetricSample snap = (MetricSample) captured.get(0).flush();
+            output.add("counterDiff", snap.getCount());
+            output.add("counterTotal", snap.getLast());
             output.add("labelEnv", snap.getLabels().get("env"));
         }
     }

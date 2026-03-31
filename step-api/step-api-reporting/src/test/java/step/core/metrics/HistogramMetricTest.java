@@ -16,7 +16,7 @@ public class HistogramMetricTest {
         histogram.observe(100);
         histogram.observe(200);
         histogram.observe(150);
-        SampledSnapshot snap = (SampledSnapshot) histogram.flush();
+        MetricSample snap = histogram.flush();
 
         Assert.assertEquals(3, snap.getCount());
         Assert.assertEquals(450, snap.getSum());
@@ -31,7 +31,7 @@ public class HistogramMetricTest {
         histogram.flush();
 
         histogram.observe(10);
-        SampledSnapshot snap = (SampledSnapshot) histogram.flush();
+        MetricSample snap = histogram.flush();
 
         Assert.assertEquals(1, snap.getCount());
         Assert.assertEquals(10, snap.getSum());

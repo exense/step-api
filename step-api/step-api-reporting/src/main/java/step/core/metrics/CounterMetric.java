@@ -54,29 +54,42 @@ public class CounterMetric extends Metric {
         return MetricType.COUNTER;
     }
 
-    /** Increments the counter by 1. */
+    /** Increments the counter by 1, using the current wall-clock time as the observation timestamp. */
     public void increment() {
         increment(1);
     }
 
     /**
-     * Increments the counter by {@code amount}.
+     * Increments the counter by {@code amount}, using the current wall-clock time
+     * as the observation timestamp for rate-limit decisions.
      *
      * @param amount positive increment value
      */
     public void increment(long amount) {
+        increment(amount, System.currentTimeMillis());
+    }
+
+    /**
+     * Increments the counter by {@code amount}, using the supplied timestamp
+     * as the observation timestamp for rate-limit decisions.
+     *
+     * @param amount              positive increment value
+     * @param observationTimestampMs epoch milliseconds of this observation
+     */
+    public void increment(long amount, long observationTimestampMs) {
         diffAccumulator.addAndGet(amount);
         totalAccumulator.addAndGet(amount);
+        notifyObserved(observationTimestampMs);
     }
 
     /**
      * Captures the accumulated diff (then resets it to zero) and the current running total
-     * into a new {@link CounterSnapshot} and returns it.
+     * into a new {@link MetricSample} and returns it.
      */
     @Override
-    public CounterSnapshot flush() {
+    public MetricSample flush() {
         long diff = diffAccumulator.getAndSet(0);
         long total = totalAccumulator.get();
-        return new CounterSnapshot(System.currentTimeMillis(), getName(), getLabels(), diff, total);
+        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), diff, total, total, total, total, null);
     }
 }

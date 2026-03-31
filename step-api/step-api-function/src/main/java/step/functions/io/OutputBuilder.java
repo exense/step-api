@@ -28,7 +28,12 @@ import java.util.Map;
 import javax.json.*;
 import javax.json.spi.JsonProvider;
 
-import step.core.metrics.*;
+import step.core.metrics.CounterMetric;
+import step.core.metrics.GaugeMetric;
+import step.core.metrics.HistogramMetric;
+import step.core.metrics.Metric;
+import step.core.metrics.MetricSample;
+import step.core.metrics.MetricSamplesBuilder;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.core.reports.Measure;
@@ -49,7 +54,7 @@ public class OutputBuilder {
 
     private MeasurementsBuilder measureHelper;
 
-    private List<Metric> metrics;
+    private MetricSamplesBuilder metricSamplesBuilder;
 
     private Error error;
 
@@ -65,6 +70,7 @@ public class OutputBuilder {
         payloadBuilder = jprov.createObjectBuilder();
 
         measureHelper = new MeasurementsBuilder();
+        metricSamplesBuilder = new MetricSamplesBuilder();
     }
 
     public JsonObjectBuilder getPayloadBuilder() {
@@ -379,7 +385,7 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new counter metric
      */
-    public CounterMetric addCounter(String name, java.util.Map<String, String> labels) {
+    public CounterMetric addCounter(String name, Map<String, String> labels) {
         CounterMetric metric = new CounterMetric(name, labels);
         addMetric(metric);
         return metric;
@@ -404,7 +410,7 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new gauge metric
      */
-    public GaugeMetric addGauge(String name, java.util.Map<String, String> labels) {
+    public GaugeMetric addGauge(String name, Map<String, String> labels) {
         GaugeMetric metric = new GaugeMetric(name, labels);
         addMetric(metric);
         return metric;
@@ -429,23 +435,21 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new histogram metric
      */
-    public HistogramMetric addHistogram(String name, java.util.Map<String, String> labels) {
+    public HistogramMetric addHistogram(String name, Map<String, String> labels) {
         HistogramMetric metric = new HistogramMetric(name, labels);
         addMetric(metric);
         return metric;
     }
 
     /**
-     * Registers a metric for inclusion in the output. {@link Metric#flush()} is called at
-     * {@link #build()} time to capture the accumulated state.
+     * Registers a metric for inclusion in the output. A {@link MetricSample} is produced
+     * on every observation ({@code increment()}, {@code observe()}) and collected until
+     * {@link #build()} is called.
      *
      * @param metric the metric to include in the output; must not be {@code null}
      */
     public void addMetric(Metric metric) {
-        if (metrics == null) {
-            metrics = new ArrayList<>();
-        }
-        metrics.add(metric);
+        metricSamplesBuilder.register(metric);
     }
 
     public void stopMeasureForAdditionalData() {
@@ -481,10 +485,9 @@ public class OutputBuilder {
         }
         message.setPayload(payload);
         message.setMeasures(measureHelper.getMeasures());
-        if (metrics != null) {
-            List<MetricSnapshot> snapshots = new ArrayList<>();
-            metrics.forEach(m -> snapshots.add(m.flush()));
-            message.setMetrics(snapshots);
+        List<MetricSample> samples = metricSamplesBuilder.getSamples();
+        if (!samples.isEmpty()) {
+            message.setMetrics(samples);
         }
         message.setAttachments(attachments);
         message.setError(error);
@@ -507,22 +510,7 @@ public class OutputBuilder {
         if (output.getMeasures() != null) {
             output.getMeasures().forEach(this::addMeasure);
         }
-        if (output.getMetrics() != null) {
-            if (metrics == null) {
-                metrics = new ArrayList<>();
-            }
-            // Snapshots from a built output are already flushed — wrap them in a no-op
-            // add them directly via a dedicated path to avoid double-flush.
-            output.getMetrics().forEach(snapshot -> {
-                if (metrics == null) {
-                    // handled by the outer null check above
-                }
-                metrics.add(new Metric(snapshot.getName(), snapshot.getLabels()) {
-                    @Override public MetricType getType() { return snapshot.getType(); }
-                    @Override public MetricSnapshot flush() { return snapshot; }
-                });
-            });
-        }
+        metricSamplesBuilder.addSamples(output.getMetrics());
         if (output.getAttachments() != null) {
             output.getAttachments().forEach(this::addAttachment);
         }

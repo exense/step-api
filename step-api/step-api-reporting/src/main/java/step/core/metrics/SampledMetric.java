@@ -59,11 +59,23 @@ public abstract class SampledMetric extends Metric {
     }
 
     /**
-     * Records a single observation.
+     * Records a single observation, using the current wall-clock time as the observation
+     * timestamp for rate-limit decisions.
      *
      * @param value the observed value (e.g. a response time in ms, or a quantity)
      */
     public void observe(long value) {
+        observe(value, System.currentTimeMillis());
+    }
+
+    /**
+     * Records a single observation, using the supplied timestamp as the observation
+     * timestamp for rate-limit decisions.
+     *
+     * @param value                  the observed value (e.g. a response time in ms, or a quantity)
+     * @param observationTimestampMs epoch milliseconds of this observation
+     */
+    public void observe(long value, long observationTimestampMs) {
         countAdder.increment();
         sumAdder.add(value);
         minAtomic.updateAndGet(cur -> Math.min(cur, value));
@@ -72,14 +84,15 @@ public abstract class SampledMetric extends Metric {
                 .computeIfAbsent(value - value % PCL_PRECISION, k -> new LongAdder())
                 .increment();
         this.last = value;
+        notifyObserved(observationTimestampMs);
     }
 
     /**
-     * Captures the accumulated distribution statistics into a new {@link SampledSnapshot},
+     * Captures the accumulated distribution statistics into a new {@link MetricSample},
      * resets all accumulators except {@code last}, and returns the snapshot.
      */
     @Override
-    public SampledSnapshot flush() {
+    public MetricSample flush() {
         long count = countAdder.sumThenReset();
         long sum = sumAdder.sumThenReset();
         long min = count > 0 ? minAtomic.getAndSet(Long.MAX_VALUE) : 0;
@@ -91,6 +104,6 @@ public abstract class SampledMetric extends Metric {
                 distribution.put(k, val);
             }
         });
-        return new SampledSnapshot(System.currentTimeMillis(), getName(), getLabels(), getType(), count, sum, min, max, last, distribution);
+        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), count, sum, min, max, last, distribution);
     }
 }

@@ -15,8 +15,9 @@ public class GaugeMetricTest {
         gauge.observe(10);
         gauge.observe(20);
         gauge.observe(30);
-        SampledSnapshot snap = (SampledSnapshot) gauge.flush();
+        MetricSample snap = gauge.flush();
 
+        Assert.assertEquals(MetricType.GAUGE, snap.getType());
         Assert.assertEquals(3, snap.getCount());
         Assert.assertEquals(60, snap.getSum());
         Assert.assertEquals(10, snap.getMin());
@@ -32,7 +33,8 @@ public class GaugeMetricTest {
 
         // Second interval with different values
         gauge.observe(5);
-        SampledSnapshot snap = (SampledSnapshot) gauge.flush();
+        MetricSample snap = gauge.flush();
+        Assert.assertEquals(MetricType.GAUGE, snap.getType());
 
         Assert.assertEquals(1, snap.getCount());
         Assert.assertEquals(5, snap.getSum());
@@ -46,18 +48,18 @@ public class GaugeMetricTest {
         gauge.observe(42);
         gauge.flush();
         // No new observations in second interval
-        SampledSnapshot snap = (SampledSnapshot) gauge.flush();
+        MetricSample snap = gauge.flush();
 
         Assert.assertEquals("last should persist across flushes", 42, snap.getLast());
         Assert.assertEquals("count should be 0 after empty interval", 0, snap.getCount());
     }
 
     @Test
-    public void flush_returnsSampledSnapshot() {
+    public void flush_returnsMetricSnapshot() {
         GaugeMetric gauge = new GaugeMetric("g");
-        MetricSnapshot snap = gauge.flush();
+        MetricSample snap = gauge.flush();
         Assert.assertNotNull(snap);
-        Assert.assertTrue(snap instanceof SampledSnapshot);
+        Assert.assertTrue(snap instanceof MetricSample);
     }
 
     @Test
@@ -71,7 +73,7 @@ public class GaugeMetricTest {
         gauge.observe(15); // bucket key: 10
         gauge.observe(18); // bucket key: 10
         gauge.observe(25); // bucket key: 20
-        SampledSnapshot snap = (SampledSnapshot) gauge.flush();
+        MetricSample snap = (MetricSample) gauge.flush();
 
         Assert.assertNotNull(snap.getDistribution());
         Assert.assertEquals(2, (long) snap.getDistribution().getOrDefault(10L, 0L));
@@ -93,7 +95,7 @@ public class GaugeMetricTest {
         }
         pool.shutdown();
         pool.awaitTermination(10, TimeUnit.SECONDS);
-        SampledSnapshot snap = (SampledSnapshot) gauge.flush();
+        MetricSample snap = (MetricSample) gauge.flush();
 
         Assert.assertEquals((long) threads * observationsPerThread, snap.getCount());
     }

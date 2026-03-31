@@ -20,25 +20,27 @@ package step.core.metrics;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.LongConsumer;
 
 /**
  * Abstract base for all metric types (counter, gauge, histogram).
  * <p>
  * A {@code Metric} accumulates observations in thread-safe internal fields.
- * The accumulated state is periodically captured into a {@link MetricSnapshot} via
- * {@link #flush()}, which also resets the accumulators for the next interval.
- * Flushing is triggered by the {@link step.reporting.LiveMetrics} destination
- * implementation (e.g. {@code RestUploadingLiveMetricDestination}) at a configured interval,
- * or at keyword end via {@code OutputBuilder}.
+ * Each observation fires a lightweight notification to an {@link #setObservationListener(LongConsumer)
+ * observation listener}. The listener (installed by {@link MetricSamplesBuilder}) decides whether
+ * it is time to call {@link #flush()} based on the elapsed time since the last flush, making
+ * sample production rate-limited rather than one-per-observation.
  * <p>
  * Keyword developers interact only with the concrete subclass API
  * (e.g. {@link CounterMetric#increment()}, {@link SampledMetric#observe(long)}).
- * Registration and flushing are handled by the framework.
+ * Listener registration and flushing are handled by the framework via {@link MetricSamplesBuilder}.
  */
 public abstract class Metric {
 
     private final String name;
     private final Map<String, String> labels;
+    private volatile LongConsumer observationListener;
+    private volatile long lastObservedTimestampMs;
 
     protected Metric(String name) {
         this.name = name;
@@ -54,12 +56,49 @@ public abstract class Metric {
     public abstract MetricType getType();
 
     /**
-     * Atomically captures the current accumulated state into a new {@link MetricSnapshot},
-     * resets the accumulators for the next interval, and returns the snapshot.
+     * Atomically captures the current accumulated state into a new {@link MetricSample},
+     * resets the accumulators, and returns the snapshot.
      * <p>
      * <b>Reserved for the framework.</b> Keyword developers should not call this directly.
      */
-    public abstract MetricSnapshot flush();
+    public abstract MetricSample flush();
+
+    /**
+     * Sets the listener that is notified after each observation. The listener decides
+     * whether to call {@link #flush()} based on its own rate-limiting logic.
+     * <b>Reserved for the framework</b> — called by {@link MetricSamplesBuilder#register(Metric)}.
+     *
+     * @param listener the listener to notify on each observation; receives the observation
+     *                 timestamp in epoch milliseconds; {@code null} disables notifications
+     */
+    public void setObservationListener(LongConsumer listener) {
+        this.observationListener = listener;
+    }
+
+    /**
+     * Called by subclasses after each observation to notify the registered listener, if any,
+     * passing the given observation timestamp (epoch milliseconds) for rate-limit decisions.
+     *
+     * @param observationTimestampMs the timestamp of the observation in epoch milliseconds;
+     *                               used by {@link MetricSamplesBuilder} to decide whether to flush
+     */
+    protected void notifyObserved(long observationTimestampMs) {
+        lastObservedTimestampMs = observationTimestampMs;
+        LongConsumer l = observationListener;
+        if (l != null) {
+            l.accept(observationTimestampMs);
+        }
+    }
+
+    /**
+     * Returns the timestamp (epoch milliseconds) of the most recent observation, as passed to
+     * {@link #notifyObserved(long)}. Used by {@link #flush()} implementations to stamp the
+     * produced {@link MetricSample} with the data-source time rather than the wall-clock flush time.
+     * Falls back to the current wall-clock time if no observation has been recorded yet.
+     */
+    protected long getLastObservedTimestampMs() {
+        return lastObservedTimestampMs != 0 ? lastObservedTimestampMs : System.currentTimeMillis();
+    }
 
     /** Returns the metric name. */
     public String getName() {

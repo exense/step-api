@@ -21,16 +21,23 @@ package step.core.metrics;
 import java.util.Map;
 
 /**
- * Snapshot produced by {@link GaugeMetric#flush()} or {@link HistogramMetric#flush()},
- * carrying the sampled metric's distribution statistics for one reporting interval.
+ * Immutable snapshot of a {@link Metric}'s accumulated state at a point in time,
+ * produced by {@link Metric#flush()}.
  * <p>
- * The {@link #getType()} discriminator distinguishes gauge from histogram on the controller side.
- * All accumulator fields ({@code count}, {@code sum}, {@code min}, {@code max}, {@code distribution})
- * are reset on each flush. The {@code last} field retains the most recently observed value
- * across flushes, providing a "current value" snapshot useful for gauge semantics.
+ * {@code MetricSnapshot} is the wire format sent to the controller: it contains only
+ * plain serializable fields with no accumulator state. It contains all possible values fields
+ * to avoid class hierarchy and custom deserialization (no Jackson dependencies in step-api)
+ * <p>
+ * Getters are exposed as bean properties for Jackson serialization.
+ * Setters are provided for Jackson deserialization on the controller side
+ * without requiring Jackson annotations in this module.
  */
-public class SampledSnapshot extends MetricSnapshot {
+public class MetricSample {
 
+    private long sampleTime;
+    private String name;
+    private Map<String, String> labels;
+    private MetricType type;
     private long count;
     private long sum;
     private long min;
@@ -39,19 +46,66 @@ public class SampledSnapshot extends MetricSnapshot {
     private Map<Long, Long> distribution;
 
     /** Required for Jackson deserialization. */
-    public SampledSnapshot() {
+    public MetricSample() {
     }
 
-    public SampledSnapshot(long snapshotTimestamp, String name, Map<String, String> labels, MetricType type,
-                           long count, long sum, long min, long max, long last,
-                           Map<Long, Long> distribution) {
-        super(snapshotTimestamp, name, labels, type);
+    public MetricSample(long sampleTime, String name, Map<String, String> labels, MetricType type,
+                        long count, long sum, long min, long max, long last,
+                        Map<Long, Long> distribution) {
+        this.sampleTime = sampleTime;
+        this.name = name;
+        this.labels = labels;
+        this.type = type;
         this.count = count;
         this.sum = sum;
         this.min = min;
         this.max = max;
         this.last = last;
         this.distribution = distribution;
+    }
+
+    /** Return the timestamp of this snapshot **/
+    public long getSampleTime() {
+        return sampleTime;
+    }
+
+    /** Required for Jackson deserialization. */
+    public void setSampleTime(long sampleTime) {
+        this.sampleTime = sampleTime;
+    }
+
+    /** Returns the metric name. */
+    public String getName() {
+        return name;
+    }
+
+    /** Required for Jackson deserialization. */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /** Returns the labels attached to this metric. */
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    /** Required for Jackson deserialization. */
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
+    /**
+     * Returns the metric type. Used as a JSON discriminator so the controller
+     * can deserialize the correct subclass without requiring Jackson annotations
+     * in this module.
+     */
+    public MetricType getType() {
+        return type;
+    }
+
+    /** Required for Jackson deserialization. */
+    public void setType(MetricType type) {
+        this.type = type;
     }
 
     /** Returns the number of observations recorded since the last flush. */

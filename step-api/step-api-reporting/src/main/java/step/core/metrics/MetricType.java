@@ -25,5 +25,9 @@ package step.core.metrics;
 public enum MetricType {
     COUNTER,
     GAUGE,
-    HISTOGRAM
+    HISTOGRAM;
+
+    public String toLowerCase() {
+        return name().toLowerCase();
+    }
 }

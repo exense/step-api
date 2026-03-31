@@ -35,10 +35,8 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import step.core.metrics.CounterSnapshot;
-import step.core.metrics.MetricSnapshot;
+import step.core.metrics.MetricSample;
 import step.core.metrics.MetricType;
-import step.core.metrics.SampledSnapshot;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
@@ -576,19 +574,19 @@ public class KeywordRunnerTest {
         Output<JsonObject> output = runner.run("MyKeywordWithNonLiveMetrics");
 
         assertNull(output.getError());
-        List<MetricSnapshot> metrics = output.getMetrics();
+        List<MetricSample> metrics = output.getMetrics();
         assertEquals(3, metrics.size());
 
         // Counter: 5+3 increments, label preserved
-        CounterSnapshot counter = (CounterSnapshot) metrics.get(0);
+        MetricSample counter = (MetricSample) metrics.get(0);
         assertEquals("requests", counter.getName());
         assertEquals(MetricType.COUNTER, counter.getType());
-        assertEquals(8, counter.getAccumulatedDiff());
-        assertEquals(8, counter.getLongRunningTotal());
+        assertEquals(8, counter.getCount());
+        assertEquals(8, counter.getLast());
         assertEquals("checkout", counter.getLabels().get("service"));
 
         // Gauge: 3 observations (10, 20, 5)
-        SampledSnapshot gauge = (SampledSnapshot) metrics.get(1);
+        MetricSample gauge =  metrics.get(1);
         assertEquals("queue_depth", gauge.getName());
         assertEquals(MetricType.GAUGE, gauge.getType());
         assertEquals(3, gauge.getCount());
@@ -598,7 +596,7 @@ public class KeywordRunnerTest {
         assertEquals(5, gauge.getLast());
 
         // Histogram: 2 observations (100, 200)
-        SampledSnapshot histogram = (SampledSnapshot) metrics.get(2);
+        MetricSample histogram = metrics.get(2);
         assertEquals("response_time_ms", histogram.getName());
         assertEquals(MetricType.HISTOGRAM, histogram.getType());
         assertEquals(2, histogram.getCount());
