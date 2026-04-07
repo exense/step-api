@@ -40,7 +40,7 @@ public class GaugeMetric extends SampledMetric {
     }
 
     @Override
-    public MetricType getType() {
-        return MetricType.GAUGE;
+    public InstrumentType getType() {
+        return InstrumentType.GAUGE;
     }
 }

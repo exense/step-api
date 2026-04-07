@@ -37,7 +37,7 @@ public class MetricSample {
     private long sampleTime;
     private String name;
     private Map<String, String> labels;
-    private MetricType type;
+    private InstrumentType type;
     private long count;
     private long sum;
     private long min;
@@ -49,7 +49,7 @@ public class MetricSample {
     public MetricSample() {
     }
 
-    public MetricSample(long sampleTime, String name, Map<String, String> labels, MetricType type,
+    public MetricSample(long sampleTime, String name, Map<String, String> labels, InstrumentType type,
                         long count, long sum, long min, long max, long last,
                         Map<Long, Long> distribution) {
         this.sampleTime = sampleTime;
@@ -99,12 +99,12 @@ public class MetricSample {
      * can deserialize the correct subclass without requiring Jackson annotations
      * in this module.
      */
-    public MetricType getType() {
+    public InstrumentType getType() {
         return type;
     }
 
     /** Required for Jackson deserialization. */
-    public void setType(MetricType type) {
+    public void setType(InstrumentType type) {
         this.type = type;
     }
 

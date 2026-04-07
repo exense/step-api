@@ -7,7 +7,7 @@ public class HistogramMetricTest {
 
     @Test
     public void getType_returnsHistogram() {
-        Assert.assertEquals(MetricType.HISTOGRAM, new HistogramMetric("h").getType());
+        Assert.assertEquals(InstrumentType.HISTOGRAM, new HistogramMetric("h").getType());
     }
 
     @Test

@@ -18,30 +18,21 @@
  ******************************************************************************/
 package step.core.metrics;
 
-import java.util.Map;
-
 /**
- * A histogram metric that tracks a distribution of observed values over each reporting interval.
+ * Describes how a metric value is accumulated — the measurement instrument.
  * <p>
- * Suitable for measuring durations, sizes, or other bounded quantities where the distribution
- * shape (percentiles) is meaningful (e.g. response times, payload sizes).
- * Use {@link #observe(long)} to record each measurement.
- * <p>
- * Structurally identical to {@link GaugeMetric}; the distinction is semantic and determines
- * how handlers (e.g. {@code PrometheusHandler}) expose the metric.
+ * This is intentionally distinct from the time-series category concept
+ * (represented by {@code step.core.timeseries.metric.MetricType} documents),
+ * which describes how charts should render a given stream of data.
+ * A GAUGE instrument can belong to the "threadgroup" time-series category,
+ * for instance — the instrument type and the display category are orthogonal.
  */
-public class HistogramMetric extends SampledMetric {
+public enum InstrumentType {
+    COUNTER,
+    GAUGE,
+    HISTOGRAM;
 
-    public HistogramMetric(String name) {
-        super(name);
-    }
-
-    public HistogramMetric(String name, Map<String, String> labels) {
-        super(name, labels);
-    }
-
-    @Override
-    public InstrumentType getType() {
-        return InstrumentType.HISTOGRAM;
+    public String toLowerCase() {
+        return name().toLowerCase();
     }
 }

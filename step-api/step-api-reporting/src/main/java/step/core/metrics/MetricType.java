@@ -19,15 +19,9 @@
 package step.core.metrics;
 
 /**
- * Discriminator for the concrete metric type. Serialized as a JSON field so the controller
- * can deserialize the correct subclass without requiring Jackson annotations in this module.
+ * @deprecated Use {@link InstrumentType} instead. This stub will be removed in a future release.
  */
-public enum MetricType {
-    COUNTER,
-    GAUGE,
-    HISTOGRAM;
-
-    public String toLowerCase() {
-        return name().toLowerCase();
-    }
+@Deprecated
+public final class MetricType {
+    private MetricType() {}
 }

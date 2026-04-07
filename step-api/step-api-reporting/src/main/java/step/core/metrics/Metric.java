@@ -53,7 +53,7 @@ public abstract class Metric {
     }
 
     /** Returns the concrete type of this metric. */
-    public abstract MetricType getType();
+    public abstract InstrumentType getType();
 
     /**
      * Atomically captures the current accumulated state into a new {@link MetricSample},

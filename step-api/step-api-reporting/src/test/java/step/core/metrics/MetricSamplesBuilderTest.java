@@ -271,7 +271,7 @@ public class MetricSamplesBuilderTest {
     public void addSamples_mergesPreexistingSamplesIntoCollected() {
         MetricSamplesBuilder builder = new MetricSamplesBuilder();
         MetricSample pre = new MetricSample(System.currentTimeMillis(), "pre",
-                Collections.emptyMap(), MetricType.COUNTER, 42, 42, 42, 42, 42, null);
+                Collections.emptyMap(), InstrumentType.COUNTER, 42, 42, 42, 42, 42, null);
 
         builder.addSamples(List.of(pre));
 

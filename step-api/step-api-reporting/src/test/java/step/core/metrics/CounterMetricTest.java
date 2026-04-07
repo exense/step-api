@@ -56,7 +56,7 @@ public class CounterMetricTest {
 
     @Test
     public void getType_returnsCounter() {
-        Assert.assertEquals(MetricType.COUNTER, new CounterMetric("c").getType());
+        Assert.assertEquals(InstrumentType.COUNTER, new CounterMetric("c").getType());
     }
 
     @Test

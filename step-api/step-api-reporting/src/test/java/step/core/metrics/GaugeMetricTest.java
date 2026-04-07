@@ -17,7 +17,7 @@ public class GaugeMetricTest {
         gauge.observe(30);
         MetricSample snap = gauge.flush();
 
-        Assert.assertEquals(MetricType.GAUGE, snap.getType());
+        Assert.assertEquals(InstrumentType.GAUGE, snap.getType());
         Assert.assertEquals(3, snap.getCount());
         Assert.assertEquals(60, snap.getSum());
         Assert.assertEquals(10, snap.getMin());
@@ -34,7 +34,7 @@ public class GaugeMetricTest {
         // Second interval with different values
         gauge.observe(5);
         MetricSample snap = gauge.flush();
-        Assert.assertEquals(MetricType.GAUGE, snap.getType());
+        Assert.assertEquals(InstrumentType.GAUGE, snap.getType());
 
         Assert.assertEquals(1, snap.getCount());
         Assert.assertEquals(5, snap.getSum());
@@ -64,7 +64,7 @@ public class GaugeMetricTest {
 
     @Test
     public void getType_returnsGauge() {
-        Assert.assertEquals(MetricType.GAUGE, new GaugeMetric("g").getType());
+        Assert.assertEquals(InstrumentType.GAUGE, new GaugeMetric("g").getType());
     }
 
     @Test

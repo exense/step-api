@@ -50,8 +50,8 @@ public class CounterMetric extends Metric {
     }
 
     @Override
-    public MetricType getType() {
-        return MetricType.COUNTER;
+    public InstrumentType getType() {
+        return InstrumentType.COUNTER;
     }
 
     /** Increments the counter by 1, using the current wall-clock time as the observation timestamp. */
