@@ -64,8 +64,9 @@ public abstract class SampledMetric extends Metric {
      *
      * @param value the observed value (e.g. a response time in ms, or a quantity)
      */
-    public void observe(long value) {
+    public SampledMetric observe(long value) {
         observe(value, System.currentTimeMillis());
+        return this;
     }
 
     /**
@@ -75,7 +76,7 @@ public abstract class SampledMetric extends Metric {
      * @param value                  the observed value (e.g. a response time in ms, or a quantity)
      * @param observationTimestampMs epoch milliseconds of this observation
      */
-    public void observe(long value, long observationTimestampMs) {
+    public SampledMetric observe(long value, long observationTimestampMs) {
         countAdder.increment();
         sumAdder.add(value);
         minAtomic.updateAndGet(cur -> Math.min(cur, value));
@@ -85,6 +86,7 @@ public abstract class SampledMetric extends Metric {
                 .increment();
         this.last = value;
         notifyObserved(observationTimestampMs);
+        return this;
     }
 
     /**

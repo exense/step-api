@@ -55,8 +55,9 @@ public class CounterMetric extends Metric {
     }
 
     /** Increments the counter by 1, using the current wall-clock time as the observation timestamp. */
-    public void increment() {
+    public CounterMetric increment() {
         increment(1);
+        return this;
     }
 
     /**
@@ -65,8 +66,9 @@ public class CounterMetric extends Metric {
      *
      * @param amount positive increment value
      */
-    public void increment(long amount) {
+    public CounterMetric increment(long amount) {
         increment(amount, System.currentTimeMillis());
+        return this;
     }
 
     /**
@@ -76,10 +78,11 @@ public class CounterMetric extends Metric {
      * @param amount              positive increment value
      * @param observationTimestampMs epoch milliseconds of this observation
      */
-    public void increment(long amount, long observationTimestampMs) {
+    public CounterMetric increment(long amount, long observationTimestampMs) {
         diffAccumulator.addAndGet(amount);
         totalAccumulator.addAndGet(amount);
         notifyObserved(observationTimestampMs);
+        return this;
     }
 
     /**
