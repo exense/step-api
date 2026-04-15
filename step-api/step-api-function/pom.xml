@@ -16,10 +16,11 @@
       <artifactId>step-api-reporting</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
-      <groupId>ch.exense.step</groupId>
-      <artifactId>step-api-javax-json</artifactId>
-      <version>1.0.0</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
     </dependency>
+
   </dependencies>
 </project>

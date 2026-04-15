@@ -18,22 +18,25 @@
  ******************************************************************************/
 package step.functions.io;
 
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.json.*;
-import javax.json.spi.JsonProvider;
-
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
+import jakarta.json.spi.JsonProvider;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.core.reports.Measure;
 import step.core.reports.MeasurementsBuilder;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
+
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A builder for Output instances.

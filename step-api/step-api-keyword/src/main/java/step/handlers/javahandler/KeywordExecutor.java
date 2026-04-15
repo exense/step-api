@@ -18,6 +18,9 @@
  ******************************************************************************/
 package step.handlers.javahandler;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import step.functions.io.AbstractSession;
@@ -26,9 +29,6 @@ import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
 import step.reporting.LiveReporting;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

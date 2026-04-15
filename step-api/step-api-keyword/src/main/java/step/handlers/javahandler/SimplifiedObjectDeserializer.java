@@ -1,7 +1,8 @@
 package step.handlers.javahandler;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -11,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static step.handlers.javahandler.JsonObjectMapper.*;
+import static step.handlers.javahandler.JsonObjectMapper.getTypeClass;
+import static step.handlers.javahandler.JsonObjectMapper.resolveGenericTypeForArrayOrCollection;
+import static step.handlers.javahandler.JsonObjectMapper.toArray;
 
 public class SimplifiedObjectDeserializer {
 

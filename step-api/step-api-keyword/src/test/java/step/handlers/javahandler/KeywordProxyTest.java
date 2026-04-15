@@ -1,19 +1,19 @@
 package step.handlers.javahandler;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import org.junit.Test;
 import step.functions.io.Output;
-import step.functions.io.OutputBuilder;
-
-import javax.json.Json;
-import javax.json.JsonObject;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 public class KeywordProxyTest {
 

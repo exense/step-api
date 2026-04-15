@@ -33,6 +33,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.eclipse.parsson</groupId>
+      <artifactId>parsson</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
     <!-- The classes of following dependency are relocated by the shade plugin to avoid conflicts with Keywords
     that might also import javassist. The dependency scope is provided to avoid transitive dependencies to javassist in downstream dependencies -->
     <dependency>

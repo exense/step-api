@@ -1,12 +1,12 @@
 package step.handlers.javahandler;
 
+import jakarta.json.JsonObject;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import step.functions.io.AbstractSession;
 import step.functions.io.Output;
 import step.functions.io.OutputBuilder;
 
-import javax.json.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;

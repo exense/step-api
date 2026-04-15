@@ -1,15 +1,26 @@
 package step.handlers.javahandler;
 
+import jakarta.json.Json;
 import org.junit.Test;
 
-import javax.json.Json;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static step.handlers.javahandler.JsonObjectMapperTest.*;
+import static step.handlers.javahandler.JsonObjectMapperTest.BOOLEAN;
+import static step.handlers.javahandler.JsonObjectMapperTest.INT;
+import static step.handlers.javahandler.JsonObjectMapperTest.LONG;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_BOOLEAN;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_INTEGER;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_LIST;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_LONG;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_POJO;
+import static step.handlers.javahandler.JsonObjectMapperTest.MY_STRING;
+import static step.handlers.javahandler.JsonObjectMapperTest.Pojo2;
+import static step.handlers.javahandler.JsonObjectMapperTest.STRING;
+import static step.handlers.javahandler.JsonObjectMapperTest.pojoAsJson;
 
 public class AbstractKeywordTest {
 
