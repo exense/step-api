@@ -20,6 +20,7 @@ package step.core.metrics;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * A monotonically increasing counter metric.
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CounterMetric extends Metric {
 
+    private final LongAdder countAdder = new LongAdder();
     private final AtomicLong diffAccumulator = new AtomicLong(0);
     private final AtomicLong totalAccumulator = new AtomicLong(0);
 
@@ -79,6 +81,10 @@ public class CounterMetric extends Metric {
      * @param observationTimestampMs epoch milliseconds of this observation
      */
     public CounterMetric increment(long amount, long observationTimestampMs) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Counter increment amount must be non-negative");
+        }
+        countAdder.increment();
         diffAccumulator.addAndGet(amount);
         totalAccumulator.addAndGet(amount);
         notifyObserved(observationTimestampMs);
@@ -91,8 +97,9 @@ public class CounterMetric extends Metric {
      */
     @Override
     public MetricSample flush() {
+        long count = countAdder.sumThenReset();
         long diff = diffAccumulator.getAndSet(0);
         long total = totalAccumulator.get();
-        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), diff, total, total, total, total, null);
+        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), count, diff, total-diff, total, total, null);
     }
 }

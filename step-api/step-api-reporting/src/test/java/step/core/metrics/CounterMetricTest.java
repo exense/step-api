@@ -21,6 +21,12 @@ public class CounterMetricTest {
     }
 
     @Test
+    public void incrementAndFlush_negativeValue() {
+        CounterMetric counter = new CounterMetric("requests");
+        Assert.assertThrows(IllegalArgumentException.class, ()->counter.increment(-4));
+    }
+
+    @Test
     public void flush_resetsDiff_butNotTotal() {
         CounterMetric counter = new CounterMetric("requests");
         counter.increment(10);

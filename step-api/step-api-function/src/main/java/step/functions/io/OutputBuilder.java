@@ -372,7 +372,7 @@ public class OutputBuilder {
      * @param name the metric name
      * @return the new counter metric
      */
-    public CounterMetric addCounter(String name) {
+    public CounterMetric newCounter(String name) {
         CounterMetric metric = new CounterMetric(name);
         addMetric(metric);
         return metric;
@@ -385,7 +385,7 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new counter metric
      */
-    public CounterMetric addCounter(String name, Map<String, String> labels) {
+    public CounterMetric newCounter(String name, Map<String, String> labels) {
         CounterMetric metric = new CounterMetric(name, labels);
         addMetric(metric);
         return metric;
@@ -397,7 +397,7 @@ public class OutputBuilder {
      * @param name the metric name
      * @return the new gauge metric
      */
-    public GaugeMetric addGauge(String name) {
+    public GaugeMetric newGauge(String name) {
         GaugeMetric metric = new GaugeMetric(name);
         addMetric(metric);
         return metric;
@@ -410,7 +410,7 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new gauge metric
      */
-    public GaugeMetric addGauge(String name, Map<String, String> labels) {
+    public GaugeMetric newGauge(String name, Map<String, String> labels) {
         GaugeMetric metric = new GaugeMetric(name, labels);
         addMetric(metric);
         return metric;
@@ -422,7 +422,7 @@ public class OutputBuilder {
      * @param name the metric name
      * @return the new histogram metric
      */
-    public HistogramMetric addHistogram(String name) {
+    public HistogramMetric newHistogram(String name) {
         HistogramMetric metric = new HistogramMetric(name);
         addMetric(metric);
         return metric;
@@ -435,7 +435,7 @@ public class OutputBuilder {
      * @param labels key-value labels attached to this metric
      * @return the new histogram metric
      */
-    public HistogramMetric addHistogram(String name, Map<String, String> labels) {
+    public HistogramMetric newHistogram(String name, Map<String, String> labels) {
         HistogramMetric metric = new HistogramMetric(name, labels);
         addMetric(metric);
         return metric;
