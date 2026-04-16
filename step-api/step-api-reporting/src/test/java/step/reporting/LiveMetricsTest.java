@@ -42,7 +42,7 @@ public class LiveMetricsTest {
         Assert.assertEquals(1, dest.received.size());
         Assert.assertSame(counter, dest.received.get(0));
         MetricSample snap = (MetricSample) snapshots.get(0);
-        Assert.assertEquals(5, snap.getCount());
+        Assert.assertEquals(5, snap.getSum());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class LiveMetricsTest {
 
         List<MetricSample> snapshots1 = dest.flushAll();
         MetricSample snap1 = (MetricSample) snapshots1.get(0);
-        Assert.assertEquals(10, snap1.getCount());
+        Assert.assertEquals(10, snap1.getSum());
         Assert.assertEquals(10, snap1.getMax());
         Assert.assertEquals(1, dest.received.size()); // registered metrics
 

@@ -581,7 +581,7 @@ public class KeywordRunnerTest {
         MetricSample counter = (MetricSample) metrics.get(0);
         assertEquals("requests", counter.getName());
         assertEquals(InstrumentType.COUNTER, counter.getType());
-        assertEquals(8, counter.getCount());
+        assertEquals(8, counter.getSum());
         assertEquals(8, counter.getLast());
         assertEquals("checkout", counter.getLabels().get("service"));
 

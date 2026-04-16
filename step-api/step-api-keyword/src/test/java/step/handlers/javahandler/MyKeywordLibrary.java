@@ -352,7 +352,7 @@ public class MyKeywordLibrary extends AbstractKeyword {
         output.add("capturedCount", (long) captured.size());
         if (!captured.isEmpty()) {
             MetricSample snap = (MetricSample) captured.get(0).flush();
-            output.add("counterDiff", snap.getCount());
+            output.add("counterDiff", snap.getSum());
             output.add("counterTotal", snap.getLast());
             output.add("labelEnv", snap.getLabels().get("env"));
         }

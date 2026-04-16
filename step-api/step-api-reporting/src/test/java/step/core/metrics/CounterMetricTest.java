@@ -16,7 +16,7 @@ public class CounterMetricTest {
         counter.increment(4);
         MetricSample snap = counter.flush();
 
-        Assert.assertEquals("accumulatedDiff should be 5 after 1+4 increments", 5, snap.getCount());
+        Assert.assertEquals("accumulatedDiff should be 5 after 1+4 increments", 5, snap.getSum());
         Assert.assertEquals("longRunningTotal should be 5", 5, snap.getMax());
     }
 
@@ -32,14 +32,15 @@ public class CounterMetricTest {
         counter.increment(10);
         MetricSample snap1 = counter.flush();
 
-        Assert.assertEquals(10, snap1.getCount());
+        Assert.assertEquals(1, snap1.getCount());
+        Assert.assertEquals(10, snap1.getSum());
         Assert.assertEquals(10, snap1.getMax());
 
         // Second interval
         counter.increment(3);
         MetricSample snap2 = counter.flush();
 
-        Assert.assertEquals("accumulatedDiff should only reflect second interval", 3, snap2.getCount());
+        Assert.assertEquals("accumulatedDiff should only reflect second interval", 3, snap2.getSum());
         Assert.assertEquals("longRunningTotal should be cumulative", 13, snap2.getMax());
     }
 

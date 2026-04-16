@@ -46,7 +46,7 @@ public class MetricSamplesBuilderTest {
 
         List<MetricSample> all = builder.getSamples();
         Assert.assertEquals("final flush must capture the first observation", 1, all.size());
-        Assert.assertEquals(7, all.get(0).getCount());
+        Assert.assertEquals(7, all.get(0).getSum());
     }
 
     // -------------------------------------------------------------------------
@@ -81,7 +81,7 @@ public class MetricSamplesBuilderTest {
         List<MetricSample> all = builder.getSamples(); // final flush: count=1+2+3=6
 
         Assert.assertEquals("one sample from the final flush only", 1, all.size());
-        Assert.assertEquals("final flush captures all accumulated values", 6, all.get(0).getCount());
+        Assert.assertEquals("final flush captures all accumulated values", 6, all.get(0).getSum());
     }
 
     // -------------------------------------------------------------------------
@@ -108,7 +108,7 @@ public class MetricSamplesBuilderTest {
 
         Assert.assertEquals("flush triggered after interval", 1, streamed.size());
         Assert.assertEquals("sample holds all values accumulated since the clock started",
-                10, streamed.get(0).getCount()); // 3+2+5
+                10, streamed.get(0).getSum()); // 3+2+5
     }
 
     @Test
@@ -135,8 +135,8 @@ public class MetricSamplesBuilderTest {
 
         Assert.assertEquals(2, streamed.size());
         Assert.assertEquals("window 1: all values up to and including the triggering observation",
-                12, streamed.get(0).getCount());
-        Assert.assertEquals("window 2: accumulated+trigger", 5, streamed.get(1).getCount());
+                12, streamed.get(0).getSum());
+        Assert.assertEquals("window 2: accumulated+trigger", 5, streamed.get(1).getSum());
 
         // Final flush: nothing left since last flush had no subsequent observations
         List<MetricSample> all = builder.getSamples();
@@ -144,9 +144,13 @@ public class MetricSamplesBuilderTest {
                 2, all.size());
 
         // Total increments must be conserved across all samples
-        long totalCount = all.stream().mapToLong(MetricSample::getCount).sum();
-        Assert.assertEquals("sum of all sample counts equals total increments",
-                3 + 2 + 7 + 4 + 1, totalCount);
+        int expectedRunningTotal = 3 + 2 + 7 + 4 + 1;
+        long totalCount = all.stream().mapToLong(MetricSample::getSum).sum();
+        Assert.assertEquals("sum of all sample sum equals total increments",
+            expectedRunningTotal, totalCount);
+        // Running total final value should also match
+        Assert.assertEquals(expectedRunningTotal, all.get(1).getLast());
+        Assert.assertEquals(expectedRunningTotal, all.get(1).getMax());
     }
 
     @Test
@@ -264,7 +268,7 @@ public class MetricSamplesBuilderTest {
         List<MetricSample> all = builder.getSamples(); // final flush: count=10
 
         Assert.assertEquals("all observations collected in the single final flush", 1, all.size());
-        Assert.assertEquals(10, all.get(0).getCount());
+        Assert.assertEquals(10, all.get(0).getSum());
     }
 
     @Test
