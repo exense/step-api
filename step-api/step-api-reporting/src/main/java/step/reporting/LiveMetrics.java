@@ -38,7 +38,7 @@ public class LiveMetrics implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(LiveMetrics.class);
 
-    private final LiveMetricDestination destination;
+    public final LiveMetricDestination destination;
 
     /**
      * Creates a {@code LiveMetrics} instance.
