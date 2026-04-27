@@ -23,6 +23,7 @@ import step.core.metrics.MetricSample;
 import step.core.metrics.GaugeMetric;
 import step.core.metrics.HistogramMetric;
 import step.core.metrics.Metric;
+import step.core.reports.Measure;
 import step.reporting.LiveReporting;
 import step.streaming.client.upload.StreamingUpload;
 import step.streaming.client.upload.impl.local.DiscardingStreamingUploadProvider;
@@ -356,6 +357,49 @@ public class MyKeywordLibrary extends AbstractKeyword {
             output.add("counterTotal", snap.getLast());
             output.add("labelEnv", snap.getLabels().get("env"));
         }
+    }
+
+    @Keyword
+    public void MyKeywordWithStartStopMeasure() {
+        output.startMeasure("my_step");
+        output.stopMeasure();
+    }
+
+    @Keyword
+    public void MyKeywordWithMeasureFailedStatus() {
+        output.startMeasure("failing_step");
+        output.stopMeasure(Measure.Status.FAILED);
+    }
+
+    @Keyword
+    public void MyKeywordWithMeasureData() {
+        output.startMeasure("data_step");
+        output.stopMeasure(Map.of("result", "ok"));
+    }
+
+    @Keyword
+    public void MyKeywordWithAddMeasureDirect() {
+        output.addMeasure("direct_step", 100L);
+        output.addMeasure("direct_step_with_data", 200L, Map.of("custom", "value"));
+    }
+
+    /**
+     * Tests all three metric factory methods on output (newCounter, newGauge, newHistogram),
+     * including label attachment.
+     */
+    @Keyword
+    public void MyKeywordUsingOutputMetricFactories() {
+        CounterMetric counter = output.newCounter("kw_hits", Map.of("env", "test"));
+        counter.increment(4);
+        counter.increment(1);
+
+        GaugeMetric gauge = output.newGauge("kw_depth");
+        gauge.observe(15);
+        gauge.observe(25);
+
+        HistogramMetric hist = output.newHistogram("kw_rt", Map.of("region", "eu"));
+        hist.observe(80);
+        hist.observe(120);
     }
 
 }
