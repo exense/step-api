@@ -27,10 +27,16 @@ import java.util.concurrent.atomic.LongAdder;
  * <p>
  * Tracks two values:
  * <ul>
- *   <li><b>accumulatedDiff</b> — increments recorded since the last {@link #flush()},
- *       enabling rate calculation over the reporting interval.</li>
- *   <li><b>longRunningTotal</b> — all-time running total, never reset,
- *       enabling the frontend to display the absolute count.</li>
+ *   <li>increments recorded since the last {@link #flush()}: the number of
+ *       {@link #increment} calls becomes {@link MetricSample#getCount()}, and the
+ *       sum of all increment amounts becomes {@link MetricSample#getSum()}; both
+ *       are reset to zero on each flush, enabling rate calculation over the
+ *       reporting interval.</li>
+ *   <li>all-time running total, never reset: the total before this flush's
+ *       contributions becomes {@link MetricSample#getMin()}, and the current
+ *       running total becomes both {@link MetricSample#getMax()} and
+ *       {@link MetricSample#getLast()}, enabling the frontend to display the
+ *       absolute count.</li>
  * </ul>
  * Use {@link #increment()} or {@link #increment(long)} to record values.
  * Flushing is handled by the framework; call {@link step.reporting.LiveMetrics#registerCounter}
@@ -56,7 +62,9 @@ public class CounterMetric extends Metric {
         return InstrumentType.COUNTER;
     }
 
-    /** Increments the counter by 1, using the current wall-clock time as the observation timestamp. */
+    /**
+     * Increments the counter by 1, using the current wall-clock time as the observation timestamp.
+     */
     public CounterMetric increment() {
         increment(1);
         return this;
@@ -77,7 +85,7 @@ public class CounterMetric extends Metric {
      * Increments the counter by {@code amount}, using the supplied timestamp
      * as the observation timestamp for rate-limit decisions.
      *
-     * @param amount              positive increment value
+     * @param amount                 positive increment value
      * @param observationTimestampMs epoch milliseconds of this observation
      */
     public CounterMetric increment(long amount, long observationTimestampMs) {
@@ -100,6 +108,6 @@ public class CounterMetric extends Metric {
         long count = countAdder.sumThenReset();
         long diff = diffAccumulator.getAndSet(0);
         long total = totalAccumulator.get();
-        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), count, diff, total-diff, total, total, null);
+        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), count, diff, total - diff, total, total, null);
     }
 }

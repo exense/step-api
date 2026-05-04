@@ -20,6 +20,7 @@ package step.core.metrics;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.LongConsumer;
 
 /**
@@ -27,13 +28,13 @@ import java.util.function.LongConsumer;
  * <p>
  * A {@code Metric} accumulates observations in thread-safe internal fields.
  * Each observation fires a lightweight notification to an {@link #setObservationListener(LongConsumer)
- * observation listener}. The listener (installed by {@link MetricSamplesBuilder}) decides whether
+ * observation listener}. The listener (installed by {@link MetricSamplesCollector}) decides whether
  * it is time to call {@link #flush()} based on the elapsed time since the last flush, making
  * sample production rate-limited rather than one-per-observation.
  * <p>
  * Keyword developers interact only with the concrete subclass API
  * (e.g. {@link CounterMetric#increment()}, {@link SampledMetric#observe(long)}).
- * Listener registration and flushing are handled by the framework via {@link MetricSamplesBuilder}.
+ * Listener registration and flushing are handled by the framework via {@link MetricSamplesCollector}.
  */
 public abstract class Metric {
 
@@ -43,16 +44,18 @@ public abstract class Metric {
     private volatile long lastObservedTimestampMs;
 
     protected Metric(String name) {
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "Metric name cannot be null");
         this.labels = new HashMap<>();
     }
 
     protected Metric(String name, Map<String, String> labels) {
-        this.name = name;
-        this.labels = labels;
+        this.name = Objects.requireNonNull(name, "Metric name cannot be null");
+        this.labels = Objects.requireNonNull(labels, "Metric labels cannot be null");
     }
 
-    /** Returns the concrete type of this metric. */
+    /**
+     * Returns the concrete type of this metric.
+     */
     public abstract InstrumentType getType();
 
     /**
@@ -66,7 +69,7 @@ public abstract class Metric {
     /**
      * Sets the listener that is notified after each observation. The listener decides
      * whether to call {@link #flush()} based on its own rate-limiting logic.
-     * <b>Reserved for the framework</b> — called by {@link MetricSamplesBuilder#register(Metric)}.
+     * <b>Reserved for the framework</b> — called by {@link MetricSamplesCollector#register(Metric)}.
      *
      * @param listener the listener to notify on each observation; receives the observation
      *                 timestamp in epoch milliseconds; {@code null} disables notifications
@@ -80,9 +83,12 @@ public abstract class Metric {
      * passing the given observation timestamp (epoch milliseconds) for rate-limit decisions.
      *
      * @param observationTimestampMs the timestamp of the observation in epoch milliseconds;
-     *                               used by {@link MetricSamplesBuilder} to decide whether to flush
+     *                               used by {@link MetricSamplesCollector} to decide whether to flush
      */
-    protected void notifyObserved(long observationTimestampMs) {
+    protected synchronized void notifyObserved(long observationTimestampMs) {
+        if (lastObservedTimestampMs > observationTimestampMs) {
+            throw new IllegalArgumentException("Observation timestamps must be more recent than the last observed timestamp");
+        }
         lastObservedTimestampMs = observationTimestampMs;
         LongConsumer l = observationListener;
         if (l != null) {
@@ -100,7 +106,9 @@ public abstract class Metric {
         return lastObservedTimestampMs != 0 ? lastObservedTimestampMs : System.currentTimeMillis();
     }
 
-    /** Returns the metric name. */
+    /**
+     * Returns the metric name.
+     */
     public String getName() {
         return name;
     }

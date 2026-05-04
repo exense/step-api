@@ -33,7 +33,7 @@ import step.core.metrics.GaugeMetric;
 import step.core.metrics.HistogramMetric;
 import step.core.metrics.Metric;
 import step.core.metrics.MetricSample;
-import step.core.metrics.MetricSamplesBuilder;
+import step.core.metrics.MetricSamplesCollector;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.core.reports.Measure;
@@ -52,15 +52,15 @@ public class OutputBuilder {
     private String payloadJson;
     private JsonObject payload;
 
-    private MeasurementsBuilder measureHelper;
+    private final MeasurementsBuilder measureHelper;
 
-    private MetricSamplesBuilder metricSamplesBuilder;
+    private final MetricSamplesCollector metricSamplesCollector;
 
     private Error error;
 
     private List<Attachment> attachments;
 
-    private static JsonProvider jprov = JsonProvider.provider();
+    private static final JsonProvider jprov = JsonProvider.provider();
 
     private Measure lastMeasureHandle = null;
 
@@ -70,7 +70,7 @@ public class OutputBuilder {
         payloadBuilder = jprov.createObjectBuilder();
 
         measureHelper = new MeasurementsBuilder();
-        metricSamplesBuilder = new MetricSamplesBuilder();
+        metricSamplesCollector = new MetricSamplesCollector();
     }
 
     public JsonObjectBuilder getPayloadBuilder() {
@@ -449,7 +449,7 @@ public class OutputBuilder {
      * @param metric the metric to include in the output; must not be {@code null}
      */
     public void addMetric(Metric metric) {
-        metricSamplesBuilder.register(metric);
+        metricSamplesCollector.register(metric);
     }
 
     public void stopMeasureForAdditionalData() {
@@ -485,7 +485,7 @@ public class OutputBuilder {
         }
         message.setPayload(payload);
         message.setMeasures(measureHelper.getMeasures());
-        List<MetricSample> samples = metricSamplesBuilder.getSamples();
+        List<MetricSample> samples = metricSamplesCollector.getSamples();
         if (!samples.isEmpty()) {
             message.setMetrics(samples);
         }
@@ -510,7 +510,7 @@ public class OutputBuilder {
         if (output.getMeasures() != null) {
             output.getMeasures().forEach(this::addMeasure);
         }
-        metricSamplesBuilder.addSamples(output.getMetrics());
+        metricSamplesCollector.addSamples(output.getMetrics());
         if (output.getAttachments() != null) {
             output.getAttachments().forEach(this::addAttachment);
         }

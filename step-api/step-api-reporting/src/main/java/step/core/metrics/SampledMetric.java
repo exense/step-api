@@ -38,10 +38,18 @@ import java.util.concurrent.atomic.LongAdder;
 public abstract class SampledMetric extends Metric {
 
     /**
-     * Distribution bucket precision: values are rounded down to the nearest multiple
-     * of this value before being placed in a distribution bucket.
+     * Default distribution bucket precision: values are rounded down to the nearest
+     * multiple of {@value} before being placed in a distribution bucket.
+     * Suitable for small-range values (e.g. response times in the tens of milliseconds).
+     * For larger value ranges (e.g. millions) use a constructor that accepts
+     * {@code pclPrecision} to keep the number of buckets manageable.
      */
-    private static final long PCL_PRECISION = 10;
+    private static final long DEFAULT_PCL_PRECISION = 10;
+
+    /**
+     * @see #DEFAULT_PCL_PRECISION
+     */
+    private final long percentilePrecision;
 
     private final LongAdder countAdder = new LongAdder();
     private final LongAdder sumAdder = new LongAdder();
@@ -52,10 +60,34 @@ public abstract class SampledMetric extends Metric {
 
     protected SampledMetric(String name) {
         super(name);
+        this.percentilePrecision = DEFAULT_PCL_PRECISION;
     }
 
     protected SampledMetric(String name, Map<String, String> labels) {
         super(name, labels);
+        this.percentilePrecision = DEFAULT_PCL_PRECISION;
+    }
+
+    /**
+     * @param percentilePrecision bucket width for the percentile distribution; observed values are
+     *                            rounded down to the nearest multiple of this value before bucketing.
+     *                            Increase this when values can reach large magnitudes to avoid an
+     *                            excessive number of buckets (e.g. use {@code 1000} for byte sizes
+     *                            in the millions). Must be positive.
+     */
+    protected SampledMetric(String name, long percentilePrecision) {
+        super(name);
+        if (percentilePrecision <= 0) throw new IllegalArgumentException("pclPrecision must be positive");
+        this.percentilePrecision = percentilePrecision;
+    }
+
+    /**
+     * @param percentilePrecision see {@link #SampledMetric(String, long)}
+     */
+    protected SampledMetric(String name, Map<String, String> labels, long percentilePrecision) {
+        super(name, labels);
+        if (percentilePrecision <= 0) throw new IllegalArgumentException("pclPrecision must be positive");
+        this.percentilePrecision = percentilePrecision;
     }
 
     /**
@@ -82,8 +114,8 @@ public abstract class SampledMetric extends Metric {
         minAtomic.updateAndGet(cur -> Math.min(cur, value));
         maxAtomic.updateAndGet(cur -> Math.max(cur, value));
         distributionAccumulator
-                .computeIfAbsent(value - value % PCL_PRECISION, k -> new LongAdder())
-                .increment();
+            .computeIfAbsent(value - value % percentilePrecision, k -> new LongAdder())
+            .increment();
         this.last = value;
         notifyObserved(observationTimestampMs);
         return this;

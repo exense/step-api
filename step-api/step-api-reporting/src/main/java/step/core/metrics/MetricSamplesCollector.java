@@ -48,29 +48,31 @@ import java.util.function.LongConsumer;
  *       being accumulated.</li>
  * </ul>
  */
-public class MetricSamplesBuilder implements AutoCloseable {
+public class MetricSamplesCollector implements AutoCloseable {
 
     public static final long FLUSH_INTERVAL_MS = 5000;
 
     private final long flushIntervalMs;
     private final Consumer<MetricSample> forwardConsumer;
-    private final List<MetricSample> collectedSamples = new ArrayList<>();
-    /** Kept for the final flush. */
+    private final ConcurrentLinkedQueue<MetricSample> collectedSamples = new ConcurrentLinkedQueue<>();
+    /**
+     * Kept for the final flush.
+     */
     private final ConcurrentLinkedQueue<Metric> registeredMetrics = new ConcurrentLinkedQueue<>();
 
     /**
-     * Creates a builder in batch mode with the default {@value #FLUSH_INTERVAL_MS} ms interval.
+     * Creates a builder in batch mode (i.e. without a forward consumer) with the default {@value #FLUSH_INTERVAL_MS} ms interval.
      */
-    public MetricSamplesBuilder() {
+    public MetricSamplesCollector() {
         this(FLUSH_INTERVAL_MS, null);
     }
 
     /**
-     * Creates a builder in streaming mode with the default {@value #FLUSH_INTERVAL_MS} ms interval.
+     * Creates a builder in streaming mode with the default {@value #FLUSH_INTERVAL_MS} ms interval and an optional forward consumer.
      *
      * @param forwardConsumer called synchronously on every new sample; may be {@code null}
      */
-    public MetricSamplesBuilder(Consumer<MetricSample> forwardConsumer) {
+    public MetricSamplesCollector(Consumer<MetricSample> forwardConsumer) {
         this(FLUSH_INTERVAL_MS, forwardConsumer);
     }
 
@@ -80,7 +82,7 @@ public class MetricSamplesBuilder implements AutoCloseable {
      * @param flushIntervalMs minimum milliseconds between two observation-triggered flushes
      * @param forwardConsumer called synchronously on every new sample; may be {@code null}
      */
-    public MetricSamplesBuilder(long flushIntervalMs, Consumer<MetricSample> forwardConsumer) {
+    public MetricSamplesCollector(long flushIntervalMs, Consumer<MetricSample> forwardConsumer) {
         this.flushIntervalMs = flushIntervalMs;
         this.forwardConsumer = forwardConsumer;
     }
@@ -101,8 +103,8 @@ public class MetricSamplesBuilder implements AutoCloseable {
                 // The final flush in getSamples() will capture these early observations.
                 lastFlushTime.compareAndSet(0L, observationTimestampMs);
             } else if (observationTimestampMs - last >= flushIntervalMs
-                    && lastFlushTime.compareAndSet(last, observationTimestampMs)) {
-                publish(metric.flush());
+                && lastFlushTime.compareAndSet(last, observationTimestampMs)) {
+                collectAndForward(metric.flush());
             }
         };
         metric.setObservationListener(listener);
@@ -118,9 +120,7 @@ public class MetricSamplesBuilder implements AutoCloseable {
         if (samples == null || samples.isEmpty()) {
             return;
         }
-        synchronized (collectedSamples) {
-            collectedSamples.addAll(samples);
-        }
+        collectedSamples.addAll(samples);
     }
 
     /**
@@ -136,12 +136,10 @@ public class MetricSamplesBuilder implements AutoCloseable {
         for (Metric metric : registeredMetrics) {
             MetricSample sample = metric.flush();
             if (sample.getCount() > 0) {
-                publish(sample);
+                collectAndForward(sample);
             }
         }
-        synchronized (collectedSamples) {
-            return new ArrayList<>(collectedSamples);
-        }
+        return new ArrayList<>(collectedSamples);
     }
 
     /**
@@ -153,10 +151,8 @@ public class MetricSamplesBuilder implements AutoCloseable {
         getSamples();
     }
 
-    private void publish(MetricSample sample) {
-        synchronized (collectedSamples) {
-            collectedSamples.add(sample);
-        }
+    private void collectAndForward(MetricSample sample) {
+        collectedSamples.add(sample);
         if (forwardConsumer != null) {
             forwardConsumer.accept(sample);
         }

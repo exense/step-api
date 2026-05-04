@@ -39,6 +39,20 @@ public class GaugeMetric extends SampledMetric {
         super(name, labels);
     }
 
+    /**
+     * @param percentilePrecision see {@link SampledMetric#SampledMetric(String, long)}
+     */
+    public GaugeMetric(String name, long percentilePrecision) {
+        super(name, percentilePrecision);
+    }
+
+    /**
+     * @param percentilePrecision see {@link SampledMetric#SampledMetric(String, long)}
+     */
+    public GaugeMetric(String name, Map<String, String> labels, long percentilePrecision) {
+        super(name, labels, percentilePrecision);
+    }
+
     @Override
     public InstrumentType getType() {
         return InstrumentType.GAUGE;

@@ -7,24 +7,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MetricSamplesBuilderTest {
+public class MetricSamplesCollectorTest {
 
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
-    /** Creates a builder with a very large interval so intermediate observations never cross it —
-     *  useful for isolating "within-interval" and "final flush only" behaviour. */
-    private static MetricSamplesBuilder builderWithLargeInterval(List<MetricSample> streamed) {
-        return new MetricSamplesBuilder(Integer.MAX_VALUE, streamed::add);
+    /**
+     * Creates a builder with a very large interval so intermediate observations never cross it —
+     * useful for isolating "within-interval" and "final flush only" behaviour.
+     */
+    private static MetricSamplesCollector builderWithLargeInterval(List<MetricSample> streamed) {
+        return new MetricSamplesCollector(Integer.MAX_VALUE, streamed::add);
     }
 
-    /** Creates a builder whose interval expires after a short {@code Thread.sleep(SLEEP_MS)}. */
+    /**
+     * Creates a builder whose interval expires after a short {@code Thread.sleep(SLEEP_MS)}.
+     */
     private static final long SHORT_INTERVAL_MS = 50;
     private static final long SLEEP_MS = 120; // generous margin over SHORT_INTERVAL_MS
 
-    private static MetricSamplesBuilder builderWithShortInterval(List<MetricSample> streamed) {
-        return new MetricSamplesBuilder(SHORT_INTERVAL_MS, streamed::add);
+    private static MetricSamplesCollector builderWithShortInterval(List<MetricSample> streamed) {
+        return new MetricSamplesCollector(SHORT_INTERVAL_MS, streamed::add);
     }
 
     // -------------------------------------------------------------------------
@@ -34,7 +38,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void firstObservation_startsClockWithoutFlushing() {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithLargeInterval(streamed);
+        MetricSamplesCollector builder = builderWithLargeInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -56,7 +60,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void rapidObservations_withinInterval_noneFlushIntermediate() {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithLargeInterval(streamed);
+        MetricSamplesCollector builder = builderWithLargeInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -70,7 +74,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void rapidObservations_withinInterval_finalFlushCapturesAll() {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithLargeInterval(streamed);
+        MetricSamplesCollector builder = builderWithLargeInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -90,9 +94,9 @@ public class MetricSamplesBuilderTest {
 
     @Test
     public void observationAfterIntervalElapses_createsNewSample_withAccumulatedValues()
-            throws InterruptedException {
+        throws InterruptedException {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithShortInterval(streamed);
+        MetricSamplesCollector builder = builderWithShortInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -108,13 +112,13 @@ public class MetricSamplesBuilderTest {
 
         Assert.assertEquals("flush triggered after interval", 1, streamed.size());
         Assert.assertEquals("sample holds all values accumulated since the clock started",
-                10, streamed.get(0).getSum()); // 3+2+5
+            10, streamed.get(0).getSum()); // 3+2+5
     }
 
     @Test
     public void multipleIntervals_correctSampleCountAndValues() throws InterruptedException {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithShortInterval(streamed);
+        MetricSamplesCollector builder = builderWithShortInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -135,13 +139,13 @@ public class MetricSamplesBuilderTest {
 
         Assert.assertEquals(2, streamed.size());
         Assert.assertEquals("window 1: all values up to and including the triggering observation",
-                12, streamed.get(0).getSum());
+            12, streamed.get(0).getSum());
         Assert.assertEquals("window 2: accumulated+trigger", 5, streamed.get(1).getSum());
 
         // Final flush: nothing left since last flush had no subsequent observations
         List<MetricSample> all = builder.getSamples();
         Assert.assertEquals("no extra sample when nothing accumulated since last flush",
-                2, all.size());
+            2, all.size());
 
         // Total increments must be conserved across all samples
         int expectedRunningTotal = 3 + 2 + 7 + 4 + 1;
@@ -156,7 +160,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void gauge_multipleIntervals_correctStatisticsPerSample() throws InterruptedException {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithShortInterval(streamed);
+        MetricSamplesCollector builder = builderWithShortInterval(streamed);
         GaugeMetric gauge = new GaugeMetric("latency");
         builder.register(gauge);
 
@@ -173,7 +177,7 @@ public class MetricSamplesBuilderTest {
         Assert.assertEquals(1, streamed.size());
 
         MetricSample s1 = streamed.get(0);
-        Assert.assertEquals(3,  s1.getCount());
+        Assert.assertEquals(3, s1.getCount());
         Assert.assertEquals(60, s1.getSum()); // 10+20+30
         Assert.assertEquals(10, s1.getMin());
         Assert.assertEquals(30, s1.getMax());
@@ -182,7 +186,7 @@ public class MetricSamplesBuilderTest {
         List<MetricSample> all = builder.getSamples();
         Assert.assertEquals(2, all.size());
         MetricSample s2 = all.get(1);
-        Assert.assertEquals(1,  s2.getCount());
+        Assert.assertEquals(1, s2.getCount());
         Assert.assertEquals(40, s2.getSum());
 
         // All observations accounted for
@@ -197,7 +201,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void getSamples_noNewObservationsSinceLastFlush_noDuplicateSample() {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithLargeInterval(streamed);
+        MetricSamplesCollector builder = builderWithLargeInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -218,13 +222,13 @@ public class MetricSamplesBuilderTest {
     @Test
     public void getSamples_calledTwice_noDuplicates() {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithLargeInterval(streamed);
+        MetricSamplesCollector builder = builderWithLargeInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
         counter.increment(5);
 
-        List<MetricSample> first  = builder.getSamples();
+        List<MetricSample> first = builder.getSamples();
         List<MetricSample> second = builder.getSamples();
 
         Assert.assertEquals(1, first.size());
@@ -234,9 +238,9 @@ public class MetricSamplesBuilderTest {
 
     @Test
     public void getSamples_afterIntervalWithNoObservations_noDuplicateSample()
-            throws InterruptedException {
+        throws InterruptedException {
         List<MetricSample> streamed = new ArrayList<>();
-        MetricSamplesBuilder builder = builderWithShortInterval(streamed);
+        MetricSamplesCollector builder = builderWithShortInterval(streamed);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -248,7 +252,7 @@ public class MetricSamplesBuilderTest {
         List<MetricSample> all = builder.getSamples();
 
         Assert.assertEquals("elapsed interval with no observations must not generate an extra sample",
-                1, all.size());
+            1, all.size());
     }
 
     // -------------------------------------------------------------------------
@@ -258,7 +262,7 @@ public class MetricSamplesBuilderTest {
     @Test
     public void batchMode_noForwardConsumer_samplesReturnedBySamples() {
         // No forward consumer: batch mode — all samples collected via getSamples()
-        MetricSamplesBuilder builder = new MetricSamplesBuilder(Integer.MAX_VALUE, null);
+        MetricSamplesCollector builder = new MetricSamplesCollector(Integer.MAX_VALUE, null);
         CounterMetric counter = new CounterMetric("c");
         builder.register(counter);
 
@@ -273,9 +277,9 @@ public class MetricSamplesBuilderTest {
 
     @Test
     public void addSamples_mergesPreexistingSamplesIntoCollected() {
-        MetricSamplesBuilder builder = new MetricSamplesBuilder();
+        MetricSamplesCollector builder = new MetricSamplesCollector();
         MetricSample pre = new MetricSample(System.currentTimeMillis(), "pre",
-                Collections.emptyMap(), InstrumentType.COUNTER, 42, 42, 42, 42, 42, null);
+            Collections.emptyMap(), InstrumentType.COUNTER, 42, 42, 42, 42, 42, null);
 
         builder.addSamples(List.of(pre));
 
@@ -286,7 +290,7 @@ public class MetricSamplesBuilderTest {
 
     @Test
     public void addSamples_nullOrEmpty_ignored() {
-        MetricSamplesBuilder builder = new MetricSamplesBuilder();
+        MetricSamplesCollector builder = new MetricSamplesCollector();
         builder.addSamples(null);
         builder.addSamples(Collections.emptyList());
         Assert.assertEquals(0, builder.getSamples().size());

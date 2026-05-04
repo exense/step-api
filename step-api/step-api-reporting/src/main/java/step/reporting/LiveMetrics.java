@@ -28,6 +28,7 @@ import step.reporting.impl.DelegatingLiveMetricDestination;
 import step.reporting.impl.LiveMetricDestination;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides functionality for recording and streaming live metrics.
@@ -56,7 +57,8 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a counter metric
+     * Creates and registers a counter metric
+     *
      * @param name the name of the metric
      * @return the registered CounterMetric
      */
@@ -67,9 +69,10 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a counter metric
-     * @param name the name of the metric
-     * @param labels labels to be attached to this metric (in addition to its name
+     * Creates and registers a counter metric
+     *
+     * @param name   the name of the metric
+     * @param labels an optional map with additional labels for this metric
      * @return the registered CounterMetric
      */
     public CounterMetric registerCounter(String name, Map<String, String> labels) {
@@ -79,7 +82,8 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a gauge metric
+     * Creates and registers a gauge metric
+     *
      * @param name the name of the metric
      * @return the registered CounterMetric
      */
@@ -90,9 +94,10 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a gauge metric
-     * @param name the name of the metric
-     * @param labels labels to be attached to this metric (in addition to its name
+     * Creates and registers a gauge metric
+     *
+     * @param name   the name of the metric
+     * @param labels an optional map with additional labels for this metric
      * @return the registered CounterMetric
      */
     public GaugeMetric registerGauge(String name, Map<String, String> labels) {
@@ -102,7 +107,8 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a histogram metric
+     * Creates and registers a histogram metric
+     *
      * @param name the name of the metric
      * @return the registered CounterMetric
      */
@@ -113,9 +119,10 @@ public class LiveMetrics implements AutoCloseable {
     }
 
     /**
-     * Creates and register a histogram metric
-     * @param name the name of the metric
-     * @param labels labels to be attached to this metric (in addition to its name
+     * Creates and registers a histogram metric
+     *
+     * @param name   the name of the metric
+     * @param labels an optional map with additional labels for this metric
      * @return the registered CounterMetric
      */
     public HistogramMetric registerHistogram(String name, Map<String, String> labels) {
@@ -130,6 +137,7 @@ public class LiveMetrics implements AutoCloseable {
      * @param metric the metric to register; must not be {@code null}
      */
     public void register(Metric metric) {
+        Objects.requireNonNull(metric, "Metric must not be null");
         destination.accept(metric);
     }
 
