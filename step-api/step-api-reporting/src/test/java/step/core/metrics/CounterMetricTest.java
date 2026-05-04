@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertTrue;
+
 public class CounterMetricTest {
 
     @Test
@@ -23,7 +25,7 @@ public class CounterMetricTest {
     @Test
     public void incrementAndFlush_negativeValue() {
         CounterMetric counter = new CounterMetric("requests");
-        Assert.assertThrows(IllegalArgumentException.class, ()->counter.increment(-4));
+        Assert.assertThrows(IllegalArgumentException.class, () -> counter.increment(-4));
     }
 
     @Test
@@ -58,7 +60,7 @@ public class CounterMetricTest {
         CounterMetric counter = new CounterMetric("c");
         MetricSample snap = counter.flush();
         Assert.assertNotNull(snap);
-        Assert.assertTrue(snap instanceof MetricSample);
+        assertTrue(snap instanceof MetricSample);
     }
 
     @Test
@@ -71,16 +73,17 @@ public class CounterMetricTest {
         CounterMetric counter = new CounterMetric("concurrent");
         int threads = 10;
         int incrementsPerThread = 1000;
-        ExecutorService pool = Executors.newFixedThreadPool(threads);
-        for (int i = 0; i < threads; i++) {
-            pool.submit(() -> {
-                for (int j = 0; j < incrementsPerThread; j++) {
-                    counter.increment();
-                }
-            });
+        try (ExecutorService pool = Executors.newFixedThreadPool(threads)) {
+            for (int i = 0; i < threads; i++) {
+                pool.submit(() -> {
+                    for (int j = 0; j < incrementsPerThread; j++) {
+                        counter.increment();
+                    }
+                });
+            }
+            pool.shutdown();
+            assertTrue(pool.awaitTermination(10, TimeUnit.SECONDS));
         }
-        pool.shutdown();
-        pool.awaitTermination(10, TimeUnit.SECONDS);
         MetricSample snap = counter.flush();
 
         long expected = (long) threads * incrementsPerThread;

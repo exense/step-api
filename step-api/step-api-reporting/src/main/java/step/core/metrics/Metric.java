@@ -83,13 +83,12 @@ public abstract class Metric {
      * passing the given observation timestamp (epoch milliseconds) for rate-limit decisions.
      *
      * @param observationTimestampMs the timestamp of the observation in epoch milliseconds;
-     *                               used by {@link MetricSamplesCollector} to decide whether to flush
+     *                               used by {@link MetricSamplesCollector} to decide whether to flush.
+     *                               Out-of-order timestamps (e.g. from concurrent callers) are
+     *                               accepted; only the maximum value is retained as lastObservedTimestampMs.
      */
     protected synchronized void notifyObserved(long observationTimestampMs) {
-        if (lastObservedTimestampMs > observationTimestampMs) {
-            throw new IllegalArgumentException("Observation timestamps must be more recent than the last observed timestamp");
-        }
-        lastObservedTimestampMs = observationTimestampMs;
+        lastObservedTimestampMs = Math.max(lastObservedTimestampMs, observationTimestampMs);
         LongConsumer l = observationListener;
         if (l != null) {
             l.accept(observationTimestampMs);
