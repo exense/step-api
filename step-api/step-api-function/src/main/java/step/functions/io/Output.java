@@ -20,6 +20,7 @@ package step.functions.io;
 
 import java.util.List;
 
+import step.core.metrics.MetricSample;
 import step.core.reports.Error;
 import step.core.reports.Measure;
 import step.grid.io.Attachment;
@@ -33,6 +34,12 @@ public class Output<OUT> {
     private List<Attachment> attachments;
 
     private List<Measure> measures;
+
+    /**
+     * Snapshots of metric accumulators reported by the keyword at end-of-execution.
+     * Null when the keyword was compiled against an older API version — handlers must treat null as empty.
+     */
+    private List<MetricSample> metrics;
 
     public OUT getPayload() {
         return payload;
@@ -64,6 +71,14 @@ public class Output<OUT> {
 
     public void setMeasures(List<Measure> measures) {
         this.measures = measures;
+    }
+
+    public List<MetricSample> getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(List<MetricSample> metrics) {
+        this.metrics = metrics;
     }
 
 }

@@ -35,8 +35,13 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import step.core.metrics.MetricSample;
+import step.core.metrics.InstrumentType;
+import step.core.reports.Measure;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -565,6 +570,56 @@ public class KeywordRunnerTest {
     }
 
     @Test
+    public void testKeywordWithNonLiveMetrics() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithNonLiveMetrics");
+
+        assertNull(output.getError());
+        List<MetricSample> metrics = output.getMetrics();
+        assertEquals(3, metrics.size());
+
+        // Counter: 5+3 increments, label preserved
+        MetricSample counter = (MetricSample) metrics.get(0);
+        assertEquals("requests", counter.getName());
+        assertEquals(InstrumentType.COUNTER, counter.getType());
+        assertEquals(8, counter.getSum());
+        assertEquals(8, counter.getLast());
+        assertEquals("checkout", counter.getLabels().get("service"));
+
+        // Gauge: 3 observations (10, 20, 5)
+        MetricSample gauge =  metrics.get(1);
+        assertEquals("queue_depth", gauge.getName());
+        assertEquals(InstrumentType.GAUGE, gauge.getType());
+        assertEquals(3, gauge.getCount());
+        assertEquals(35, gauge.getSum());
+        assertEquals(5, gauge.getMin());
+        assertEquals(20, gauge.getMax());
+        assertEquals(5, gauge.getLast());
+
+        // Histogram: 2 observations (100, 200)
+        MetricSample histogram = metrics.get(2);
+        assertEquals("response_time_ms", histogram.getName());
+        assertEquals(InstrumentType.HISTOGRAM, histogram.getType());
+        assertEquals(2, histogram.getCount());
+        assertEquals(300, histogram.getSum());
+        assertNotNull(histogram.getDistribution());
+        assertEquals(2, histogram.getDistribution().size());
+    }
+
+    @Test
+    public void testKeywordWithLiveMetrics() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithLiveMetrics");
+
+        assertNull(output.getError());
+        // One flush was triggered; verify the captured snapshot values
+        assertEquals(1, output.getPayload().getInt("capturedCount"));
+        assertEquals(10, output.getPayload().getJsonNumber("counterDiff").longValue());   // 7+3
+        assertEquals(10, output.getPayload().getJsonNumber("counterTotal").longValue());
+        assertEquals("test", output.getPayload().getString("labelEnv"));
+    }
+
+    @Test
     public void testKeywordWithLiveReporting() throws Exception {
         ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
 
@@ -577,6 +632,94 @@ public class KeywordRunnerTest {
         var duration = out.getMeasures().get(0).getDuration();
         // should be slightly more than 1000
         assertTrue(duration > 1000 && duration < 1500);
+    }
+
+    // -------------------------------------------------------------------------
+    // Measure keyword tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void testKeywordWithStartStopMeasure() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithStartStopMeasure");
+        assertNull(output.getError());
+        List<Measure> measures = output.getMeasures();
+        assertEquals(1, measures.size());
+        assertEquals("my_step", measures.get(0).getName());
+        assertTrue(measures.get(0).getDuration() >= 0);
+    }
+
+    @Test
+    public void testKeywordWithMeasureFailedStatus() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        runner.setThrowExceptionOnError(false);
+        Output<JsonObject> output = runner.run("MyKeywordWithMeasureFailedStatus");
+        List<Measure> measures = output.getMeasures();
+        assertEquals(1, measures.size());
+        assertEquals("failing_step", measures.get(0).getName());
+        assertEquals(Measure.Status.FAILED, measures.get(0).getStatus());
+    }
+
+    @Test
+    public void testKeywordWithMeasureData() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithMeasureData");
+        assertNull(output.getError());
+        Measure m = output.getMeasures().get(0);
+        assertEquals("data_step", m.getName());
+        assertEquals("ok", m.getData().get("result"));
+    }
+
+    @Test
+    public void testKeywordWithAddMeasureDirect() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordWithAddMeasureDirect");
+        assertNull(output.getError());
+        List<Measure> measures = output.getMeasures();
+        assertEquals(2, measures.size());
+        assertEquals("direct_step", measures.get(0).getName());
+        assertEquals(100L, measures.get(0).getDuration());
+        assertEquals("direct_step_with_data", measures.get(1).getName());
+        assertEquals(200L, measures.get(1).getDuration());
+        assertEquals("value", measures.get(1).getData().get("custom"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Metric factory keyword tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void testKeywordUsingOutputMetricFactories() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("MyKeywordUsingOutputMetricFactories");
+        assertNull(output.getError());
+        List<MetricSample> metrics = output.getMetrics();
+        assertNotNull(metrics);
+        assertEquals(3, metrics.size());
+
+        // Counter: 4+1 = 5, with labels
+        MetricSample counter = metrics.get(0);
+        assertEquals("kw_hits", counter.getName());
+        assertEquals(InstrumentType.COUNTER, counter.getType());
+        assertEquals(5, counter.getSum());
+        assertEquals("test", counter.getLabels().get("env"));
+
+        // Gauge: observe(15, 25) → count=2, sum=40, min=15, max=25
+        MetricSample gauge = metrics.get(1);
+        assertEquals("kw_depth", gauge.getName());
+        assertEquals(InstrumentType.GAUGE, gauge.getType());
+        assertEquals(2, gauge.getCount());
+        assertEquals(40, gauge.getSum());
+        assertEquals(15, gauge.getMin());
+        assertEquals(25, gauge.getMax());
+
+        // Histogram: observe(80, 120) → count=2, sum=200, with labels
+        MetricSample hist = metrics.get(2);
+        assertEquals("kw_rt", hist.getName());
+        assertEquals(InstrumentType.HISTOGRAM, hist.getType());
+        assertEquals(2, hist.getCount());
+        assertEquals(200, hist.getSum());
+        assertEquals("eu", hist.getLabels().get("region"));
     }
 
     private static JsonNode readJsonFromFile(String path) throws IOException {

@@ -123,16 +123,166 @@ output.setBusinessError("User already exists");
 // Report a technical error (infrastructure failure)
 output.setError("Database unreachable");
 
-// Add a performance measurement
-output.startMeasure("db-query");
-// ... measured code ...
-output.stopMeasure("db-query");
-
 // Attach a file to the output
 output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
 ```
 
-### 5. Lifecycle hooks
+### 5. Record performance measurements
+
+Use `startMeasure`/`stopMeasure` to time a block of code, or `addMeasure` to record a duration you already know.
+
+```java
+// Time a block — stopMeasure takes no name; it matches the last startMeasure
+output.startMeasure("db-query");
+// ... timed code ...
+output.stopMeasure();
+
+// Provide an explicit start timestamp (e.g. from a timestamp captured before OutputBuilder was available)
+long begin = System.currentTimeMillis();
+output.startMeasure("db-query", begin);
+output.stopMeasure();
+
+// Record an already-known duration directly
+output.addMeasure("external-call", 350L);                             // name + ms
+output.addMeasure("external-call", 350L, startTimestamp);             // + begin
+output.addMeasure("external-call", 350L, Map.of("host", "api.example.com")); // + custom data
+output.addMeasure("external-call", 350L, startTimestamp, data);       // all fields
+
+// Add a Measure object directly (e.g. forwarded from a helper class)
+output.addMeasure(myMeasure);
+```
+
+All `stopMeasure` overloads set an explicit outcome status and/or attach custom data to the measurement:
+
+```java
+output.startMeasure("login");
+// ...
+output.stopMeasure();                                          // status left unset (inherits keyword outcome)
+output.stopMeasure(Measure.Status.PASSED);                     // explicit PASSED
+output.stopMeasure(Measure.Status.FAILED);                     // marks this step as failed
+output.stopMeasure(Measure.Status.TECHNICAL_ERROR);            // marks as technical error
+output.stopMeasure(Map.of("user", "alice"));                   // custom data, no explicit status
+output.stopMeasure(Measure.Status.FAILED, Map.of("user", "alice")); // status + data
+```
+
+`Measure.Status` values: `PASSED`, `FAILED`, `TECHNICAL_ERROR`.
+
+Measurements are returned in `Output.getMeasures()` and are visible in the Step execution report.
+
+### 6. Emit custom metrics
+
+Metrics track numerical values across keyword calls and are forwarded to the Step metrics pipeline. Unlike measures, metrics aggregate observations (count, sum, min, max, distribution) and support key–value labels for grouping and filtering.
+
+Three instrument types are available, all created via `OutputBuilder` factory methods:
+
+```java
+// Counter — a monotonically increasing total (e.g. request count, error count)
+CounterMetric requests = output.newCounter("requests");
+requests.increment();        // +1
+requests.increment(5);       // +5
+
+// Counter with labels
+CounterMetric labeledCounter = output.newCounter("requests", Map.of("service", "checkout", "env", "prod"));
+labeledCounter.increment(3);
+
+// Gauge — a value that can rise and fall (e.g. queue depth, active connections)
+GaugeMetric queueDepth = output.newGauge("queue_depth");
+queueDepth.observe(12);
+queueDepth.observe(7);
+
+// Gauge with labels
+GaugeMetric labeledGauge = output.newGauge("queue_depth", Map.of("region", "eu"));
+labeledGauge.observe(5);
+
+// Histogram — distribution of observed values (e.g. response times, payload sizes)
+HistogramMetric responseTimes = output.newHistogram("response_time_ms");
+responseTimes.observe(120);
+responseTimes.observe(340);
+
+// Histogram with labels
+HistogramMetric labeledHistogram = output.newHistogram("response_time_ms", Map.of("endpoint", "/login"));
+labeledHistogram.observe(200);
+```
+
+If you build a metric object separately (e.g. in a helper class), register it with `addMetric` instead:
+
+```java
+CounterMetric errors = new CounterMetric("errors");
+errors.increment(2);
+output.addMetric(errors);
+```
+
+All registered metrics are flushed into `Output.getMetrics()` as a list of `MetricSample` snapshots when `build()` is called. Each snapshot carries the instrument type, name, labels, count, sum, min, max, last value, and a value-distribution map.
+
+### 7. Stream live measurements
+
+Measures recorded via `output` (section 5) are sent to Step **when the keyword finishes**. Use `liveReporting.measures` instead to dispatch each measurement **immediately** during execution, making it visible in real time without waiting for the keyword to complete.
+
+The `liveReporting` field is inherited from `AbstractKeyword` and is wired by the framework — do not instantiate `LiveReporting` yourself.
+
+```java
+@Keyword
+public void ProcessOrder() {
+    liveReporting.measures.startMeasure("db-lookup");
+    // ... timed code ...
+    liveReporting.measures.stopMeasure();                                               // dispatched immediately, status = PASSED
+
+    liveReporting.measures.startMeasure("payment-call");
+    // ... timed code ...
+    liveReporting.measures.stopMeasure(Measure.Status.FAILED);                         // explicit status
+
+    liveReporting.measures.startMeasure("notification");
+    // ... timed code ...
+    liveReporting.measures.stopMeasure(Measure.Status.PASSED, Map.of("channel", "email")); // status + data
+}
+```
+
+Unlike the batch `output.stopMeasure()`, the live overloads require an explicit outcome because the keyword has not finished yet — the no-argument `stopMeasure()` defaults to `PASSED`. To submit a pre-built `Measure` directly (e.g. from a helper class), the measure must carry a non-null status and name:
+
+```java
+Measure m = new Measure("external-step", 350L, startTimestamp, customData, Measure.Status.PASSED);
+liveReporting.measures.addMeasure(m);
+```
+
+### 8. Stream live metrics
+
+Metrics registered via `output` (section 6) are flushed once when the keyword completes. Use `liveReporting.metrics` to register metrics that the framework flushes **periodically during execution**, so values are visible in real time throughout long-running keywords.
+
+```java
+@Keyword
+public void BulkImport() {
+    // Register once — the framework flushes snapshots on its own schedule
+    CounterMetric processed = liveReporting.metrics.registerCounter("records_processed");
+    GaugeMetric batchSize   = liveReporting.metrics.registerGauge("batch_size");
+    HistogramMetric latency  = liveReporting.metrics.registerHistogram("batch_latency_ms");
+
+    for (Batch batch : getBatches()) {
+        long t0 = System.currentTimeMillis();
+        process(batch);
+        processed.increment(batch.size());
+        batchSize.observe(batch.size());
+        latency.observe(System.currentTimeMillis() - t0);
+        // No manual flush needed — the framework dispatches snapshots on its own interval
+    }
+}
+```
+
+Labels are supported on all three registration methods:
+
+```java
+CounterMetric errors = liveReporting.metrics.registerCounter("errors", Map.of("service", "payment"));
+GaugeMetric depth    = liveReporting.metrics.registerGauge("queue_depth", Map.of("region", "eu"));
+HistogramMetric rt   = liveReporting.metrics.registerHistogram("response_time_ms", Map.of("env", "prod"));
+```
+
+To register a metric you built yourself, use `register`:
+
+```java
+CounterMetric custom = new CounterMetric("retries", Map.of("type", "transient"));
+liveReporting.metrics.register(custom);
+```
+
+### 9. Lifecycle hooks
 
 Override these methods in your keyword class for setup and teardown:
 

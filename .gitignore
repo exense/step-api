@@ -16,3 +16,5 @@ bower_components/
 *.iml
 .idea/
 dependency-reduced-pom.xml
+**/.claude
+.claude/

@@ -28,6 +28,12 @@ import java.util.Map;
 import javax.json.*;
 import javax.json.spi.JsonProvider;
 
+import step.core.metrics.CounterMetric;
+import step.core.metrics.GaugeMetric;
+import step.core.metrics.HistogramMetric;
+import step.core.metrics.Metric;
+import step.core.metrics.MetricSample;
+import step.core.metrics.MetricSamplesCollector;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.core.reports.Measure;
@@ -46,13 +52,15 @@ public class OutputBuilder {
     private String payloadJson;
     private JsonObject payload;
 
-    private MeasurementsBuilder measureHelper;
+    private final MeasurementsBuilder measureHelper;
+
+    private final MetricSamplesCollector metricSamplesCollector;
 
     private Error error;
 
     private List<Attachment> attachments;
 
-    private static JsonProvider jprov = JsonProvider.provider();
+    private static final JsonProvider jprov = JsonProvider.provider();
 
     private Measure lastMeasureHandle = null;
 
@@ -62,6 +70,7 @@ public class OutputBuilder {
         payloadBuilder = jprov.createObjectBuilder();
 
         measureHelper = new MeasurementsBuilder();
+        metricSamplesCollector = new MetricSamplesCollector();
     }
 
     public JsonObjectBuilder getPayloadBuilder() {
@@ -356,6 +365,93 @@ public class OutputBuilder {
         measureHelper.stopMeasure(data, status);
     }
 
+    /**
+     * Creates a counter metric, registers it for inclusion in the output, and returns it
+     * so accumulated values can be recorded against it before {@link #build()} is called.
+     *
+     * @param name the metric name
+     * @return the new counter metric
+     */
+    public CounterMetric newCounter(String name) {
+        CounterMetric metric = new CounterMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a counter metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new counter metric
+     */
+    public CounterMetric newCounter(String name, Map<String, String> labels) {
+        CounterMetric metric = new CounterMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a gauge metric, registers it for inclusion in the output, and returns it.
+     *
+     * @param name the metric name
+     * @return the new gauge metric
+     */
+    public GaugeMetric newGauge(String name) {
+        GaugeMetric metric = new GaugeMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a gauge metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new gauge metric
+     */
+    public GaugeMetric newGauge(String name, Map<String, String> labels) {
+        GaugeMetric metric = new GaugeMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a histogram metric, registers it for inclusion in the output, and returns it.
+     *
+     * @param name the metric name
+     * @return the new histogram metric
+     */
+    public HistogramMetric newHistogram(String name) {
+        HistogramMetric metric = new HistogramMetric(name);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Creates a histogram metric with labels, registers it for inclusion in the output, and returns it.
+     *
+     * @param name   the metric name
+     * @param labels key-value labels attached to this metric
+     * @return the new histogram metric
+     */
+    public HistogramMetric newHistogram(String name, Map<String, String> labels) {
+        HistogramMetric metric = new HistogramMetric(name, labels);
+        addMetric(metric);
+        return metric;
+    }
+
+    /**
+     * Registers a metric for inclusion in the output. A {@link MetricSample} is produced
+     * on every observation ({@code increment()}, {@code observe()}) and collected until
+     * {@link #build()} is called.
+     *
+     * @param metric the metric to include in the output; must not be {@code null}
+     */
+    public void addMetric(Metric metric) {
+        metricSamplesCollector.register(metric);
+    }
+
     public void stopMeasureForAdditionalData() {
         this.lastMeasureHandle = measureHelper.stopMeasure();
     }
@@ -389,6 +485,10 @@ public class OutputBuilder {
         }
         message.setPayload(payload);
         message.setMeasures(measureHelper.getMeasures());
+        List<MetricSample> samples = metricSamplesCollector.getSamples();
+        if (!samples.isEmpty()) {
+            message.setMetrics(samples);
+        }
         message.setAttachments(attachments);
         message.setError(error);
         return message;
@@ -410,6 +510,7 @@ public class OutputBuilder {
         if (output.getMeasures() != null) {
             output.getMeasures().forEach(this::addMeasure);
         }
+        metricSamplesCollector.addSamples(output.getMetrics());
         if (output.getAttachments() != null) {
             output.getAttachments().forEach(this::addAttachment);
         }

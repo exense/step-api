@@ -1,0 +1,113 @@
+/*******************************************************************************
+ * Copyright (C) 2026, exense GmbH
+ *
+ * This file is part of STEP
+ *
+ * STEP is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * STEP is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+package step.core.metrics;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
+
+/**
+ * A monotonically increasing counter metric.
+ * <p>
+ * Tracks two values:
+ * <ul>
+ *   <li>increments recorded since the last {@link #flush()}: the number of
+ *       {@link #increment} calls becomes {@link MetricSample#getCount()}, and the
+ *       sum of all increment amounts becomes {@link MetricSample#getSum()}; both
+ *       are reset to zero on each flush, enabling rate calculation over the
+ *       reporting interval.</li>
+ *   <li>all-time running total, never reset: the total before this flush's
+ *       contributions becomes {@link MetricSample#getMin()}, and the current
+ *       running total becomes both {@link MetricSample#getMax()} and
+ *       {@link MetricSample#getLast()}, enabling the frontend to display the
+ *       absolute count.</li>
+ * </ul>
+ * Use {@link #increment()} or {@link #increment(long)} to record values.
+ * Flushing is handled by the framework; call {@link step.reporting.LiveMetrics#registerCounter}
+ * to register this metric for live reporting, or pass it to
+ * {@code OutputBuilder.addMetric} for end-of-keyword reporting.
+ */
+public class CounterMetric extends Metric {
+
+    private final LongAdder countAdder = new LongAdder();
+    private final AtomicLong diffAccumulator = new AtomicLong(0);
+    private final AtomicLong totalAccumulator = new AtomicLong(0);
+
+    public CounterMetric(String name) {
+        super(name);
+    }
+
+    public CounterMetric(String name, Map<String, String> labels) {
+        super(name, labels);
+    }
+
+    @Override
+    public InstrumentType getType() {
+        return InstrumentType.COUNTER;
+    }
+
+    /**
+     * Increments the counter by 1, using the current wall-clock time as the observation timestamp.
+     */
+    public CounterMetric increment() {
+        increment(1);
+        return this;
+    }
+
+    /**
+     * Increments the counter by {@code amount}, using the current wall-clock time
+     * as the observation timestamp for rate-limit decisions.
+     *
+     * @param amount positive increment value
+     */
+    public CounterMetric increment(long amount) {
+        increment(amount, System.currentTimeMillis());
+        return this;
+    }
+
+    /**
+     * Increments the counter by {@code amount}, using the supplied timestamp
+     * as the observation timestamp for rate-limit decisions.
+     *
+     * @param amount                 positive increment value
+     * @param observationTimestampMs epoch milliseconds of this observation
+     */
+    public CounterMetric increment(long amount, long observationTimestampMs) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Counter increment amount must be non-negative");
+        }
+        countAdder.increment();
+        diffAccumulator.addAndGet(amount);
+        totalAccumulator.addAndGet(amount);
+        notifyObserved(observationTimestampMs);
+        return this;
+    }
+
+    /**
+     * Captures the accumulated diff (then resets it to zero) and the current running total
+     * into a new {@link MetricSample} and returns it.
+     */
+    @Override
+    public MetricSample flush() {
+        long count = countAdder.sumThenReset();
+        long diff = diffAccumulator.getAndSet(0);
+        long total = totalAccumulator.get();
+        return new MetricSample(getLastObservedTimestampMs(), getName(), getLabels(), getType(), count, diff, total - diff, total, total, null);
+    }
+}
