@@ -41,6 +41,8 @@ import step.core.reports.MeasurementsBuilder;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 
+import static step.core.reports.Error.DEFAULT_ERROR_CODE;
+
 /**
  * A builder for Output instances.
  *
@@ -158,7 +160,7 @@ public class OutputBuilder {
      * @return this instance
      */
     public OutputBuilder setError(String technicalError) {
-        error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, 0, true);
+        error = new Error(ErrorType.TECHNICAL, "keyword", technicalError, DEFAULT_ERROR_CODE, true);
         return this;
     }
 
@@ -199,7 +201,7 @@ public class OutputBuilder {
      * @return this instance
      */
     public OutputBuilder setBusinessError(String businessError) {
-        error = new Error(ErrorType.BUSINESS, "keyword", businessError, 0, true);
+        error = new Error(ErrorType.BUSINESS, "keyword", businessError, DEFAULT_ERROR_CODE, true);
         return this;
     }
 

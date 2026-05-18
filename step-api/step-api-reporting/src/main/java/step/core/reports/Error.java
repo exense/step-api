@@ -28,6 +28,7 @@ package step.core.reports;
  */
 public class Error {
 
+    public static final int DEFAULT_ERROR_CODE = 0;
     protected ErrorType type = ErrorType.TECHNICAL;
 
     protected String layer;
@@ -43,7 +44,7 @@ public class Error {
      * @param message the detailed error message that will be reported 1:1 to the end user)
      */
     public Error(ErrorType type, String message) {
-        this(type, null, message, 0, true);
+        this(type, null, message, DEFAULT_ERROR_CODE, true);
     }
 
     /**
