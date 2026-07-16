@@ -402,4 +402,9 @@ public class MyKeywordLibrary extends AbstractKeyword {
         hist.observe(120);
     }
 
+    @Keyword
+    public void KeywordGettingNameAndTimeoutProperties() {
+        output.add("resolvedPropertyKeywordName", properties.get("$keywordName"));
+    }
+
 }

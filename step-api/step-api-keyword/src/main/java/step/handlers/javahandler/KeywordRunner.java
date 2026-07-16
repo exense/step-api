@@ -38,6 +38,8 @@ public class KeywordRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(KeywordRunner.class);
 
+    public static final String KEYWORD_NAME_PROP = "$keywordName";
+
     public static class ExecutionContext {
 
         protected List<Class<?>> functionClasses;
@@ -94,6 +96,10 @@ public class KeywordRunner {
                 classes.append(cl.getName() + KeywordExecutor.KEYWORD_CLASSES_DELIMITER);
             });
             properties.put(KeywordExecutor.KEYWORD_CLASSES, classes.toString());
+            // Setting reserved properties as done when execution is triggered from Step (FunctionExecutionServiceImpl)
+            // the property $keywordTimeout is not set on purpose. Execution from the KeywordRunner has no timeout
+            properties.put(KEYWORD_NAME_PROP, input.getFunction());
+
             input.setProperties(properties);
 
             Map<String, String> allProperties = new HashMap<>();

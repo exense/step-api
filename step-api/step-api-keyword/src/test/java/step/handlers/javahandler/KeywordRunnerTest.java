@@ -587,7 +587,7 @@ public class KeywordRunnerTest {
         assertEquals("checkout", counter.getLabels().get("service"));
 
         // Gauge: 3 observations (10, 20, 5)
-        MetricSample gauge =  metrics.get(1);
+        MetricSample gauge = metrics.get(1);
         assertEquals("queue_depth", gauge.getName());
         assertEquals(InstrumentType.GAUGE, gauge.getType());
         assertEquals(3, gauge.getCount());
@@ -720,6 +720,13 @@ public class KeywordRunnerTest {
         assertEquals(2, hist.getCount());
         assertEquals(200, hist.getSum());
         assertEquals("eu", hist.getLabels().get("region"));
+    }
+
+    @Test
+    public void testReservedPropertyNames() throws Exception {
+        ExecutionContext runner = KeywordRunner.getExecutionContext(MyKeywordLibrary.class);
+        Output<JsonObject> output = runner.run("KeywordGettingNameAndTimeoutProperties");
+        assertEquals("KeywordGettingNameAndTimeoutProperties", output.getPayload().getString("resolvedPropertyKeywordName"));
     }
 
     private static JsonNode readJsonFromFile(String path) throws IOException {
