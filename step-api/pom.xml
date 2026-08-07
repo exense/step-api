@@ -43,8 +43,8 @@
     <maven.compiler.release>21</maven.compiler.release>
 
     <!-- exense dependencies -->
-    <dependencies.version>2026.7.1</dependencies.version>
-    <step-streaming.version>2.0.1</step-streaming.version>
+    <dependencies.version>2026.8.5</dependencies.version>
+    <step-streaming.version>2.0.2</step-streaming.version>
   </properties>
 
   <repositories>
