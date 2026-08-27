@@ -48,6 +48,7 @@ public class AttachmentHelper {
     }
 
     public static Attachment generateAttachmentFromByteArray(byte[] bytes, String attachmentName) {
-        return generateAttachmentFromByteArray(bytes, attachmentName, "application/octet-stream");
+        // Attachment storage will try to auto-determine mimeType, or fall back to application/octet-stream
+        return generateAttachmentFromByteArray(bytes, attachmentName, null);
     }
 }
