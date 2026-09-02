@@ -29,12 +29,14 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>javax.json</groupId>
-      <artifactId>javax.json-api</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
+    <!-- Excluded for now: the classes are in fact provided by step-api-javax-json,
+    but defining this dependency will cause conflicts because classes are included twice with differing bytecode -->
+    <!--    <dependency>-->
+    <!--      <groupId>javax.json</groupId>-->
+    <!--      <artifactId>javax.json-api</artifactId>-->
+    <!--      <version>1.0</version>-->
+    <!--      <scope>provided</scope>-->
+    <!--    </dependency>-->
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
