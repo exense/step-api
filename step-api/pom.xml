@@ -43,8 +43,8 @@
     <maven.compiler.release>21</maven.compiler.release>
 
     <!-- exense dependencies -->
-    <dependencies.version>0.0.0-MASTER-SNAPSHOT</dependencies.version>
-    <step-streaming.version>0.0.0-MASTER-SNAPSHOT</step-streaming.version>
+    <dependencies.version>0.0.0-SED-4967-SNAPSHOT</dependencies.version>
+    <step-streaming.version>0.0.0-SED-4967-SNAPSHOT</step-streaming.version>
   </properties>
 
   <repositories>
